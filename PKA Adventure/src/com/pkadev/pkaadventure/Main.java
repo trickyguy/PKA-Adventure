@@ -22,6 +22,7 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 public class Main extends JavaPlugin {
 	
 	public static Main instance;
+	public int derp;
 	
 	@Override
 	public void onEnable() {
@@ -34,7 +35,7 @@ public class Main extends JavaPlugin {
 		InventoryUtil.load();
 		ItemUtil.load();
 		
-		getCommand("balls").setExecutor(CommandProcessor.i());
+		getCommand("pka").setExecutor(CommandProcessor.i());
 		
 		PlayerProcessor.loadAllPlayers();
 	}
