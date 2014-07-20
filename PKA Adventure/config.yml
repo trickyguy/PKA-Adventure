@@ -1,0 +1,81 @@
+homeworld: world
+MessageType:
+  SINGLE:
+    prefix: "§eSINGLE: "
+  GROUP:
+    prefix: "§eGROUP: "
+  SERVER:
+    prefix: "§eSERVER: "
+  SINGLE_DEBUG:
+    prefix: "§eSINGLE_DEBUG: "
+  GROUP_DEBUG:
+    prefix: "§eGROUP_DEBUG: "
+  SERVER_DEBUG:
+    prefix: "§eSERVER_DEBUG: "
+Lore:
+  woody_damage: "§7Damage: §f"
+  wings_damage: "§7Damage: §f"
+  lefty_damage: "§7Damage: §f"
+  kyle_damage: "§7Damage: §f"
+  woody_selection_name: "§6Woody"
+  wings_selection_name: "§6Wings"
+  lefty_selection_name: "§Lefty"
+  kyle_selection_name: "§6Kyle"
+  skill_doubledrop_percent: "§cDouble Drop: §f"
+  skill_level: "§7Level: §f"
+  skill_exp: "§7Exp: §f"
+  armor_level: "§7Level: §f"
+  strength: "§7Strength: §f"
+  tougness: "§7Toughness: §f"
+  agility: "§7Agility: §f"
+  restoration: "§7Restoration: §f"
+Math:
+  skill_drop_likelyhood: 1
+  armor_drop_likelyhood: 5
+  experience_required_range: 0.0
+  experience_required_multiplier: 1.0
+  experience_required_yoffset: 20
+  woody_damage_range: 0.0
+  woody_damage_multiplier: 1.0
+  woody_damage_yoffset: 3
+  lefty_damage_range: 0.0
+  lefty_damage_multiplier: 1.0
+  lefty_damage_yoffset: 3
+  wings_damage_range: 0.0
+  wings_damage_multiplier: 1.0
+  wings_damage_yoffset: 3
+  kyle_damage_range: 0.0
+  kyle_damage_multiplier: 1.0
+  kyle_damage_yoffset: 3
+  none_damage_range: 0.0
+  none_damage_multiplier: 0.0
+  none_damage_yoffset: 0
+  skill_doubledrop_percent_range: 1.5
+  skill_doubledrop_percent_multiplier: 0.0
+  skill_doubledrop_percent_yoffset: 5
+  skill_exp_range: 1.5
+  skill_exp_multiplier: 1.0
+  skill_exp_yoffset: 5
+  strength_exp_range: 1.5
+  strength_exp_multiplier: 1.0
+  strength_exp_yoffset: 5
+  toughness_exp_range: 1.5
+  toughness_exp_multiplier: 1.0
+  toughness_exp_yoffset: 5
+  agility_exp_range: 1.5
+  agility_exp_multiplier: 1.0
+  agility_exp_yoffset: 5
+  restoration_exp_range: 1.5
+  restoration_exp_multiplier: 1.0
+  restoration_exp_yoffset: 5
+  mob_rare_drop_chance: 0.2
+  mob_maxhealth_range: 1.3
+  mob_maxhealth_multiplier: 2.0
+  mob_maxhealth_yoffset: 20.0
+  mob_damage_range: 1.3
+  mob_damage_multiplier: 1.0
+  mob_damage_yoffset: 3.0
+  mob_experience_range: 1.0
+  mob_experience_multiplier: 2.0
+  mob_experience_yoffset: 3
+   

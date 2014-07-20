@@ -1,0 +1,11 @@
+name: PKAAdventure
+version: 0.1.0
+main: com.pkadev.pkaadventure.Main
+commands:
+  pka:
+    usage: /pka help
+    description: Used for most commands
+permissions:
+  pkaadventure.premium:
+    description: Premium perm
+    default: false
