@@ -25,7 +25,7 @@ public class CombatListener implements Listener {
 	
 	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-		if (!(event.getEntity() instanceof LivingEntity)) {
+		if (event.getEntity() instanceof LivingEntity) {
 			event.setCancelled(true);
 			return;
 		}
