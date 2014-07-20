@@ -34,7 +34,7 @@ public class Main extends JavaPlugin {
 		InventoryUtil.load();
 		ItemUtil.load();
 		
-		getCommand("pka").setExecutor(CommandProcessor.i());
+		getCommand("balls").setExecutor(CommandProcessor.i());
 		
 		PlayerProcessor.loadAllPlayers();
 	}
