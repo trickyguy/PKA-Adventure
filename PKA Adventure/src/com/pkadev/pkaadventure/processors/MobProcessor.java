@@ -5,11 +5,8 @@ import java.util.Arrays;
 import org.bukkit.craftbukkit.v1_7_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
-import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
@@ -130,7 +127,7 @@ public class MobProcessor {
 	}
 	
 	public static boolean isMobMonster(Entity entity) {
-		return (((CraftEntity) entity).getHandle() instanceof MobMonster);
+		return ((CraftEntity) entity).getHandle() instanceof MobMonster;
 	}
 	
 	public static MobMonster getMobMonster(Entity entity) {

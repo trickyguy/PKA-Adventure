@@ -1,11 +1,6 @@
 package com.pkadev.pkaadventure.objects;
 
 import java.util.HashMap;
-import java.util.List;
-
-import org.bukkit.inventory.Inventory;
-
-import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.types.MobType;

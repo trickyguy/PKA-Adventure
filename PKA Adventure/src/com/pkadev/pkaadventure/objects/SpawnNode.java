@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Location;
 
 import com.pkadev.pkaadventure.interfaces.MobMonster;
-import com.pkadev.pkaadventure.processors.SpawnNodeProcessor;
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.types.MobType;

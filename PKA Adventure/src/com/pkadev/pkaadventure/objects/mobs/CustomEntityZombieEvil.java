@@ -70,19 +70,14 @@ public class CustomEntityZombieEvil extends EntityZombie implements MobMonster {
 		case PASSIVE:
 			break;
 		case EVIL:
-			this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget(
-					this, EntityPlayer.class, 0, true));
-			this.targetSelector.a(4, new PathfinderGoalNearestAttackableTarget(
-					this, CustomEntityZombieGood.class, 0, true));
+			this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget(this, EntityPlayer.class, 0, true));
+			this.targetSelector.a(4, new PathfinderGoalNearestAttackableTarget(this, CustomEntityZombieGood.class, 0, true));
 		case NEUTRAL:
 			this.goalSelector.a(8, new PathfinderGoalRandomLookaround(this));
 			this.goalSelector.a(7, new PathfinderGoalRandomStroll(this, 1.0D));
-			this.goalSelector.a(4, new PathfinderGoalMeleeAttack(this,
-					CustomEntityZombieGood.class, 1D, true));
-			this.goalSelector.a(2, new PathfinderGoalMeleeAttack(this,
-					EntityPlayer.class, 1.2D, true));
-			this.targetSelector
-					.a(1, new PathfinderGoalHurtByTarget(this, true));
+			this.goalSelector.a(4, new PathfinderGoalMeleeAttack(this, CustomEntityZombieGood.class, 1D, true));
+			this.goalSelector.a(2, new PathfinderGoalMeleeAttack(this, EntityPlayer.class, 1.2D, true));
+			this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, true));
 			break;
 		}
 	}

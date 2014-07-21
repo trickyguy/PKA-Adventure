@@ -22,25 +22,25 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 public class CombatListener implements Listener {
 
 	private static CombatListener i; private CombatListener(){} public static CombatListener i() {if (i == null)i = new CombatListener();return i;}
-	
+
 	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
 		if (event.getEntity() instanceof LivingEntity) {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		double damage = 0d;
 		int[] attributesAttacker = new int[]{0, 0, 0, 0};
 		String damagerName = "";
-		
+
 		if (MobProcessor.isMobMonster(event.getEntity())) {
 			LivingEntity livingEntity = (LivingEntity) event.getEntity();
 			if (livingEntity.getNoDamageTicks() > 10) {
 				event.setCancelled(true);
 				return;
 			}
-			
+
 			if (MobProcessor.isMobMonster(event.getDamager())) {
 				PKAMob pkaMob = MobProcessor.getMobMonster(livingEntity).getPKAMob();
 				damage = pkaMob.getDamage();
@@ -60,7 +60,7 @@ public class CombatListener implements Listener {
 			}
 			if (damage == 0d)
 				return;
-			
+
 			MobProcessor.damagePlayerByEntity(livingEntity, damage, attributesAttacker, damagerName);
 		} else if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
@@ -68,7 +68,7 @@ public class CombatListener implements Listener {
 				event.setCancelled(true);
 				return;
 			}
-			
+
 			if (MobProcessor.isMobMonster(event.getDamager())) {
 				PKAMob pkaMob = MobProcessor.getMobMonster(event.getDamager()).getPKAMob();
 				damage = pkaMob.getDamage();
@@ -84,19 +84,19 @@ public class CombatListener implements Listener {
 		} else {
 			event.getEntity().remove();
 		}
-		
-		
+
+
 	}
-	
+
 	@EventHandler
 	public void onEntityDamageByEnvironment(EntityDamageEvent event) {
 		if (event.getEntity() instanceof LivingEntity) {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		LivingEntity livingEntity = (LivingEntity) event.getEntity();
-		
+
 		if (livingEntity instanceof Player) {
 			PlayerProcessor.damagePlayerByEnvironment((Player) event.getEntity(), event.getDamage());
 		} else if (MobProcessor.isMobMonster(livingEntity)) {
@@ -105,14 +105,14 @@ public class CombatListener implements Listener {
 			livingEntity.remove();
 		}
 	}
-	
+
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		event.setDroppedExp(0);//TODO do the exp drop sytem
 		event.getDrops().clear();
-		
+
 		LivingEntity livingEntity = event.getEntity();
-		
+
 		if (MobProcessor.isMobMonster(livingEntity)) {
 			MobMonster mobMonster = MobProcessor.getMobMonster(livingEntity);
 			MobProcessor.mobDeath(mobMonster);

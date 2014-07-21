@@ -6,15 +6,8 @@ import java.util.Map;
 
 import net.minecraft.server.v1_7_R1.BiomeBase;
 import net.minecraft.server.v1_7_R1.BiomeMeta;
-import net.minecraft.server.v1_7_R1.EntityCow;
-import net.minecraft.server.v1_7_R1.EntityGiantZombie;
-import net.minecraft.server.v1_7_R1.EntityHorse;
 import net.minecraft.server.v1_7_R1.EntityInsentient;
-import net.minecraft.server.v1_7_R1.EntityIronGolem;
-import net.minecraft.server.v1_7_R1.EntitySkeleton;
-import net.minecraft.server.v1_7_R1.EntitySpider;
 import net.minecraft.server.v1_7_R1.EntityTypes;
-import net.minecraft.server.v1_7_R1.EntityVillager;
 import net.minecraft.server.v1_7_R1.EntityZombie;
 
 import org.bukkit.Bukkit;
@@ -23,7 +16,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieEvil;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieGood;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieNeutral;
@@ -32,17 +24,11 @@ import com.pkadev.pkaadventure.utils.FileUtil;
 
 public enum CustomEntityType {
 
-	ZombieEvil("ZombieBad", 54, EntityType.ZOMBIE, EntityZombie.class,
-			CustomEntityZombieEvil.class), 
-	ZombieGood("ZombieGood", 54,
-			EntityType.ZOMBIE, EntityZombie.class,
-			CustomEntityZombieGood.class), 
-	ZombiePassive("ZombieGood", 54,
-			EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombiePassive.class), 
-	ZombieNeutral(
-			"SkeletonBad", 51, EntityType.SKELETON, EntitySkeleton.class,
-			CustomEntityZombieNeutral.class);
-
+	ZombieEvil("ZombieEvil", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieEvil.class), 
+	ZombieGood("ZombieGood", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieGood.class), 
+	ZombiePassive("ZombiePassive", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombiePassive.class), 
+	ZombieNeutral("ZombieNeutral", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieNeutral.class);
+	
 	private String name;
 	private int id;
 	private EntityType entityType;

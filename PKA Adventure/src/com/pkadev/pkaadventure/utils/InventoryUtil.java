@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -77,6 +76,7 @@ public class InventoryUtil {
 				//give armorpiece
 				boolean willBeEnchanted = random.nextDouble() < MathUtil.getInt("mob_rare_drop_chance");
 				ItemStack armorPiece = getMobArmorPiece(mobLevel, i);
+				armorContent[i] = armorPiece;
 				if (willBeEnchanted) {
 					//TODO
 					returnInt = i;
