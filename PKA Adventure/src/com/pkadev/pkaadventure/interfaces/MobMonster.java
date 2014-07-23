@@ -1,6 +1,6 @@
 package com.pkadev.pkaadventure.interfaces;
 
-import net.minecraft.server.v1_7_R1.EntityInsentient;
+import net.minecraft.server.v1_7_R3.EntityInsentient;
 
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;

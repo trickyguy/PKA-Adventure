@@ -2,6 +2,7 @@ package com.pkadev.pkaadventure.listeners;
 
 import java.util.HashMap;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -111,21 +112,21 @@ public class CombatListener implements Listener {
 		event.setDroppedExp(0);//TODO do the exp drop sytem
 		event.getDrops().clear();
 
-		LivingEntity livingEntity = event.getEntity();
-
-		if (MobProcessor.isMobMonster(livingEntity)) {
-			MobMonster mobMonster = MobProcessor.getMobMonster(livingEntity);
+		Entity entity = event.getEntity();
+		
+		if (MobProcessor.isMobMonster(entity)) {
+			MobMonster mobMonster = MobProcessor.getMobMonster(entity);
 			MobProcessor.mobDeath(mobMonster);
 			PKAMob pkaMob = mobMonster.getPKAMob();
 			HashMap<String, ItemStack> drops = ItemUtil.getNewItemDrop(pkaMob.getDamageDoneBy().keySet(), pkaMob.getLevel(), pkaMob.getRareItemInt());
 			for (String player : drops.keySet()) {
 				if (player == "")
 					continue;
-				Item item = livingEntity.getWorld().dropItem(livingEntity.getLocation(), drops.get(player));
+				Item item = entity.getWorld().dropItem(entity.getLocation(), drops.get(player));
 				ItemUtil.addDroppedItem(item, player);
 			}
-		} else if (livingEntity instanceof Player) {
-			PlayerProcessor.playerDeath(livingEntity);
+		} else if (entity instanceof Player) {
+			PlayerProcessor.playerDeath(entity);
 		}
 	}
 }

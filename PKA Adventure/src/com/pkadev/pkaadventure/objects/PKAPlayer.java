@@ -8,7 +8,7 @@ public class PKAPlayer {
 
 	public PKAPlayer(String playerName, ClassType classType, int maxHealth, 
 			int health, int[] attributes, double damage, 
-			Inventory abilityInventory, int weaponSlot, int availableUpgradePoints) {
+			Inventory abilityInventory, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel) {
 		setPlayerName(playerName);
 		setClassType(classType);
 		setMaxHealth(maxHealth);
@@ -18,6 +18,10 @@ public class PKAPlayer {
 		setDamage(damage);
 		setWeaponSlot(weaponSlot);
 		setAvailableUpgradePoints(availableUpgradePoints);
+		
+		setMiningExp(miningExp);
+		setMiningLevel(miningLevel);
+		
 	}
 	
 	private String playerName;
@@ -30,6 +34,10 @@ public class PKAPlayer {
 	private int weaponSlot;
 	private int availableUpgradePoints;
 	private int experience;
+	
+	// EXP, Level
+	private int miningExp;
+	private int miningLevel;
 	
 	public String getPlayerName() {
 		return playerName;
@@ -107,7 +115,24 @@ public class PKAPlayer {
 	public int getExperience() {
 		return experience;
 	}
+	
 	public void setExperience(int experience) {
 		this.experience = experience;
+	}
+	
+	public int getMiningExp() {
+		return miningExp;
+	}
+	
+	public void setMiningExp(int experience) {
+		this.miningExp = experience;
+	}
+	
+	public int getMiningLevel() {
+		return miningLevel;
+	}
+	
+	public void setMiningLevel(int level) {
+		this.miningLevel = level;
 	}
 }

@@ -239,8 +239,8 @@ public class ItemUtil {
 	}
 	
 	private static void updateStatItemMetaLore(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
-		List<String> newLore = getMultipleLoreElements(
-				new String[]{"stat_item_strength", "stat_item_toughness", "stat_item_agility", "stat_item_restoration"},
+		// new String[]{"stat_item_strength", "stat_item_toughness", "stat_item_agility", "stat_item_restoration"
+		List<String> newLore = getMultipleLoreElements(new String[]{"strength", "toughness", "agility", "restoration"},
 				pkaPlayer.getAttributes());
 		itemMeta.setLore(newLore);
 	}
@@ -323,7 +323,7 @@ public class ItemUtil {
 				elements.add(loreElements.get(reference) + values[i]);
 				continue;
 			} else {
-				String element = FileUtil.getStringValueFromConfig("ParameterLore." + reference);
+				String element = FileUtil.getStringValueFromConfig("Lore." + reference);
 				setLoreElement(reference, element);
 				elements.add(reference + values[i]);
 			}

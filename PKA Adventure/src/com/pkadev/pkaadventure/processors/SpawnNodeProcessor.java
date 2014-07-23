@@ -5,16 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.server.v1_7_R1.WorldServer;
+import net.minecraft.server.v1_7_R3.WorldServer;
 
+import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
@@ -34,8 +36,7 @@ import com.pkadev.pkaadventure.utils.MathUtil;
 public class SpawnNodeProcessor {
 	private static Main plugin = Main.instance;
 	private static Random random = new Random();
-	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld")))
-			.getHandle();
+	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld"))).getHandle();
 	
 	//1 = mobs, 2 = beacons, 3 = lootcrate
 	private static HashMap<SpawnNode, Integer> 	list1 = new HashMap<SpawnNode, Integer>();

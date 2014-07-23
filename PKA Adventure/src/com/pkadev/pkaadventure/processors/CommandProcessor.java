@@ -1,10 +1,13 @@
 package com.pkadev.pkaadventure.processors;
 
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
@@ -21,7 +24,14 @@ public class CommandProcessor implements CommandExecutor {
 			return false;
 		Player player = (Player) sender;
 		
-		if (argsLength == 1) {
+		if (argsLength == 0) {
+			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player.getName());
+			int[] stringList = pkaPlayer.getAttributes();
+			for (int i = 0; i < stringList.length; i++) {
+				player.sendMessage("" + stringList[i]);
+			}
+			player.sendMessage("");
+		} else if (argsLength == 1) {
 			if (args[0].equalsIgnoreCase("create")) {
 				MessageUtil.sendMessage(player, "/create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
 			} else {

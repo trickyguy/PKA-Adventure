@@ -2,23 +2,23 @@ package com.pkadev.pkaadventure.objects.mobs;
 
 import java.lang.reflect.Field;
 
-import org.bukkit.craftbukkit.v1_7_R1.util.UnsafeList;
+import org.bukkit.craftbukkit.v1_7_R3.util.UnsafeList;
+
+import net.minecraft.server.v1_7_R3.EntityInsentient;
+import net.minecraft.server.v1_7_R3.EntityZombie;
+import net.minecraft.server.v1_7_R3.PathfinderGoalFloat;
+import net.minecraft.server.v1_7_R3.PathfinderGoalHurtByTarget;
+import net.minecraft.server.v1_7_R3.PathfinderGoalMeleeAttack;
+import net.minecraft.server.v1_7_R3.PathfinderGoalMoveTowardsRestriction;
+import net.minecraft.server.v1_7_R3.PathfinderGoalNearestAttackableTarget;
+import net.minecraft.server.v1_7_R3.PathfinderGoalRandomLookaround;
+import net.minecraft.server.v1_7_R3.PathfinderGoalRandomStroll;
+import net.minecraft.server.v1_7_R3.PathfinderGoalSelector;
+import net.minecraft.server.v1_7_R3.World;
 
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
-
-import net.minecraft.server.v1_7_R1.EntityInsentient;
-import net.minecraft.server.v1_7_R1.EntityZombie;
-import net.minecraft.server.v1_7_R1.PathfinderGoalFloat;
-import net.minecraft.server.v1_7_R1.PathfinderGoalHurtByTarget;
-import net.minecraft.server.v1_7_R1.PathfinderGoalMeleeAttack;
-import net.minecraft.server.v1_7_R1.PathfinderGoalMoveTowardsRestriction;
-import net.minecraft.server.v1_7_R1.PathfinderGoalNearestAttackableTarget;
-import net.minecraft.server.v1_7_R1.PathfinderGoalRandomLookaround;
-import net.minecraft.server.v1_7_R1.PathfinderGoalRandomStroll;
-import net.minecraft.server.v1_7_R1.PathfinderGoalSelector;
-import net.minecraft.server.v1_7_R1.World;
 
 public class CustomEntityZombieGood extends EntityZombie implements MobMonster {
 

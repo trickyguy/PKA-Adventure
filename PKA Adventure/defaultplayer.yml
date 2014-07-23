@@ -9,3 +9,6 @@ NONE:
   - 0
   availableupgradepoints: 0
   level: 1
+  mining:
+    exp: 0
+    level: 1
