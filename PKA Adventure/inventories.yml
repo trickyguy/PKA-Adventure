@@ -1,0 +1,23 @@
+Inventories:
+  Food:
+    Name: Food Store
+    Size: 1
+    Contents:
+      ItemTotal: 2
+      1:
+        Name: Cooked Beef
+        Lore:
+        - Something witty.
+        ID: COOKED_BEEF
+        Amount: 1
+        Cost: 8
+        Worth: 6
+      2:
+        Name: Bread
+        Lore:
+        - Freshly baked from
+        - Theo's gas chamber.
+        ID: BREAD
+        Amount: 2
+        Cost: 6
+        Worth: 4
