@@ -32,7 +32,7 @@ public class MathUtil {
 		if (doubleValueMap.containsKey(reference))
 			return doubleValueMap.get(reference);
 		else {
-			double d = FileUtil.getDoubleValueFromConfig("Math." + reference);
+			double d = FileUtil.getDoubleValueFromConfig(FileUtil.config, "Math." + reference);
 			setDouble(reference, d);
 			return d;
 		}
@@ -46,7 +46,7 @@ public class MathUtil {
 		if (intValueMap.containsKey(reference))
 			return intValueMap.get(reference);
 		else {
-			int i = FileUtil.getIntValueFromConfig("Math." + reference);
+			int i = FileUtil.getIntValueFromConfig(FileUtil.config, "Math." + reference);
 			setInt(reference, i);
 			return i;
 		}

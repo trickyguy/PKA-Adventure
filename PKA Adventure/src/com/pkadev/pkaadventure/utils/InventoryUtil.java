@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.types.InventoryType;
 
 public class InventoryUtil {
@@ -23,7 +24,7 @@ public class InventoryUtil {
 		return inventories.get(inventoryType);
 	}
 	
-	private static void setInventory(InventoryType inventoryType, Inventory inventory) {
+	public static void setInventory(InventoryType inventoryType, Inventory inventory) {
 		inventories.put(inventoryType, inventory);
 	}
 	
@@ -32,30 +33,34 @@ public class InventoryUtil {
 		Inventory skillInventory = Bukkit.createInventory(null, 9, "Select a class!");
 		
 		ItemStack woodyItem = 	new ItemStack(Material.WOOD_SWORD);
-		ItemStack wingsItem = 	new ItemStack(Material.BOW);
-		ItemStack leftyItem = 	new ItemStack(Material.GOLD_AXE);
 		ItemStack kyleItem = 	new ItemStack(Material.BOW);
+		ItemStack leftyItem = 	new ItemStack(Material.GOLD_AXE);
+		ItemStack wingsItem = 	new ItemStack(Material.BOW);
 		
 		ItemMeta itemMeta = woodyItem.getItemMeta();
-		itemMeta.setDisplayName(FileUtil.getStringValueFromConfig("Lore.woody_selection_name"));
+		String woodyName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.woody_selection_name");
+		itemMeta.setDisplayName(woodyName.replace('&', '§'));
 		woodyItem.setItemMeta(itemMeta);
 		
-		itemMeta = wingsItem.getItemMeta();
-		itemMeta.setDisplayName(FileUtil.getStringValueFromConfig("Lore.wings_selection_name"));
-		wingsItem.setItemMeta(itemMeta);
-		
-		itemMeta = leftyItem.getItemMeta();
-		itemMeta.setDisplayName(FileUtil.getStringValueFromConfig("Lore.lefty_selection_name"));
-		leftyItem.setItemMeta(itemMeta);
-		
 		itemMeta = kyleItem.getItemMeta();
-		itemMeta.setDisplayName(FileUtil.getStringValueFromConfig("Lore.kyle_selection_name"));
+		String kyleName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.kyle_selection_name");
+		itemMeta.setDisplayName(kyleName.replace('&', '§'));
 		kyleItem.setItemMeta(itemMeta);
 		
-		skillInventory.setItem(3, woodyItem);
-		skillInventory.setItem(4, wingsItem);
-		skillInventory.setItem(5, leftyItem);
-		skillInventory.setItem(6, kyleItem);
+		itemMeta = leftyItem.getItemMeta();
+		String leftyName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.lefty_selection_name");
+		itemMeta.setDisplayName(leftyName.replace('&', '§'));
+		leftyItem.setItemMeta(itemMeta);
+		
+		itemMeta = wingsItem.getItemMeta();
+		String wingsName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.wings_selection_name");
+		itemMeta.setDisplayName(wingsName.replace('&', '§'));
+		wingsItem.setItemMeta(itemMeta);
+		
+		skillInventory.setItem(2, woodyItem);
+		skillInventory.setItem(3, kyleItem);
+		skillInventory.setItem(4, leftyItem);
+		skillInventory.setItem(6, wingsItem);
 		
 		setInventory(InventoryType.SKILL, skillInventory);
 	}
@@ -149,5 +154,11 @@ public class InventoryUtil {
 	
 	public static void openDynamicInventory(Player player, InventoryType inventoryType) {
 		//TODO (something stored inside inventoryType, ill think of something configurable)
+	}
+	
+	public static void openShopInventory(Player player, InventoryType inventoryType) {
+		Inventory inventory = inventories.get(inventoryType);
+		inventory.setItem(inventory.getSize() - 1, InventoryMain.setPiggyBank(player.getName()));
+		player.openInventory(inventory);
 	}
 }

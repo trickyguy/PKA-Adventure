@@ -36,7 +36,7 @@ import com.pkadev.pkaadventure.utils.MathUtil;
 public class SpawnNodeProcessor {
 	private static Main plugin = Main.instance;
 	private static Random random = new Random();
-	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld"))).getHandle();
+	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld"))).getHandle();
 	
 	//1 = mobs, 2 = beacons, 3 = lootcrate
 	private static HashMap<SpawnNode, Integer> 	list1 = new HashMap<SpawnNode, Integer>();
@@ -126,7 +126,7 @@ public class SpawnNodeProcessor {
 	
 	private static Location getLocation(ConfigurationSection section) {
 		String prefix = ".Location.";
-		World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld"));
+		World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld"));
 		int x = section.getInt(prefix + "X");
 		int y = section.getInt(prefix + "Y");
 		int z = section.getInt(prefix + "Z");
@@ -148,7 +148,7 @@ public class SpawnNodeProcessor {
 	//tick for list1 (mobs)
 	private static void tickList1() {
 		Player[] onlinePlayers = Bukkit.getServer().getOnlinePlayers();
-		World defaultWorld = Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld"));
+		World defaultWorld = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld"));
 		List<Location> onlinePlayerLocations = new ArrayList<Location>();
 		
 		for (Player player : onlinePlayers) {
@@ -209,7 +209,7 @@ public class SpawnNodeProcessor {
 	private static void addDefaultBeaconToList2() {
 		addNodeToList2(new SpawnNode(
 				new Location(
-						Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld")), 
+						Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld")), 
 						1, 64, 1)));
 	}
 	

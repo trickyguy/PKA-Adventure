@@ -3,7 +3,6 @@ package com.pkadev.pkaadventure.processors;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -11,7 +10,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -86,12 +84,13 @@ public class PlayerProcessor {
 		int weaponSlot = 				InventoryUtil.getWeaponSlot(player);
 		int availableUpgradePoints = 	getUpgradePointsFromPlayerConfig(playerName, playerConfig, classTypeString);
 		
+		int goldValue = 				getGoldAmountFromPlayerConfig(playerName, playerConfig, classTypeString);
 		// Mining
 		int miningExp = 				getMiningExpFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int miningLevel = 				getMiningLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		
 		PKAPlayer pkaPlayer = new PKAPlayer(playerName, classType, maxHealth, 
-				health, attributes, damage, abilityInventory, weaponSlot, availableUpgradePoints, miningExp, miningLevel);
+				health, attributes, damage, abilityInventory, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);
 		addInitialArmorAttributesToPKAPlayer(player, pkaPlayer);
 		addPKAPlayer(playerName, pkaPlayer);
 
@@ -119,7 +118,7 @@ public class PlayerProcessor {
 	}
 
 	private static void writeNewClassToPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
-		// CHANGED TO INT, MIGHT BREAK IT.
+		// CHANGED TO INT, MIGHT BREAK IT. Marcus
 		List<Integer> attributes = new ArrayList<Integer>();
 		attributes.add(0); attributes.add(0); attributes.add(0); attributes.add(0);
 		
@@ -129,6 +128,7 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".availableupgradepoints", 0);
 		playerConfig.set(classTypeString + ".level", 1);
 		
+		playerConfig.set(classTypeString + ".gold", 0);
 		// Mining
 		playerConfig.set(classTypeString + ".mining.exp", 0);
 		playerConfig.set(classTypeString + ".mining.level", 1);
@@ -222,6 +222,15 @@ public class PlayerProcessor {
 			return playerConfig.getInt(classTypeString + ".mining.level");
 		}
 	}
+	
+	private static int getGoldAmountFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
+		if (!playerConfig.contains(classTypeString + ".gold")) {
+			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
+			return 0;
+		} else {
+			return playerConfig.getInt(classTypeString + ".gold");
+		}
+	}
 
 	/**
 	 * using when player leaves game
@@ -287,6 +296,7 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".availableupgradepoints", pkaPlayer.getAvailableUpgradePoints());
 		playerConfig.set(classTypeString + ".level", player.getLevel());
 		
+		playerConfig.set(classTypeString + ".gold", pkaPlayer.getGoldAmount());
 		// Mining
 		playerConfig.set(classTypeString + ".mining.exp", pkaPlayer.getMiningExp());
 		playerConfig.set(classTypeString + ".mining.level", pkaPlayer.getMiningLevel());
@@ -329,7 +339,7 @@ public class PlayerProcessor {
 			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
 			return 0;
 		} else {
-			int availableUpgradePoints = FileUtil.getIntValueFromConfig(classTypeString + ".availableupgradepoints");
+			int availableUpgradePoints = FileUtil.getIntValueFromConfig(FileUtil.config, classTypeString + ".availableupgradepoints");
 			return availableUpgradePoints;
 		}
 	}

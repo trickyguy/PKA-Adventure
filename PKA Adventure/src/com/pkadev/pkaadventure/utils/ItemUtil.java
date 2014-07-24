@@ -270,7 +270,7 @@ public class ItemUtil {
 		if (loreElements.containsKey(reference))
 			return loreElements.get(reference);
 		else {
-			String element = FileUtil.getStringValueFromConfig("Lore." + reference);
+			String element = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore." + reference);
 			setLoreElement(reference, element);
 			return element;
 		}
@@ -323,7 +323,7 @@ public class ItemUtil {
 				elements.add(loreElements.get(reference) + values[i]);
 				continue;
 			} else {
-				String element = FileUtil.getStringValueFromConfig("Lore." + reference);
+				String element = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore." + reference);
 				setLoreElement(reference, element);
 				elements.add(reference + values[i]);
 			}

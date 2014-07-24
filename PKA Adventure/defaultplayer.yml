@@ -9,6 +9,7 @@ NONE:
   - 0
   availableupgradepoints: 0
   level: 1
+  gold: 0
   mining:
     exp: 0
     level: 1

@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.listeners.CombatListener;
 import com.pkadev.pkaadventure.listeners.JobListener;
 import com.pkadev.pkaadventure.listeners.PlayerConnectionListener;
@@ -31,6 +32,7 @@ public class Main extends JavaPlugin {
 		FileUtil.load();
 		SpawnNodeProcessor.load();
 		InventoryUtil.load();
+		InventoryMain.loadShops();
 		ItemUtil.load();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());

@@ -159,7 +159,7 @@ public enum CustomEntityType {
 					e.printStackTrace();
 				}
 		}
-		for (Entity entity : Bukkit.getWorld(FileUtil.getStringValueFromConfig("homeworld")).getEntities()) {
+		for (Entity entity : Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld")).getEntities()) {
 			if (entity instanceof LivingEntity && !(entity instanceof Player)) {
 				entity.remove();
 			}

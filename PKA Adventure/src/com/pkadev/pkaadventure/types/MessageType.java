@@ -4,12 +4,12 @@ import com.pkadev.pkaadventure.utils.FileUtil;
 
 public enum MessageType {
 
-	SINGLE(FileUtil.getStringValueFromConfig("MessageType.SINGLE.prefix")),
-	GROUP(FileUtil.getStringValueFromConfig("MessageType.GROUP.prefix")),
-	SERVER(FileUtil.getStringValueFromConfig("MessageType.SERVER.prefix")),
-	SINGLE_DEBUG(FileUtil.getStringValueFromConfig("MessageType.SINGLE_DEBUG.prefix")),
-	GROUP_DEBUG(FileUtil.getStringValueFromConfig("MessageType.GROUP_DEBUG.prefix")),
-	SERVER_DEBUG(FileUtil.getStringValueFromConfig("MessageType.SERVER_DEBUG.prefix"));
+	SINGLE(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SINGLE.prefix")),
+	GROUP(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.GROUP.prefix")),
+	SERVER(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SERVER.prefix")),
+	SINGLE_DEBUG(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SINGLE_DEBUG.prefix")),
+	GROUP_DEBUG(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.GROUP_DEBUG.prefix")),
+	SERVER_DEBUG(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SERVER_DEBUG.prefix"));
 
 	private final String prefix;
 
