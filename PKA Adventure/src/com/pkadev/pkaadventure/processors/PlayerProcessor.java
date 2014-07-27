@@ -74,7 +74,7 @@ public class PlayerProcessor {
 		String playerName = player.getName();
 		String classTypeString = classType.toString();
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
-
+		
 		int level = 					getLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int maxHealth = 				getMaxHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int health = 					getHealthFromPlayerConfig(playerName, playerConfig, classTypeString);

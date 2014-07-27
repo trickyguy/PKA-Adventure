@@ -1,5 +1,8 @@
 package com.pkadev.pkaadventure.processors;
 
+import java.util.List;
+import java.util.Set;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -8,8 +11,10 @@ import org.bukkit.entity.Player;
 import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.MessageType;
+import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.utils.ShopUtil;
 
 public class CommandProcessor implements CommandExecutor {
 
@@ -25,9 +30,7 @@ public class CommandProcessor implements CommandExecutor {
 		Player player = (Player) sender;
 		
 		if (argsLength == 0) {
-			// InventoryMain.loadShops();
 			InventoryUtil.openShopInventory(player, InventoryType.FOOD_STORE_BUYING);
-			player.sendMessage("Opening");
 		} else if (argsLength == 1) {
 			if (args[0].equalsIgnoreCase("create")) {
 				MessageUtil.sendMessage(player, "/create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);

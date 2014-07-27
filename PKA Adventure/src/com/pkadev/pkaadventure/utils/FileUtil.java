@@ -7,18 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import net.minecraft.server.v1_7_R3.EntityPlayer;
-import net.minecraft.server.v1_7_R3.PathfinderGoalHurtByTarget;
-import net.minecraft.server.v1_7_R3.PathfinderGoalMeleeAttack;
-import net.minecraft.server.v1_7_R3.PathfinderGoalNearestAttackableTarget;
-import net.minecraft.server.v1_7_R3.PathfinderGoalRandomLookaround;
-import net.minecraft.server.v1_7_R3.PathfinderGoalRandomStroll;
-
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.pkadev.pkaadventure.Main;
-import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieGood;
 
 public class FileUtil {
 	private static Main plugin = Main.instance;
@@ -258,6 +249,29 @@ public class FileUtil {
 				plugin.severe("could not find path: " + path + " in " + file.getName() + ", or is not Integer. Double new " + file.getName() + " and trying again");
 				reloadFile(file);
 				return getDoubleValueFromConfig(file, path, true);
+			}
+		}
+	}
+	
+	public static int getListLengthFromConfig(YamlConfiguration file, String path) {
+		return getListLengthFromConfig(file, path, false);
+	}
+	
+	private static int getListLengthFromConfig(YamlConfiguration file, String path, boolean secondtry) {
+		if (file.contains(path) && !file.equals(null)) {
+			if(file.isConfigurationSection(path))
+				return inventoryConfig.getConfigurationSection("Inventories.Food.Contents").getKeys(false).size();
+			else
+				return 0;
+		} else {
+			if (secondtry) {
+				plugin.severe("failed finding path: " + path + " in the default " + file.getName() + ", contact developer.");
+				plugin.disable();
+				return 0;
+			} else {
+				plugin.severe("could not find path: " + path + " in " + file.getName() + ".");
+				reloadFile(file);
+				return getListLengthFromConfig(file, path, true);
 			}
 		}
 	}

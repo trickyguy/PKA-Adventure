@@ -3,7 +3,10 @@ package com.pkadev.pkaadventure.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -12,6 +15,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,26 +28,26 @@ import com.pkadev.pkaadventure.types.ItemType;
 public class ItemUtil {
 	private static Random random = new Random();
 	private static Main plugin = Main.instance;
-	
+
 	public static void load() {
 		startTimer();
 	}
-	
+
 	/**
 	 * used in order to only give certain players certain items
 	 */
 	private static HashMap<Item, String> droppedItems = new HashMap<Item, String>();
-	
+
 	/**
 	 * removes them if the tick is at 1
 	 */
 	private static HashMap<Item, Integer> droppedItemsRemoveTick = new HashMap<Item, Integer>();
-	
+
 	public static void addDroppedItem(Item item, String playerName) {
 		droppedItems.put(item, playerName);
 		droppedItemsRemoveTick.put(item, 5);
 	}
-	
+
 	public static String getDroppedItemOwner(Item item) {
 		if (droppedItems.containsKey(item)) {
 			return droppedItems.get(item);
@@ -51,7 +55,7 @@ public class ItemUtil {
 			return "";
 		}
 	}
-	
+
 	public static void removeDroppedItem(Item item) {
 		if (droppedItems.containsKey(item))
 			droppedItems.remove(item);
@@ -59,14 +63,14 @@ public class ItemUtil {
 			droppedItemsRemoveTick.remove(item);
 		item.remove();
 	}
-	
+
 	private static void removeExistingDroppedItem(Item item) {
 		droppedItems.remove(item);
 		droppedItemsRemoveTick.remove(item);
 		item.remove();
 	}
-	
-	private static void tickDroppedItems() {
+
+	private static void oldTickDroppedItems() {
 		for (Item item : droppedItems.keySet()) {
 			int value = droppedItemsRemoveTick.get(item);
 			if (value == 1) {
@@ -78,6 +82,23 @@ public class ItemUtil {
 		}
 	}
 	
+	private static void tickDroppedItems() {
+		ArrayList<Item> temp = new ArrayList<Item>();
+		for (Item item : droppedItems.keySet()) {
+			int value = droppedItemsRemoveTick.get(item);
+			if (value == 1) {
+				temp.add(item);
+			} else {
+				droppedItemsRemoveTick.put(item, value - 1);
+			}
+		}
+		
+		for (Item item : temp) {
+			removeExistingDroppedItem(item);
+		} temp.clear();
+	}
+
+
 	private static void startTimer() {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 
@@ -85,10 +106,10 @@ public class ItemUtil {
 			public void run() {
 				tickDroppedItems();
 			}
-			
+
 		}, 1200, 600);
 	}
-	
+
 	/**
 	 * To skip all the annoying if statements
 	 * @param is The item stack you want to check
@@ -99,18 +120,18 @@ public class ItemUtil {
 			return false;
 		return true;
 	}
-	
+
 	public static boolean isArmorItem(ItemStack itemStack) {
 		String materialString = itemStack.getType().toString();
 		if (materialString.endsWith("_HELMET") || materialString.endsWith("_CHESTPLATE") || materialString.endsWith("_LEGGINGS") || materialString.endsWith("_BOOTS"))
 			return true;
 		return false;
 	}
-	
+
 	private static ItemType getItemType(ItemStack itemStack) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		String itemTypeString = itemMeta.getLore().get(0);
-		
+
 		for (ItemType itemType : ItemType.values()) {
 			String itemTypeFirstElement = itemType.getElements()[0];
 			if (itemTypeString.equals(itemTypeFirstElement))
@@ -118,7 +139,7 @@ public class ItemUtil {
 		}
 		return null;
 	}
-	
+
 	public static boolean isWeapon(ItemStack itemStack) {
 		if (!isAttributeItem(itemStack))
 			return false;
@@ -128,7 +149,7 @@ public class ItemUtil {
 			return true;
 		return false;
 	}
-	
+
 	public static ItemStack getWeapon(Player player) {
 		PlayerInventory playerInventory = player.getInventory();
 		for (int i = 0; i < playerInventory.getSize(); i++) {
@@ -137,12 +158,12 @@ public class ItemUtil {
 		}
 		return null;
 	}
-	
+
 	public static ItemStack getWeapon(Player player, int weaponSlot) {
 		PlayerInventory playerInventory = player.getInventory();
 		return playerInventory.getItem(weaponSlot);
 	}
-	
+
 	public static boolean isStatItem(ItemStack itemStack) {
 		if (!isAttributeItem(itemStack))
 			return false;
@@ -151,35 +172,35 @@ public class ItemUtil {
 				return true;
 		return false;
 	}
-	
+
 	public static int[] getAttributesFromItemStack(ItemStack itemStack) {
 		return getAttributesFromArmorItemLore(itemStack.getItemMeta().getLore());
 	}
-	
+
 	public static ItemStack getClassWeapon(ClassType classType) {
 		Material material = null;
 		switch(classType) {
-			case WOODY: {
-				material = Material.WOOD_SWORD;
-				break;
-			}
-			case WINGS: {
-				material = Material.BOW;
-				break;
-			}
-			case LEFTY: {
-				material = Material.GOLD_AXE;
-				break;
-			}
-			case KYLE: {
-				material = Material.BOW;
-				break;
-			}
-			default:material = Material.AIR;
+		case WOODY: {
+			material = Material.WOOD_SWORD;
+			break;
+		}
+		case WINGS: {
+			material = Material.BOW;
+			break;
+		}
+		case LEFTY: {
+			material = Material.GOLD_AXE;
+			break;
+		}
+		case KYLE: {
+			material = Material.BOW;
+			break;
+		}
+		default:material = Material.AIR;
 		}
 		return new ItemStack(material);
 	}
-	
+
 	public static ClassType getClassTypeFromSelectionMenuItem(ItemStack itemStack) {
 		if (!isAttributeItem(itemStack))
 			return ClassType.NONE;
@@ -195,35 +216,35 @@ public class ItemUtil {
 		}
 		return ClassType.NONE;
 	}
-	
+
 	public static void updateWeaponLore(ItemStack itemStack, ClassType classType, int level) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		List<String> itemLore = new ArrayList<String>();
 		switch(classType) {
-			case WOODY: {
-				itemMeta.setDisplayName("§6Woody's Sword");
-				itemLore.add(getElement("woody_damage", level, 0));
-				break;
-			}
-			case WINGS: {
-				itemMeta.setDisplayName("§6Wings's Sword");
-				itemLore.add(getElement("wings_damage", level, 0));
-				break;
-			}
-			case LEFTY: {
-				itemMeta.setDisplayName("§6Lefty's Sword");
-				itemLore.add(getElement("lefty_damage", level, 0));
-				break;
-			}
-			case KYLE: {
-				itemMeta.setDisplayName("§6Kyle's Sword");
-				itemLore.add(getElement("kyle_damage", level, 0));
-				break;
-			}
-			default:return;
+		case WOODY: {
+			itemMeta.setDisplayName("§6Woody's Sword");
+			itemLore.add(getElement("woody_damage", level, 0));
+			break;
+		}
+		case WINGS: {
+			itemMeta.setDisplayName("§6Wings's Sword");
+			itemLore.add(getElement("wings_damage", level, 0));
+			break;
+		}
+		case LEFTY: {
+			itemMeta.setDisplayName("§6Lefty's Sword");
+			itemLore.add(getElement("lefty_damage", level, 0));
+			break;
+		}
+		case KYLE: {
+			itemMeta.setDisplayName("§6Kyle's Sword");
+			itemLore.add(getElement("kyle_damage", level, 0));
+			break;
+		}
+		default:return;
 		}
 	}
-	
+
 	public static void updateWeaponLoreDamage(ItemStack itemStack, int newLevel, ClassType classType) {
 		if (!isAttributeItem(itemStack))
 			return;
@@ -231,20 +252,20 @@ public class ItemUtil {
 		String newDamage = "" + MathUtil.getValue(newLevel, classTypeReference + "_damage");
 		replaceValueInItemLore(itemStack.getItemMeta().getLore(), 0, newDamage);
 	}
-	
+
 	public static void updateStatItemMeta(ItemStack itemStack, PKAPlayer pkaPlayer) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		updateStatItemMetaLore(itemMeta, pkaPlayer);
 		updateStatItemMetaName(itemMeta, pkaPlayer);
 	}
-	
+
 	private static void updateStatItemMetaLore(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
 		// new String[]{"stat_item_strength", "stat_item_toughness", "stat_item_agility", "stat_item_restoration"
 		List<String> newLore = getMultipleLoreElements(new String[]{"strength", "toughness", "agility", "restoration"},
 				pkaPlayer.getAttributes());
 		itemMeta.setLore(newLore);
 	}
-	
+
 	private static void updateStatItemMetaName(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
 		int availableUpgradePoints = pkaPlayer.getAvailableUpgradePoints();
 		String newName = "";
@@ -255,7 +276,7 @@ public class ItemUtil {
 		}
 		itemMeta.setDisplayName(newName);
 	}
-	
+
 	/**
 	 * used to store elements of the lores such as:
 	 *  skillexp - §7Exp: §f
@@ -275,21 +296,21 @@ public class ItemUtil {
 			return element;
 		}
 	}
-	
+
 	private static String getElement(String reference, int level, int rarity) {
 		String mod = getMod(reference);
 		if (mod == "")
 			return "";
 		return mod + getElementValue(reference, level);
 	}
-	
+
 	private static String getElement(String reference, int value) {
 		String mod = getMod(reference);
 		if (mod == "")
 			return "";
 		return mod + value;
 	}
-	
+
 	private static String getElementValue(String reference, int level) {
 		if (reference.endsWith("level")) {
 			return "" + level;
@@ -297,15 +318,15 @@ public class ItemUtil {
 			return "0/" + MathUtil.getValue(level, reference);
 		} else if (reference.endsWith("percent")) {
 			return MathUtil.getValue(level, reference) + "%";
-	    } else {
+		} else {
 			return "" + MathUtil.getValue(level, reference);
 		}
 	}
-	
+
 	private static void setLoreElement(String reference, String element) {
 		loreElements.put(reference, element);
 	}
-	
+
 	/**
 	 * used in the cases where you wanna join up a bunch of values with presets
 	 *  this is used in the StatItem and the AbilityItems
@@ -330,7 +351,7 @@ public class ItemUtil {
 		}
 		return elements;
 	}
-	
+
 	/**
 	 * @param itemLore
 	 * @return int[]: int[0] = value of strength, 1 = toughness, 2 = agility, 3 = restoration
@@ -419,7 +440,7 @@ public class ItemUtil {
 		bytes = line.getBytes();
 		return bytes;
 	}
-	
+
 	private static byte[] getBytes(String line) {
 		byte[] bytes = new byte[line.length()];
 		bytes = line.getBytes();
@@ -442,7 +463,7 @@ public class ItemUtil {
 	 * @param modification: The value you are looking for. i.e.: "Strength", "Toughness", "Level"
 	 * @return -1 if it couldn't find a value
 	 */
-	private static int getIntValueFromLore(List<String> itemLore, String modification) {	
+	public static int getIntValueFromLore(List<String> itemLore, String modification) {	
 		String value = getStringValueFromLore(itemLore, modification);
 		if (value == "") return -1;
 		return Integer.parseInt(value);
@@ -496,7 +517,7 @@ public class ItemUtil {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * @param itemLore
 	 * @param lineIndex: The line you wish to get the value of
@@ -505,7 +526,7 @@ public class ItemUtil {
 	private static String getValueFromLoreLastLine(List<String> itemLore) {
 		return getValueFromLoreLine(itemLore.get(itemLore.size() - 1));
 	}
-	
+
 	/**
 	 * @param itemLore
 	 * @param lineIndex: The line you wish to get the value of
@@ -514,7 +535,7 @@ public class ItemUtil {
 	private static int getIntValueFromLoreLastLine(List<String> itemLore) {
 		return getIntValueFromLine(itemLore.get(itemLore.size() - 1));
 	}
-	
+
 	private static void addItemNameToLore(ItemMeta itemMeta, int rarity) {
 		String itemName = "";
 		switch (rarity) {
@@ -536,7 +557,7 @@ public class ItemUtil {
 		itemName += "A Stick";
 		itemMeta.setDisplayName(itemName);
 	}
-	
+
 	/**
 	 * adds the String[] elements to an itemLore
 	 * @param itemMeta
@@ -550,7 +571,7 @@ public class ItemUtil {
 			}
 		}
 	}
-	
+
 	private static void addNewEndElementsToLore(List<String> itemLore, ItemType itemType, int level, int rarity) {
 		if (itemType.getEndElements().length != 0) {
 			int endElementAmount = 1 + random.nextInt(itemType.getMaxEndElements());
@@ -566,13 +587,13 @@ public class ItemUtil {
 			}
 		}
 	}
-	
+
 	private static void addExistingEndElementsToLore(List<String> newItemLore, List<String> oldItemLore, ItemType itemType) {
 		for (int i = itemType.getElements().length; i < newItemLore.size(); i++) {
 			newItemLore.add(oldItemLore.get(i));
 		}
 	}
-	
+
 	private static String replaceValueInItemLore(byte[] bytes, String newValue) {
 		boolean valueReached = false;
 		String replacedLine = "";
@@ -591,7 +612,7 @@ public class ItemUtil {
 		}
 		return replacedLine;
 	}
-	
+
 	/**
 	 * lets you replace the value on a certain line with some new value
 	 * @param itemLore
@@ -602,7 +623,7 @@ public class ItemUtil {
 		byte[] bytes = getBytes(itemLore.get(line));
 		itemLore.set(line, replaceValueInItemLore(bytes, newValue));
 	}
-	
+
 	/**
 	 * lets you replace the value of a certain modification with a new value, it finds the line that modification is at
 	 * @param itemLore
@@ -616,7 +637,7 @@ public class ItemUtil {
 			}
 		}
 	}
-	
+
 	/**
 	 * puts a new itemMeta onto the given itemStack depending on the kind of item, the level and the rarity
 	 */
@@ -629,7 +650,7 @@ public class ItemUtil {
 		itemMeta.setLore(itemLore);
 		itemStack.setItemMeta(itemMeta);
 	}
-	
+
 	private static void updateItemLoreLevel(ItemStack itemStack, int newLevel) {
 		if (!isAttributeItem(itemStack))
 			return;
@@ -640,12 +661,12 @@ public class ItemUtil {
 		addElementsToLore(newItemLore, itemType, newLevel);
 		addExistingEndElementsToLore(newItemLore, oldItemLore, itemType);
 	}
-	
+
 	private static ItemStack getInitialArmor(int level, int slot) {
 		String material = "WOOD_";
 		String item = "HELMET";
 		if (level < 10) {
-			
+
 		} else if (level < 20) {
 			material = "CHAINMAIL_";
 		} else if (level < 30) {
@@ -656,7 +677,7 @@ public class ItemUtil {
 			material = "DIAMOND_";
 		}
 		if (slot == 0) {
-			
+
 		} else if (slot == 1) {
 			item = "CHESTPLATE";
 		} else if (slot == 2) {
@@ -666,20 +687,20 @@ public class ItemUtil {
 		}
 		return new ItemStack(Material.valueOf(material + item));
 	}
-	
+
 	private static ItemStack getInitialItemStack(ItemType itemType, int level, int slot) {
 		switch(itemType) {
-			case SKILL: {
-				return new ItemStack(Material.AIR);
-				//TODO
-			}
-			case ARMOR: {
-				return getInitialArmor(level, slot);
-			}
+		case SKILL: {
+			return new ItemStack(Material.AIR);
+			//TODO
+		}
+		case ARMOR: {
+			return getInitialArmor(level, slot);
+		}
 		default:return null;
 		}
 	}
-	
+
 	/**
 	 * if rareItemInt == -1 then it wont give out a rare item otherwise it does
 	 * @param level
@@ -690,12 +711,12 @@ public class ItemUtil {
 		//TODO REWORK THIS WHOLE FUCKING THING (shouldn't have rushed it)
 		int amount = 1 + random.nextInt(3);
 		HashMap<String, ItemStack> drop = new HashMap<String, ItemStack>();
-		
+
 		List<String> players = new ArrayList<String>();
 		players.addAll(playersSet);
 		String[] rewardPlayers = new String[amount];
 		Collections.shuffle(players);
-		
+
 		for (int i = 0; i < amount; i++) {
 			ItemType itemType = ItemType.ARMOR;
 			boolean rare = false;
@@ -730,7 +751,7 @@ public class ItemUtil {
 		}
 		return drop;
 	}
-	
+
 	public static ItemStack[] getInitialArmorContent(int level, int rareItemInt) {
 		//TODO rareItemInt implementation (-1 means there will be none)
 		ItemStack[] armorContent = new ItemStack[4];
@@ -743,7 +764,7 @@ public class ItemUtil {
 		}
 		return armorContent;
 	}
-	
+
 	/**
 	 * used to compress items for the file (including itemMeta)
 	 * # = typeId
@@ -793,7 +814,7 @@ public class ItemUtil {
 		int typeId = 0;
 		String itemName = null;
 		List<String> itemLore = new ArrayList<String>();
-		
+
 		byte[] bytes = getBytes(compressedString);
 		Character currentPrefix = null;
 		String currentMod = "";
@@ -853,4 +874,40 @@ public class ItemUtil {
 		itemStack.setItemMeta(itemMeta);
 		return itemStack;
 	}
+
+	public static void removeInventoryItems(Inventory inv, ItemStack item) {
+		removeInventoryItems(inv, item.getType(), item.getAmount());
+	}
+
+	public static void removeInventoryItems(Inventory inv, Material type, int amount) {
+		ItemStack[] items = inv.getContents();
+		for (int i = 0; i < items.length; i++) {
+			ItemStack is = items[i];
+			if (is != null && is.getType() == type) {
+				int newamount = is.getAmount() - amount;
+				if (newamount > 0) {
+					is.setAmount(newamount);
+					break;
+				} else {
+					items[i] = new ItemStack(Material.AIR);
+					amount = -newamount;
+					if (amount == 0) break;
+				}
+			}
+		}
+		inv.setContents(items);
+	}
+
+	public static int getTotalItems(Inventory inv, Material type) {
+		int amount = 0;
+		for (ItemStack is : inv.getContents()) {
+			if (is != null) {
+				if (is.getType() == type) {
+					amount += is.getAmount();
+				}
+			}
+		}
+		return amount;   
+	}
+
 }

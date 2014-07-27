@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.listeners.CombatListener;
+import com.pkadev.pkaadventure.listeners.InventoryListener;
 import com.pkadev.pkaadventure.listeners.JobListener;
 import com.pkadev.pkaadventure.listeners.PlayerConnectionListener;
 import com.pkadev.pkaadventure.processors.CommandProcessor;
@@ -49,6 +50,7 @@ public class Main extends JavaPlugin {
 		PluginManager pluginManager = getServer().getPluginManager();
 		pluginManager.registerEvents(JobListener.i(), this);
 		pluginManager.registerEvents(CombatListener.i(), this);
+		pluginManager.registerEvents(InventoryListener.i(), this);
 		pluginManager.registerEvents(PlayerConnectionListener.i(), this);
 	}
 	

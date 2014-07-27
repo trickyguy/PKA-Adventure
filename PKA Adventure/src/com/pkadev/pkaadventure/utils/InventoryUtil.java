@@ -18,6 +18,7 @@ import com.pkadev.pkaadventure.types.InventoryType;
 public class InventoryUtil {
 	private static Random random = new Random();
 	
+	public static HashMap<String, Inventory> openInventories = new HashMap<String, Inventory>();
 	private static HashMap<InventoryType, Inventory> inventories = new HashMap<InventoryType, Inventory>();
 	
 	private static Inventory getInventory(InventoryType inventoryType) {
@@ -158,7 +159,13 @@ public class InventoryUtil {
 	
 	public static void openShopInventory(Player player, InventoryType inventoryType) {
 		Inventory inventory = inventories.get(inventoryType);
-		inventory.setItem(inventory.getSize() - 1, InventoryMain.setPiggyBank(player.getName()));
-		player.openInventory(inventory);
+		ItemStack[] items = inventory.getContents();
+		Inventory inventoryd = Bukkit.createInventory(player, inventory.getSize(), inventory.getName());
+		inventoryd.setContents(items);
+		inventoryd.setItem(inventory.getSize() - 1, InventoryMain.setPiggyBank(player.getName()));
+		player.openInventory(inventoryd);
 	}
 }
+
+
+

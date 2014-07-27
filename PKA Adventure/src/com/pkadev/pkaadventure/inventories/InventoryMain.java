@@ -1,6 +1,7 @@
 package com.pkadev.pkaadventure.inventories;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -66,5 +67,16 @@ public class InventoryMain {
 		goldMeta.setLore(goldLore);
 		gold.setItemMeta(goldMeta);
 		return gold;
+	}
+	
+	public static void updatePiggyBank(Inventory inventory, String playerName) {
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
+		ItemStack gold = inventory.getItem(inventory.getSize() - 1);
+		ItemMeta goldMeta = gold.getItemMeta();
+		List<String> goldLore = gold.getItemMeta().getLore();
+		goldLore.set(0, "§7Gold: §f" + pkaPlayer.getGoldAmount());
+		goldMeta.setLore(goldLore);
+		gold.setItemMeta(goldMeta);
+		inventory.setItem(inventory.getSize() - 1, gold);
 	}
 }

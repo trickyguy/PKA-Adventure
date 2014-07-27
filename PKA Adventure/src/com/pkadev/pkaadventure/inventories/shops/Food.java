@@ -26,20 +26,22 @@ public class Food {
 		int slots = 9 * FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Size");
 		Inventory foodShop = Bukkit.createInventory(null, slots + 9, FileUtil.getStringValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Name") + " - Buying");
 		ArrayList<ItemStack> items = new ArrayList<ItemStack>();
-		int totalItems = FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents.ItemTotal");
+		int totalItems = FileUtil.getListLengthFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents");
 		for(int i = 1; i <= totalItems; i++) {
 			ItemStack item = new ItemStack(Material.getMaterial(FileUtil.getStringValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".ID")));
+			item.setAmount(FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Amount"));
+			
 			ItemMeta itemMeta = item.getItemMeta();
 			itemMeta.setDisplayName("§f" + FileUtil.getStringValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Name"));
 			ArrayList<String> itemLore = new ArrayList<String>();
 			List<String> loreList = Arrays.asList(FileUtil.getStringArrayFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Lore"));
-			for (String string : loreList) {  
+			for (String string : loreList) {
 				itemLore.add("§7" + string);
 			}
 			
-			itemLore.add("§6Cost: " + FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Cost"));
+			int cost = FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Cost");
+			itemLore.add("§6Cost: " + cost);
 			itemMeta.setLore(itemLore);
-			item.setAmount(FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Amount"));
 			item.setItemMeta(itemMeta);
 			items.add(item);
 		}
@@ -54,9 +56,11 @@ public class Food {
 		int slots = 9 * FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Size");
 		Inventory foodShop = Bukkit.createInventory(null, slots + 9, FileUtil.getStringValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Name") + " - Selling");
 		ArrayList<ItemStack> items = new ArrayList<ItemStack>();
-		int totalItems = FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents.ItemTotal");
+		int totalItems = FileUtil.getListLengthFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents");
 		for(int i = 1; i <= totalItems; i++) {
 			ItemStack item = new ItemStack(Material.getMaterial(FileUtil.getStringValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".ID")));
+			item.setAmount(FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Amount"));
+			
 			ItemMeta itemMeta = item.getItemMeta();
 			itemMeta.setDisplayName("§f" + FileUtil.getStringValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Name"));
 			ArrayList<String> itemLore = new ArrayList<String>();
@@ -64,10 +68,10 @@ public class Food {
 			for (String string : loreList) {  
 				itemLore.add("§7" + string);
 			}
-
-			itemLore.add("§6Worth: " + FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Worth"));
+			
+			int worth = FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Worth");
+			itemLore.add("§6Worth: " + worth);
 			itemMeta.setLore(itemLore);
-			item.setAmount(FileUtil.getIntValueFromConfig(FileUtil.inventoryConfig, "Inventories.Food.Contents." + i + ".Amount"));
 			item.setItemMeta(itemMeta);
 			items.add(item);
 		}
