@@ -70,7 +70,7 @@ public class PlayerProcessor {
 	 * @param player
 	 * @param classTypeString
 	 */
-	public static void loadPlayer(Player player, ClassType classType) {
+	private static void loadPlayer(Player player, ClassType classType) {
 		String playerName = player.getName();
 		String classTypeString = classType.toString();
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
