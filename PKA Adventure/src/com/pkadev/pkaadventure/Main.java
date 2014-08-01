@@ -22,11 +22,9 @@ public class Main extends JavaPlugin {
 	
 	public static Main instance;
 	public int derp;
-	public int theoisatotalbitch;
 	
 	@Override
 	public void onEnable() {
-		//test
 		instance = this;
 		registerListeners();
 		
