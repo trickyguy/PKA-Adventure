@@ -25,6 +25,7 @@ public class Main extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
+		
 		instance = this;
 		registerListeners();
 		
