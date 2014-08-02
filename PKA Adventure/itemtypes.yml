@@ -1,0 +1,23 @@
+skill:
+  elements:
+  - skill_item
+  - skill_level
+  - skill_exp
+  - ""
+  endelements:
+  - skill_doubledrop
+  maxendelements: 1
+armor:
+  elements:
+  - armor_item
+  - armor_level
+  - ""
+  endelements:
+  - strength
+  - toughness
+  - toughness
+  - toughness
+  - toughness
+  - agility
+  - restoration
+  maxendelements: 4

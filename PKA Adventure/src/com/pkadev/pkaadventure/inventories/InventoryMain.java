@@ -14,7 +14,7 @@ import com.pkadev.pkaadventure.processors.PlayerProcessor;
 
 public class InventoryMain {
 	public static void loadShops(){
-		Food.load();
+		//Food.load();
 	}
 
 	/**

@@ -39,22 +39,22 @@ public class InventoryUtil {
 		ItemStack wingsItem = 	new ItemStack(Material.BOW);
 		
 		ItemMeta itemMeta = woodyItem.getItemMeta();
-		String woodyName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.woody_selection_name");
+		String woodyName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.woody_selection_name", "config.yml");
 		itemMeta.setDisplayName(woodyName.replace('&', '§'));
 		woodyItem.setItemMeta(itemMeta);
 		
 		itemMeta = kyleItem.getItemMeta();
-		String kyleName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.kyle_selection_name");
+		String kyleName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.kyle_selection_name", "config.yml");
 		itemMeta.setDisplayName(kyleName.replace('&', '§'));
 		kyleItem.setItemMeta(itemMeta);
 		
 		itemMeta = leftyItem.getItemMeta();
-		String leftyName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.lefty_selection_name");
+		String leftyName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.lefty_selection_name", "config.yml");
 		itemMeta.setDisplayName(leftyName.replace('&', '§'));
 		leftyItem.setItemMeta(itemMeta);
 		
 		itemMeta = wingsItem.getItemMeta();
-		String wingsName = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore.wings_selection_name");
+		String wingsName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.wings_selection_name", "config.yml");
 		itemMeta.setDisplayName(wingsName.replace('&', '§'));
 		wingsItem.setItemMeta(itemMeta);
 		

@@ -14,107 +14,83 @@ import com.pkadev.pkaadventure.Main;
 public class FileUtil {
 	private static Main plugin = Main.instance;
 
-	public static YamlConfiguration config = null;
-	public static YamlConfiguration spawnNodeConfig = null;
-	public static YamlConfiguration inventoryConfig = null;
+	private static YamlConfiguration config = 			null;
+	private static YamlConfiguration spawnNodeConfig = 	null;
+	private static YamlConfiguration inventoryConfig = 	null;
+	private static YamlConfiguration itemTypeConfig = 	null;
+	private static YamlConfiguration nameConfig = 		null;
+	private static YamlConfiguration dropConfig =    	null;
 
 	/**
 	 * has to be run when plugin loads
 	 */
 	public static void load() {
-		File playerFolder = new File("plugins/PKAAdventure/players");
-		File configFile = new File("plugins/PKAAdventure/config.yml");
-		File spawnNodeFile = new File("plugins/PKAAdventure/spawnnodes.yml");
-		File inventoryFile = new File("plugins/PKAAdventure/inventories.yml");
-
+		File playerFolder = 	new File("plugins/PKAAdventure/players");
+		File configFile = 		new File("plugins/PKAAdventure/config.yml");
+		File spawnNodeFile = 	new File("plugins/PKAAdventure/spawnnodes.yml");
+		File inventoryFile = 	new File("plugins/PKAAdventure/inventories.yml");
+		File itemTypeFile = 	new File("plugins/PKAAdventure/itemtypes.yml");
+		File nameFile = 		new File("plugins/PKAAdventure/names.yml");
+		File dropFile = 		new File("plugins/PKAAdventure/drops.yml");
+		
 		if (!playerFolder.exists()) {
 			plugin.log("creating players folder");
 			playerFolder.mkdirs();
 		}
 
 		if (!configFile.exists()) {
-			plugin.log("creating config.yml");
-			loadDefaultConfig(configFile);
+			loadDefaultConfig(configFile, 		"config.yml");
 		}
 
 		if (!spawnNodeFile.exists()) {
-			plugin.log("creating spawnnodes.yml");
-			loadDefaultSpawnNodeFile(spawnNodeFile);
+			loadDefaultConfig(spawnNodeFile, 	"spawnnodes.yml");
 		}
 		
 		if (!inventoryFile.exists()) {
-			plugin.log("creating inventories.yml");
-			loadDefaultInventoryFile(inventoryFile);
+			loadDefaultConfig(inventoryFile, 	"inventories.yml");
+		}
+		
+		if (!itemTypeFile.exists()) {
+			loadDefaultConfig(itemTypeFile, 	"itemtypes.yml");
+		}
+		
+		if (!nameFile.exists()) {
+			loadDefaultConfig(nameFile, 		"names.yml");
+		}
+		
+		if (!dropFile.exists()) {
+			loadDefaultConfig(dropFile, 		"drops.yml");
 		}
 
 		plugin.log("loaded all folders and config.yml");
-		config = YamlConfiguration.loadConfiguration(configFile);
-		spawnNodeConfig = YamlConfiguration.loadConfiguration(spawnNodeFile);
-		inventoryConfig = YamlConfiguration.loadConfiguration(inventoryFile);
+		config = 				YamlConfiguration.loadConfiguration(configFile);
+		spawnNodeConfig = 		YamlConfiguration.loadConfiguration(spawnNodeFile);
+		inventoryConfig = 		YamlConfiguration.loadConfiguration(inventoryFile);
+		itemTypeConfig = 		YamlConfiguration.loadConfiguration(itemTypeFile);
+		nameConfig = 			YamlConfiguration.loadConfiguration(nameFile);
+		dropConfig =			YamlConfiguration.loadConfiguration(dropFile);
 	}
 
-	public static void reloadFile(YamlConfiguration file) {
-		File configFile = new File("plugins/PKAAdventure/" + file.getName() + ".yml");
-		switch (file.getName()) {
-		default:
-			plugin.severe("Could reload " + file.getName() + ".yml");
-			return;
-		case "config":
-			loadDefaultConfig(configFile);
-			break;
-		case "spawnnodes":
-			loadDefaultSpawnNodeFile(configFile);
-			break;
-		case "inventories":
-			loadDefaultInventoryFile(configFile);
-			break;
-		}
-		file = YamlConfiguration.loadConfiguration(configFile);
+	public static YamlConfiguration reloadFile(File configFile, String configFileReference) {
+		loadDefaultConfig(configFile, configFileReference);
+		return YamlConfiguration.loadConfiguration(configFile);
 	}
-	
+
 	/**
-	 * used to reset the config.yml
+	 * @param configFile: configFile
+	 * @param configFileReference: "config.yml"
 	 */
-	public static void reloadDefaultConfig() {
-		File configFile = new File("plugins/PKAAdventure/config.yml");
-		loadDefaultConfig(configFile);
-		config = YamlConfiguration.loadConfiguration(configFile);
-	}
-
-	private static void loadDefaultConfig(File configFile) {
+	private static void loadDefaultConfig(File configFile, String configFileReference) {
+		plugin.log("creating " + configFileReference);
 		try {
 			configFile.createNewFile();
 		} catch (IOException e) {
-			plugin.severe("could not create config.yml");
+			plugin.severe("could not create " + configFileReference);
 			e.printStackTrace();
 			plugin.disable();
 			return;
 		}
-		writeDefaultFile(configFile, "config.yml");
-	}
-
-	private static void loadDefaultSpawnNodeFile(File spawnNodeFile) {
-		try {
-			spawnNodeFile.createNewFile();
-		} catch (IOException e) {
-			plugin.severe("could not create spawnNodeConfig.yml");
-			e.printStackTrace();
-			plugin.disable();
-			return;
-		}
-		writeDefaultFile(spawnNodeFile, "spawnnodes.yml");
-	}
-
-	private static void loadDefaultInventoryFile(File inventoryFile) {
-		try {
-			inventoryFile.createNewFile();
-		} catch (IOException e) {
-			plugin.severe("could not create inventories.yml");
-			e.printStackTrace();
-			plugin.disable();
-			return;
-		}
-		writeDefaultFile(inventoryFile, "inventories.yml");
+		writeDefaultFile(configFile, configFileReference);
 	}
 	
 	public static void save(YamlConfiguration config, String filepath) {
@@ -134,7 +110,23 @@ public class FileUtil {
 	public static YamlConfiguration getSpawnNodeConfig() {
 		return spawnNodeConfig;
 	}
+	
+	public static YamlConfiguration getInventoryConfig() {
+		return inventoryConfig;
+	}
+	
+	public static YamlConfiguration getItemTypeConfig() {
+		return itemTypeConfig;
+	}
 
+	public static YamlConfiguration getNameConfig() {
+		return nameConfig;
+	}
+	
+	public static YamlConfiguration getDropConfig() {
+		return dropConfig;
+	}
+	
 	public static void saveConfig(YamlConfiguration config) {
 		try {
 			config.save(new File("plugins/PKAAdventure/config.yml"));
@@ -148,22 +140,22 @@ public class FileUtil {
 	 * @param path possible paths: "MessageType.SINGLE.prefix for SINGLE, GROUP, SERVER, SINGLE_DEBUG, etc."
 	 * @return
 	 */
-	public static String getStringValueFromConfig(YamlConfiguration file, String path) {
-		return getStringValueFromConfig(file, path, true);
+	public static String getStringValueFromConfig(YamlConfiguration config, String path, String configFileReference) {
+		return getStringValueFromConfig(config, path, configFileReference, true);
 	}
 
-	private static String getStringValueFromConfig(YamlConfiguration file, String path, boolean secondtry) {
-		if (file.contains(path) && file.isString(path)) {
-			return file.getString(path);
+	private static String getStringValueFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {
+		if (config.contains(path) && config.isString(path)) {
+			return config.getString(path);
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + file.getName() + ", or is not String. Disabling plugin, contact developer.");
+				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not String. Disabling plugin, contact developer.");
 				plugin.disable();
 				return null;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + file.getName() + ", or is not String. Creating new " + file.getName() + " and trying again");
-				reloadFile(file);
-				return getStringValueFromConfig(file, path, true);
+				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not String. Creating new " + configFileReference + " and trying again");
+				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
+				return getStringValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 		}
 	}
@@ -172,56 +164,64 @@ public class FileUtil {
 	 * @param path possible paths: "MessageType.SINGLE.togglecolors for SINGLE, GORUP, SERVER, SINGLE_DEBUG, etc."
 	 * @return
 	 */
-	public static String[] getStringArrayFromConfig(YamlConfiguration file, String path) {		
-		return getStringArrayFromConfig(file, path, false);
+	public static List<String> getStringArrayFromConfig(YamlConfiguration config, String path, String configFileReference) {		
+		return getStringArrayFromConfig(config, path, configFileReference, false);
 	}
 	
-	private static String[] getStringArrayFromConfig(YamlConfiguration file, String path, boolean secondtry) {		
+	/**
+	 * used only when you expect there to maybe not be a value, but it doesn't matter
+	 * @param config
+	 * @param path
+	 * @param configFileReference
+	 * @return
+	 */
+	public static List<String> getStringArrayFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
+		if (config.contains(path) && config.isList(path))
+			return config.getStringList(path);
+		else {
+			return null;
+		}
+	}
+	
+	private static List<String> getStringArrayFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {		
 		List<String> stringList = null;
-		if (file.contains(path) && file.isList(path))
-			stringList = file.getStringList(path);
+		if (config.contains(path) && config.isList(path))
+			stringList = config.getStringList(path);
 		else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + file.getName() + ", or is not List. Disabling plugin, contact developer.");
+				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not List. Disabling plugin, contact developer.");
 				plugin.disable();
 				return null;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + file.getName() + ", or is not List. Creating new " + file.getName() + " and trying again");
-				reloadFile(file);
-				return getStringArrayFromConfig(file, path, true);
+				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not List. Creating new " + configFileReference + " and trying again");
+				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
+				return getStringArrayFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 
 		}
-		int stringListSize = stringList.size();
-		String[] stringArray = new String[stringListSize];
-
-		for (int i = 0; i < stringListSize; i++) {
-			stringArray[i] = stringList.get(i);
-		}
-
-		return stringArray;
+		return stringList;
 	}
 
 	/**
 	 * @param path possible paths: "Math.skill_exp_yoffset"
 	 * @return
 	 */
-	public static int getIntValueFromConfig(YamlConfiguration file, String path) {
-		return getIntValueFromConfig(file, path, false);
+	public static int getIntValueFromConfig(YamlConfiguration config, String path, String configFileReference) {
+		return getIntValueFromConfig(config, path, configFileReference, false);
 	}
 
-	private static int getIntValueFromConfig(YamlConfiguration file, String path, boolean secondtry) {
-		if (file.contains(path) && file.isInt(path)) {
-			return file.getInt(path);
+	private static int getIntValueFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {
+		if (config.contains(path) && config.isInt(path)) {
+			return config.getInt(path);
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + file.getName() + ", or is not Integer. Disabling plugin, contact developer.");
+				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not Integer. Disabling plugin, contact developer.");
 				plugin.disable();
 				return 0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + file.getName() + ", or is not Integer. Creating new " + file.getName() + " and trying again");
-				reloadFile(file);
-				return getIntValueFromConfig(file, path, true);
+				plugin.severe("could not find path: " + path + " in " + configFileReference+ ", or is not Integer. Creating new " + configFileReference + " and trying again");
+				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
+				return getIntValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 		}
 	}
@@ -230,53 +230,53 @@ public class FileUtil {
 	 * @param path possible paths: "Math.skill_exp_multiplier"
 	 * @return
 	 */
-	public static double getDoubleValueFromConfig(YamlConfiguration file, String path) {
-		return getDoubleValueFromConfig(file, path, false);
+	public static double getDoubleValueFromConfig(YamlConfiguration config, String path, String configFileReference) {
+		return getDoubleValueFromConfig(config, path, configFileReference, false);
 	}
 
-	private static double getDoubleValueFromConfig(YamlConfiguration file, String path, boolean secondtry) {
-		if (file.contains(path) && !file.equals(null)) {
-			if(file.isDouble(path))
-				return file.getDouble(path);
+	private static double getDoubleValueFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {
+		if (config.contains(path) && !config.equals(null)) {
+			if(config.isDouble(path))
+				return config.getDouble(path);
 			else
 				return 0.0;
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + file.getName() + ", or is not Double. Disabling plugin, contact developer.");
+				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not Double. Disabling plugin, contact developer.");
 				plugin.disable();
 				return 0.0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + file.getName() + ", or is not Integer. Double new " + file.getName() + " and trying again");
-				reloadFile(file);
-				return getDoubleValueFromConfig(file, path, true);
+				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not Integer. Double new " + configFileReference + " and trying again");
+				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
+				return getDoubleValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 		}
 	}
 	
-	public static int getListLengthFromConfig(YamlConfiguration file, String path) {
-		return getListLengthFromConfig(file, path, false);
+	public static int getListLengthFromConfig(YamlConfiguration config, String path, String configFileReference) {
+		return getListLengthFromConfig(config, path, configFileReference, false);
 	}
 	
-	private static int getListLengthFromConfig(YamlConfiguration file, String path, boolean secondtry) {
-		if (file.contains(path) && !file.equals(null)) {
-			if(file.isConfigurationSection(path))
+	private static int getListLengthFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {
+		if (config.contains(path) && !config.equals(null)) {
+			if(config.isConfigurationSection(path))
 				return inventoryConfig.getConfigurationSection("Inventories.Food.Contents").getKeys(false).size();
 			else
 				return 0;
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + file.getName() + ", contact developer.");
+				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", contact developer.");
 				plugin.disable();
 				return 0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + file.getName() + ".");
-				reloadFile(file);
-				return getListLengthFromConfig(file, path, true);
+				plugin.severe("could not find path: " + path + " in " + configFileReference + ".");
+				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
+				return getListLengthFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 		}
 	}
 	
-	public static void writeDefaultFile(File file, String defaultFileReference) {
+	public static void writeDefaultFile(File configFile, String defaultFileReference) {
 		InputStream inputStream = plugin.getInputStream(defaultFileReference);
 
 		if(inputStream == null){
@@ -284,7 +284,7 @@ public class FileUtil {
 			return;
 		}
 		try{
-			OutputStream outputStream = new FileOutputStream(file);
+			OutputStream outputStream = new FileOutputStream(configFile);
 
 			int read = 0;
 			byte[] bytes = new byte[1024];

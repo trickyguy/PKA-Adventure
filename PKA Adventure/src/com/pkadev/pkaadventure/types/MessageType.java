@@ -4,12 +4,12 @@ import com.pkadev.pkaadventure.utils.FileUtil;
 
 public enum MessageType {
 
-	SINGLE(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SINGLE.prefix")),
-	GROUP(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.GROUP.prefix")),
-	SERVER(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SERVER.prefix")),
-	SINGLE_DEBUG(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SINGLE_DEBUG.prefix")),
-	GROUP_DEBUG(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.GROUP_DEBUG.prefix")),
-	SERVER_DEBUG(FileUtil.getStringValueFromConfig(FileUtil.config, "MessageType.SERVER_DEBUG.prefix"));
+	SINGLE(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.SINGLE.prefix", 		"config.yml")),
+	GROUP(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.GROUP.prefix", 		"config.yml")),
+	SERVER(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.SERVER.prefix", 		"config.yml")),
+	SINGLE_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SINGLE_DEBUG.prefix", 	"config.yml")),
+	GROUP_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.GROUP_DEBUG.prefix", 	"config.yml")),
+	SERVER_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SERVER_DEBUG.prefix", 	"config.yml"));
 
 	private final String prefix;
 

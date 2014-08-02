@@ -339,7 +339,7 @@ public class PlayerProcessor {
 			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
 			return 0;
 		} else {
-			int availableUpgradePoints = FileUtil.getIntValueFromConfig(FileUtil.config, classTypeString + ".availableupgradepoints");
+			int availableUpgradePoints = FileUtil.getIntValueFromConfig(FileUtil.getConfig(), classTypeString + ".availableupgradepoints", "config.yml");
 			return availableUpgradePoints;
 		}
 	}

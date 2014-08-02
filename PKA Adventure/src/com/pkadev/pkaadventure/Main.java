@@ -14,6 +14,7 @@ import com.pkadev.pkaadventure.processors.CommandProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.processors.SpawnNodeProcessor;
 import com.pkadev.pkaadventure.types.CustomEntityType;
+import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
@@ -28,12 +29,13 @@ public class Main extends JavaPlugin {
 		instance = this;
 		registerListeners();
 		
-		CustomEntityType.load();
 		FileUtil.load();
+		CustomEntityType.load();
 		SpawnNodeProcessor.load();
 		InventoryUtil.load();
 		InventoryMain.loadShops();
 		ItemUtil.load();
+		ElementsUtil.load();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());
 		

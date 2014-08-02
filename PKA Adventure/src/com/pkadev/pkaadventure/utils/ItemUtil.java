@@ -21,9 +21,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.ClassType;
-import com.pkadev.pkaadventure.types.ItemType;
 
 public class ItemUtil {
 	private static Random random = new Random();
@@ -68,18 +68,6 @@ public class ItemUtil {
 		droppedItems.remove(item);
 		droppedItemsRemoveTick.remove(item);
 		item.remove();
-	}
-
-	private static void oldTickDroppedItems() {
-		for (Item item : droppedItems.keySet()) {
-			int value = droppedItemsRemoveTick.get(item);
-			if (value == 1) {
-				//remove it
-				removeExistingDroppedItem(item);
-			} else {
-				droppedItemsRemoveTick.put(item, value - 1);
-			}
-		}
 	}
 	
 	private static void tickDroppedItems() {
@@ -128,6 +116,7 @@ public class ItemUtil {
 		return false;
 	}
 
+	/*
 	private static ItemType getItemType(ItemStack itemStack) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		String itemTypeString = itemMeta.getLore().get(0);
@@ -139,6 +128,7 @@ public class ItemUtil {
 		}
 		return null;
 	}
+	*/
 
 	public static boolean isWeapon(ItemStack itemStack) {
 		if (!isAttributeItem(itemStack))
@@ -205,13 +195,13 @@ public class ItemUtil {
 		if (!isAttributeItem(itemStack))
 			return ClassType.NONE;
 		String itemName = itemStack.getItemMeta().getDisplayName();
-		if 			(itemName.equals(getMod("woody_selection_name"))) {
+		if 			(itemName.equals(ElementsUtil.getLoreElementMod("woody_selection_name"))) {
 			return ClassType.WOODY;
-		} else if 	(itemName.equals(getMod("wings_selection_name"))) {
+		} else if 	(itemName.equals(ElementsUtil.getLoreElementMod("wings_selection_name"))) {
 			return ClassType.WINGS;
-		} else if 	(itemName.equals(getMod("lefty_selection_name"))) {
+		} else if 	(itemName.equals(ElementsUtil.getLoreElementMod("lefty_selection_name"))) {
 			return ClassType.LEFTY;
-		} else if 	(itemName.equals(getMod("kyle_selection_name"))) {
+		} else if 	(itemName.equals(ElementsUtil.getLoreElementMod("kyle_selection_name"))) {
 			return ClassType.KYLE;
 		}
 		return ClassType.NONE;
@@ -223,22 +213,22 @@ public class ItemUtil {
 		switch(classType) {
 		case WOODY: {
 			itemMeta.setDisplayName("§6Woody's Sword");
-			itemLore.add(getElement("woody_damage", level, 0));
+			itemLore.add(ElementsUtil.getInitialLoreElement("woody_damage", level));
 			break;
 		}
 		case WINGS: {
 			itemMeta.setDisplayName("§6Wings's Sword");
-			itemLore.add(getElement("wings_damage", level, 0));
+			itemLore.add(ElementsUtil.getInitialLoreElement("wings_damage", level));
 			break;
 		}
 		case LEFTY: {
 			itemMeta.setDisplayName("§6Lefty's Sword");
-			itemLore.add(getElement("lefty_damage", level, 0));
+			itemLore.add(ElementsUtil.getInitialLoreElement("lefty_damage", level));
 			break;
 		}
 		case KYLE: {
 			itemMeta.setDisplayName("§6Kyle's Sword");
-			itemLore.add(getElement("kyle_damage", level, 0));
+			itemLore.add(ElementsUtil.getInitialLoreElement("kyle_damage", level));
 			break;
 		}
 		default:return;
@@ -261,11 +251,17 @@ public class ItemUtil {
 
 	private static void updateStatItemMetaLore(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
 		// new String[]{"stat_item_strength", "stat_item_toughness", "stat_item_agility", "stat_item_restoration"
-		List<String> newLore = getMultipleLoreElements(new String[]{"strength", "toughness", "agility", "restoration"},
+		//TODO update this?
+		List<String> attributes = new ArrayList<String>();
+		attributes.add("strength");
+		attributes.add("toughness");
+		attributes.add("agility");
+		attributes.add("restoration");
+		List<String> newLore = ElementsUtil.getMultipleExistingLoreElements(attributes,
 				pkaPlayer.getAttributes());
 		itemMeta.setLore(newLore);
 	}
-
+	
 	private static void updateStatItemMetaName(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
 		int availableUpgradePoints = pkaPlayer.getAvailableUpgradePoints();
 		String newName = "";
@@ -275,81 +271,6 @@ public class ItemUtil {
 			newName = "§r§6" + availableUpgradePoints + " §5available upgrade points!";
 		}
 		itemMeta.setDisplayName(newName);
-	}
-
-	/**
-	 * used to store elements of the lores such as:
-	 *  skillexp - §7Exp: §f
-	 *  level - §7Level: §l
-	 *  strength - §7Strength: §f
-	 */
-	private static HashMap<String, String> loreElements = new HashMap<String, String>();
-
-	private static String getMod(String reference) {
-		if (reference == "")
-			return "";
-		if (loreElements.containsKey(reference))
-			return loreElements.get(reference);
-		else {
-			String element = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore." + reference);
-			setLoreElement(reference, element);
-			return element;
-		}
-	}
-
-	private static String getElement(String reference, int level, int rarity) {
-		String mod = getMod(reference);
-		if (mod == "")
-			return "";
-		return mod + getElementValue(reference, level);
-	}
-
-	private static String getElement(String reference, int value) {
-		String mod = getMod(reference);
-		if (mod == "")
-			return "";
-		return mod + value;
-	}
-
-	private static String getElementValue(String reference, int level) {
-		if (reference.endsWith("level")) {
-			return "" + level;
-		} else if (reference.endsWith("exp")) {
-			return "0/" + MathUtil.getValue(level, reference);
-		} else if (reference.endsWith("percent")) {
-			return MathUtil.getValue(level, reference) + "%";
-		} else {
-			return "" + MathUtil.getValue(level, reference);
-		}
-	}
-
-	private static void setLoreElement(String reference, String element) {
-		loreElements.put(reference, element);
-	}
-
-	/**
-	 * used in the cases where you wanna join up a bunch of values with presets
-	 *  this is used in the StatItem and the AbilityItems
-	 * @param references: "stat_item_strength", "stat_item_agility", "ability_lightning_numberofbolts"
-	 * @param values: "1, 4, 6, 3"
-	 * @return
-	 */
-	private static List<String> getMultipleLoreElements(String[] references, int[] values) {
-		List<String> elements = new ArrayList<String>();
-		if (references == null || values == null || references.length > values.length || references.length < values.length)
-			return elements;
-		for (int i = 0; i < references.length; i++) {
-			String reference = references[i];
-			if (loreElements.containsKey(reference)) {
-				elements.add(loreElements.get(reference) + values[i]);
-				continue;
-			} else {
-				String element = FileUtil.getStringValueFromConfig(FileUtil.config, "Lore." + reference);
-				setLoreElement(reference, element);
-				elements.add(reference + values[i]);
-			}
-		}
-		return elements;
 	}
 
 	/**
@@ -562,7 +483,7 @@ public class ItemUtil {
 	 * adds the String[] elements to an itemLore
 	 * @param itemMeta
 	 * @param level
-	 */
+	 
 	private static void addElementsToLore(List<String> itemLore, ItemType itemType, int level) {
 		if (itemType.getElements().length != 0) {
 			for (int i = 0; i < itemType.getElements().length; i++) {
@@ -571,6 +492,7 @@ public class ItemUtil {
 			}
 		}
 	}
+	
 
 	private static void addNewEndElementsToLore(List<String> itemLore, ItemType itemType, int level, int rarity) {
 		if (itemType.getEndElements().length != 0) {
@@ -587,12 +509,14 @@ public class ItemUtil {
 			}
 		}
 	}
+	
 
 	private static void addExistingEndElementsToLore(List<String> newItemLore, List<String> oldItemLore, ItemType itemType) {
 		for (int i = itemType.getElements().length; i < newItemLore.size(); i++) {
 			newItemLore.add(oldItemLore.get(i));
 		}
 	}
+	*/
 
 	private static String replaceValueInItemLore(byte[] bytes, String newValue) {
 		boolean valueReached = false;
@@ -638,19 +562,7 @@ public class ItemUtil {
 		}
 	}
 
-	/**
-	 * puts a new itemMeta onto the given itemStack depending on the kind of item, the level and the rarity
-	 */
-	private static void setInitialItemLore(ItemStack itemStack, ItemType itemType, int level, int rarity) {
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		List<String> itemLore = new ArrayList<String>();
-		addElementsToLore(itemLore, itemType, level);
-		addNewEndElementsToLore(itemLore, itemType, level, rarity);
-		addItemNameToLore(itemMeta, rarity);
-		itemMeta.setLore(itemLore);
-		itemStack.setItemMeta(itemMeta);
-	}
-
+	/*
 	private static void updateItemLoreLevel(ItemStack itemStack, int newLevel) {
 		if (!isAttributeItem(itemStack))
 			return;
@@ -661,8 +573,122 @@ public class ItemUtil {
 		addElementsToLore(newItemLore, itemType, newLevel);
 		addExistingEndElementsToLore(newItemLore, oldItemLore, itemType);
 	}
-
-	private static ItemStack getInitialArmor(int level, int slot) {
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * if rareItemInt == -1 then it wont give out a rare item otherwise it does
+	 * !!make sure to remove the "" before fetching this list
+	 * @param level
+	 * @param rareItemInt
+	 * @return
+	 */
+	public static HashMap<String, List<ItemStack>> getNewItemDrop(Set<String> playersSet, String mobName, int level, int rareItemInt) {
+		HashMap<String, List<ItemStack>> finalDrops = new HashMap<String, List<ItemStack>>();
+		
+		List<String> players = new ArrayList<String>();
+		List<String> drops   = ElementsUtil.getDropElement(mobName);
+		players.addAll(playersSet);
+		Collections.shuffle(drops);
+		Collections.shuffle(players);
+		
+		int amount = 1 + random.nextInt(MathUtil.getInt("max_mobdrop_amount"));
+		for (int i = 0; i < amount; i++) {
+			if (drops.size() <= i || players.size() <= i)
+				break;
+			int slot = 		0;
+			int rarity = 	0;
+			
+			if (rareItemInt != -1) {
+				int rarityDeterminer = random.nextInt(10);
+				if (rarityDeterminer < 6)
+					rarity = 1;
+				else if (rarityDeterminer < 8)
+					rarity = 2;
+				else {
+					rarity = 3;
+				}
+				slot = rareItemInt;
+				rareItemInt = -1;
+			}
+			
+			ItemStack drop = new ItemStack(Material.AIR);
+			
+			if (drops.get(i).equals("armor")) {
+				drop = ItemUtil.getInitialArmor(level, slot, rarity);
+			} else {
+				drop = ItemUtil.getInitialItem(drops.get(i), level, rarity);
+			}
+			
+			List<ItemStack> finalDropsForPlayer = new ArrayList<ItemStack>();
+			finalDropsForPlayer.add(new ItemStack(Material.GOLD_NUGGET, MathUtil.getValue(level, "gold_mobdrop_amount")));
+			finalDropsForPlayer.add(drop);
+			finalDrops.put(players.get(i), finalDropsForPlayer);
+		}
+		
+		return finalDrops;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * get any kind of item that can be referenced with itemMeta
+	 * @param reference: i.e.: "bread", "armor"
+	 * @param level: the level at which this item is initiated, some references dont use this information
+	 * @param rarity: only determines the color of writing given (0,1,2,3)
+	 * @return
+	 */
+	public static ItemStack getInitialItem(String reference, int level, int rarity) {
+		ItemStack itemStack = 	ElementsUtil.getItemElement(reference);
+		return getInitialItem(itemStack, reference, level, rarity);
+	}
+	
+	private static ItemStack getInitialItem(ItemStack itemStack, String reference, int level, int rarity) {
+		ItemMeta itemMeta = 	itemStack.getItemMeta();
+		List<String> itemLore = getInitialItemLore(reference, level);
+		String itemName = 		getInitialItemName(reference, rarity);
+		itemMeta.setDisplayName(itemName);
+		itemMeta.setLore(itemLore);
+		itemStack.setItemMeta(itemMeta);
+		return itemStack;
+	}
+	
+	public static ItemStack getInitialArmor(int level, int slot, int rarity) {
+		ItemStack itemStack = 	getInitialArmorItemStack(level, slot, rarity);
+		return getInitialItem(itemStack, "armor", level, rarity);
+	}
+	
+	private static ItemStack getInitialArmorItemStack(int level, int slot, int rarity) {
+		//TODO USE RARE
 		String material = "WOOD_";
 		String item = "HELMET";
 		if (level < 10) {
@@ -688,82 +714,87 @@ public class ItemUtil {
 		return new ItemStack(Material.valueOf(material + item));
 	}
 
-	private static ItemStack getInitialItemStack(ItemType itemType, int level, int slot) {
-		switch(itemType) {
-		case SKILL: {
-			return new ItemStack(Material.AIR);
-			//TODO
-		}
-		case ARMOR: {
-			return getInitialArmor(level, slot);
-		}
-		default:return null;
-		}
-	}
-
-	/**
-	 * if rareItemInt == -1 then it wont give out a rare item otherwise it does
-	 * @param level
-	 * @param rareItemInt
-	 * @return
-	 */
-	public static HashMap<String, ItemStack> getNewItemDrop(Set<String> playersSet, int level, int rareItemInt) {
-		//TODO REWORK THIS WHOLE FUCKING THING (shouldn't have rushed it)
-		int amount = 1 + random.nextInt(3);
-		HashMap<String, ItemStack> drop = new HashMap<String, ItemStack>();
-
-		List<String> players = new ArrayList<String>();
-		players.addAll(playersSet);
-		String[] rewardPlayers = new String[amount];
-		Collections.shuffle(players);
-
-		for (int i = 0; i < amount; i++) {
-			ItemType itemType = ItemType.ARMOR;
-			boolean rare = false;
-			int likelyHoodCounterpart = random.nextInt(10);//boy oh boy -_-
-			for (ItemType itemTypeValue : ItemType.values()) {
-				if (itemTypeValue.getLikelyHood() < likelyHoodCounterpart)
-					itemType = itemTypeValue;
-			}
-			int slot = 0;
-			if (rareItemInt != -1) {
-				rare = true;
-				slot = rareItemInt;
-			}
-			ItemStack itemStack = getInitialItemStack(itemType, level, slot);
-			if (itemStack == null)
-				drop.put(players.get(i), new ItemStack(Material.GOLD_NUGGET));
-			else {
-				int rarity = 0;
-				if (rare) {
-					int rarityRandom = random.nextInt(10);
-					if (rarityRandom < 7)
-						rarity = 1;
-					else if (rarityRandom < 9)
-						rarity = 2;
-					else {
-						rarity = 3;
-					}
-				}
-				setInitialItemLore(itemStack, itemType, level, rarity);
-			}
-			drop.put(players.get(i), itemStack);
-		}
-		return drop;
-	}
-
-	public static ItemStack[] getInitialArmorContent(int level, int rareItemInt) {
+	public static ItemStack[] getInitialContent(int level, int rareItemInt) {
 		//TODO rareItemInt implementation (-1 means there will be none)
 		ItemStack[] armorContent = new ItemStack[4];
 		for (int i = 0; i < 4; i++) {
 			if (random.nextBoolean()) {
-				armorContent[i] = getInitialArmor(level, i);
+				//TODO implement rarity
+				armorContent[i] = getInitialArmorItemStack(level, i, -1);
 			} else {
 				armorContent[i] = new ItemStack(Material.AIR);
 			}
 		}
 		return armorContent;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * puts a new itemMeta onto the given itemStack depending on the kind of item, the level and the rarity
+	 */
+	private static List<String> getInitialItemLore(String reference, int level) {
+		List<String> itemLore = new ArrayList<String>();
+		ItemType itemType = ElementsUtil.getItemTypeElement(reference);
+		itemLore.addAll(ElementsUtil.getMultipleInitialLoreElements(itemType.getElements(), level));
+		List<String> endElements = itemType.getEndElements();
+		List<String> finalEndElements = new ArrayList<String>();
+		Collections.shuffle(endElements);
+		int maxEndElements = itemType.getMaxEndElements();
+		for (int i = 0; i < maxEndElements; i++) {
+			String element = endElements.get(i);
+			if (finalEndElements.contains(element))
+				maxEndElements++;
+			else {
+				finalEndElements.add(element);
+			}
+		}
+		itemLore.addAll(ElementsUtil.getMultipleInitialLoreElements(finalEndElements, level));
+		return itemLore;
+	}
+	
+	private static String getInitialItemName(String reference, int rarity) {
+		List<String> possibleNames = ElementsUtil.getNameElement(reference);
+		return possibleNames.get(random.nextInt(possibleNames.size()));
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/**
 	 * used to compress items for the file (including itemMeta)
@@ -777,7 +808,7 @@ public class ItemUtil {
 	 * Full example: #13!SKILL*§6Kidney$5/1%3/1 = itemId(13) itemName(§6Kidney) itemLore line1(element 5, value 1) itemLore line2(endElement 3, value 2)
 	 * @param itemStack
 	 * @return
-	 */
+	 
 	private static String getCompressedItem(ItemStack itemStack) {
 		String compressedString = "";
 		compressedString += ("#" + itemStack.getTypeId());
@@ -874,6 +905,7 @@ public class ItemUtil {
 		itemStack.setItemMeta(itemMeta);
 		return itemStack;
 	}
+	*/
 
 	public static void removeInventoryItems(Inventory inv, ItemStack item) {
 		removeInventoryItems(inv, item.getType(), item.getAmount());

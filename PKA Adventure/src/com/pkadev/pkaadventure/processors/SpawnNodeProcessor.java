@@ -36,7 +36,7 @@ import com.pkadev.pkaadventure.utils.MathUtil;
 public class SpawnNodeProcessor {
 	private static Main plugin = Main.instance;
 	private static Random random = new Random();
-	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld"))).getHandle();
+	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"))).getHandle();
 	
 	//1 = mobs, 2 = beacons, 3 = lootcrate
 	private static HashMap<SpawnNode, Integer> 	list1 = new HashMap<SpawnNode, Integer>();
@@ -126,7 +126,7 @@ public class SpawnNodeProcessor {
 	
 	private static Location getLocation(ConfigurationSection section) {
 		String prefix = ".Location.";
-		World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld"));
+		World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
 		int x = section.getInt(prefix + "X");
 		int y = section.getInt(prefix + "Y");
 		int z = section.getInt(prefix + "Z");
@@ -148,7 +148,7 @@ public class SpawnNodeProcessor {
 	//tick for list1 (mobs)
 	private static void tickList1() {
 		Player[] onlinePlayers = Bukkit.getServer().getOnlinePlayers();
-		World defaultWorld = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld"));
+		World defaultWorld = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
 		List<Location> onlinePlayerLocations = new ArrayList<Location>();
 		
 		for (Player player : onlinePlayers) {
@@ -209,7 +209,7 @@ public class SpawnNodeProcessor {
 	private static void addDefaultBeaconToList2() {
 		addNodeToList2(new SpawnNode(
 				new Location(
-						Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.config, "homeworld")), 
+						Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml")), 
 						1, 64, 1)));
 	}
 	
@@ -447,7 +447,7 @@ public class SpawnNodeProcessor {
 		if (random.nextInt(4) > 2) {
 			rareItemInt = random.nextInt(4);
 		}
-		((LivingEntity) mobMonster.getEntity().getBukkitEntity()).getEquipment().setArmorContents(ItemUtil.getInitialArmorContent(node.getLevel(), rareItemInt));
+		((LivingEntity) mobMonster.getEntity().getBukkitEntity()).getEquipment().setArmorContents(ItemUtil.getInitialContent(node.getLevel(), rareItemInt));
 		return rareItemInt;
 	}
 }

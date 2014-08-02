@@ -1,6 +1,7 @@
 package com.pkadev.pkaadventure.listeners;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -118,12 +119,13 @@ public class CombatListener implements Listener {
 			MobMonster mobMonster = MobProcessor.getMobMonster(entity);
 			MobProcessor.mobDeath(mobMonster);
 			PKAMob pkaMob = mobMonster.getPKAMob();
-			HashMap<String, ItemStack> drops = ItemUtil.getNewItemDrop(pkaMob.getDamageDoneBy().keySet(), pkaMob.getLevel(), pkaMob.getRareItemInt());
+			pkaMob.getDamageDoneBy().remove("");
+			HashMap<String, List<ItemStack>> drops = ItemUtil.getNewItemDrop(pkaMob.getDamageDoneBy().keySet(), pkaMob.getMobName(), pkaMob.getLevel(), pkaMob.getRareItemInt());
 			for (String player : drops.keySet()) {
-				if (player == "")
-					continue;
-				Item item = entity.getWorld().dropItem(entity.getLocation(), drops.get(player));
-				ItemUtil.addDroppedItem(item, player);
+				for (ItemStack itemStack : drops.get(player)) {
+					Item item = entity.getWorld().dropItem(entity.getLocation(), itemStack);
+					ItemUtil.addDroppedItem(item, player);
+				}
 			}
 		} else if (entity instanceof Player) {
 			PlayerProcessor.playerDeath(entity);

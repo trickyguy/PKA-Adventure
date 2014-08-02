@@ -17,6 +17,7 @@ import com.pkadev.pkaadventure.utils.InventoryUtil;
 
 public class Food {
 
+	/*
 	public static void load() {
 		loadBuying();
 		loadSelling();
@@ -81,4 +82,5 @@ public class Food {
 		items.clear();
 		InventoryUtil.setInventory(InventoryType.FOOD_STORE_SELLING, foodShop);
 	}
+	*/
 }

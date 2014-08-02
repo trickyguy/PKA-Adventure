@@ -30,8 +30,7 @@ Lore:
   agility: "§7Agility: §f"
   restoration: "§7Restoration: §f"
 Math:
-  skill_drop_likelyhood: 1
-  armor_drop_likelyhood: 5
+  max_mobdrop_amount: 3
   experience_required_range: 0.0
   experience_required_multiplier: 1.0
   experience_required_yoffset: 20
@@ -68,7 +67,6 @@ Math:
   restoration_exp_range: 1.5
   restoration_exp_multiplier: 1.0
   restoration_exp_yoffset: 5
-  mob_rare_drop_chance: 0.2
   mob_maxhealth_range: 1.3
   mob_maxhealth_multiplier: 2.0
   mob_maxhealth_yoffset: 20.0
@@ -78,4 +76,7 @@ Math:
   mob_experience_range: 1.0
   mob_experience_multiplier: 2.0
   mob_experience_yoffset: 3
+  gold_mobdrop_amount_range: 1.5
+  gold_mobdrop_amount_multiplier: 0.1
+  gold_mobdrop_amount_yoffset: 1
    
