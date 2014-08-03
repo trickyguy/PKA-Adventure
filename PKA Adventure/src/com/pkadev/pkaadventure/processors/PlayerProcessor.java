@@ -99,7 +99,7 @@ public class PlayerProcessor {
 
 		if (!hasStatItem(player)) {
 			ItemStack itemStack = giveStatPearl(player);
-			ItemUtil.updateStatItemMeta(itemStack, pkaPlayer);
+			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		}
 	}
 
@@ -304,11 +304,6 @@ public class PlayerProcessor {
 		FileUtil.save(playerConfig, "plugins/PKAAdventure/players/" + playerName + ".yml");
 	}
 
-	private static void levelUpPlayer(Player player) {
-		PKAPlayer pkaPlayer = getPKAPlayer(player);
-		ItemUtil.updateWeaponLoreDamage(player.getInventory().getItem(pkaPlayer.getWeaponSlot()), player.getLevel(), pkaPlayer.getClassType());
-	}
-
 	private static boolean hasStatItem(Player player) {
 		return ItemUtil.isStatItem(player.getInventory().getItem(17));
 	}
@@ -419,10 +414,13 @@ public class PlayerProcessor {
 			return;
 
 		pkaPlayer.addAvailableUpgradePoint();
-		pkaPlayer.setDamage(MathUtil.getValue(newLevel, classTypeStringLowercase + "_damage"));
+		int newDamage = MathUtil.getValue(newLevel, classTypeStringLowercase + "_damage");
+		pkaPlayer.setDamage(newDamage);
 
-		ItemUtil.updateStatItemMeta(weapon, pkaPlayer);
-		ItemUtil.updateStatItemMeta(InventoryUtil.getSkillItem(player), pkaPlayer);
+		int level = 			player.getLevel();
+		ItemUtil.replaceValueInItemLore(weapon.getItemMeta().getLore(), pkaPlayer.getClassType().toString().toLowerCase() + "_damage", newDamage);
+		
+		ItemUtil.updateStatItemMeta(player, pkaPlayer);
 	}
 
 	private static void updateExperienceBar(Player player, int experienceNew, int experienceRequired) {

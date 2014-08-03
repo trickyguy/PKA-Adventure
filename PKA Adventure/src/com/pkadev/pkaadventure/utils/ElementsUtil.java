@@ -71,7 +71,7 @@ public class ElementsUtil {
 		return mod + value;
 	}
 
-	private static String getLoreElementValue(String reference, int level) {
+	public static String getLoreElementValue(String reference, int level) {
 		return "" + MathUtil.getValue(level, reference);
 	}
 	

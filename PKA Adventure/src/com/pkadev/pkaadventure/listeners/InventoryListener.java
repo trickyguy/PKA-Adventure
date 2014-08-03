@@ -72,7 +72,7 @@ public class InventoryListener implements Listener {
 						pkaPlayer.removeAttributes(clickedItemAttributes);
 						pkaPlayer.addAttributes(cursorItemAttributes);
 					}
-					ItemUtil.updateStatItemMeta(InventoryUtil.getSkillItem(player), pkaPlayer);
+					ItemUtil.updateStatItemMeta(player, pkaPlayer);
 				}
 			}
 		}
