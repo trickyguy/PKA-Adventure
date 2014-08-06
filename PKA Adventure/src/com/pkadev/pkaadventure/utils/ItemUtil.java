@@ -435,7 +435,7 @@ public class ItemUtil {
 	
 	
 	public static void updateStatItemMeta(Player player, PKAPlayer pkaPlayer) {
-		ItemStack itemStack = InventoryUtil.getSkillItem(player);
+		ItemStack itemStack = InventoryUtil.getStatItem(player);
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		updateStatItemMetaLore(itemMeta, pkaPlayer);
 		updateStatItemMetaName(itemMeta, pkaPlayer);
@@ -615,7 +615,15 @@ public class ItemUtil {
 		return armorContent;
 	}
 	
-	
+	public static ItemStack getInitialStatItem(PKAPlayer pkaPlayer) {
+		ItemStack statItem = null;
+		if (pkaPlayer.getAvailableUpgradePoints() == 0) {
+			statItem = new ItemStack(Material.ENDER_PEARL);
+		} else {
+			statItem = new ItemStack(Material.EYE_OF_ENDER);
+		}
+		return statItem;
+	}
 	
 	
 	

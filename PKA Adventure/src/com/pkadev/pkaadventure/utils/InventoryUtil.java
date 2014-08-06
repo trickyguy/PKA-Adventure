@@ -13,6 +13,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.inventories.InventoryMain;
+import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.InventoryType;
 
 public class InventoryUtil {
@@ -137,8 +139,18 @@ public class InventoryUtil {
 		return weaponSlot;
 	}
 	
-	public static ItemStack getSkillItem(Player player) {
-		return player.getInventory().getItem(17);
+	public static ItemStack getStatItem(Player player) {
+		//TODO improve upon
+		if (ItemUtil.isStatItem(player.getInventory().getItem(17)))
+			return player.getInventory().getItem(17);
+		else {
+			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+			if (pkaPlayer == null)
+				return new ItemStack(Material.AIR);
+			player.getInventory().setItem(17, ItemUtil.getInitialStatItem(pkaPlayer));
+			ItemUtil.updateStatItemMeta(player, pkaPlayer);
+			return player.getInventory().getItem(17);
+		}
 	}
 	
 	public static void setItem(Player player, int slot, ItemStack itemStack) {

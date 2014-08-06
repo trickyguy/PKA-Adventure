@@ -25,19 +25,9 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.ShopUtil;
 
 public class InventoryListener implements Listener {
-	Main plugin = Main.instance;
+	private Main plugin = Main.instance;
 
 	private static InventoryListener i; private InventoryListener(){} public static InventoryListener i() {if (i == null)i = new InventoryListener();return i;}
-
-	@EventHandler
-	public void onJoin(PlayerJoinEvent event) {
-		PlayerProcessor.loadPlayer(event.getPlayer());
-	}
-
-	@EventHandler
-	public void onLeave(PlayerQuitEvent event) {
-		PlayerProcessor.unloadPlayer(event.getPlayer());
-	}
 
 	@EventHandler
 	public void onItemPickup(PlayerPickupItemEvent event) {
@@ -53,6 +43,8 @@ public class InventoryListener implements Listener {
 	public void onInventoryClick(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
 		if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT) {
 			event.setCancelled(true);
 			return;

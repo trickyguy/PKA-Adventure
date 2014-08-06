@@ -31,26 +31,30 @@ public class CombatListener implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-
+		
+		event.setDamage(0d);
+		Entity damagee = event.getEntity();
+		Entity damager = event.getDamager();
+		
 		double damage = 0d;
 		int[] attributesAttacker = new int[]{0, 0, 0, 0};
 		String damagerName = "";
 
-		if (MobProcessor.isMobMonster(event.getEntity())) {
-			LivingEntity livingEntity = (LivingEntity) event.getEntity();
+		if (MobProcessor.isMobMonster(damagee)) {
+			LivingEntity livingEntity = (LivingEntity) damagee;
 			if (livingEntity.getNoDamageTicks() > 10) {
 				event.setCancelled(true);
 				return;
 			}
 
-			if (MobProcessor.isMobMonster(event.getDamager())) {
+			if (MobProcessor.isMobMonster(damager)) {
 				PKAMob pkaMob = MobProcessor.getMobMonster(livingEntity).getPKAMob();
 				damage = pkaMob.getDamage();
 				attributesAttacker = pkaMob.getAttributes();
-			} else if (event.getDamager() instanceof Player) {
-				Player player = (Player) event.getEntity();
+			} else if (damager instanceof Player) {
+				Player player = (Player) damagee;
 				PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-				if (pkaPlayer.getWeaponSlot() != player.getInventory().getHeldItemSlot()) {
+				if (pkaPlayer == null || (pkaPlayer.getWeaponSlot() != player.getInventory().getHeldItemSlot())) {
 					event.setCancelled(true);
 					return;
 				}
@@ -58,31 +62,36 @@ public class CombatListener implements Listener {
 				attributesAttacker = pkaPlayer.getAttributes();
 				damagerName = player.getName();
 			} else {
-				event.getEntity().remove();
+				damagee.remove();
 			}
 			if (damage == 0d)
 				return;
 
-			MobProcessor.damagePlayerByEntity(livingEntity, damage, attributesAttacker, damagerName);
-		} else if (event.getEntity() instanceof Player) {
-			Player player = (Player) event.getEntity();
+			MobProcessor.damageMobByEntity(livingEntity, damage, attributesAttacker, damagerName);
+		} else if (damagee instanceof Player) {
+			Player player = (Player) damagee;
 			if (player.getNoDamageTicks() > 10) {
 				event.setCancelled(true);
 				return;
 			}
 
-			if (MobProcessor.isMobMonster(event.getDamager())) {
-				PKAMob pkaMob = MobProcessor.getMobMonster(event.getDamager()).getPKAMob();
+			if (MobProcessor.isMobMonster(damager)) {
+				PKAMob pkaMob = MobProcessor.getMobMonster(damager).getPKAMob();
 				damage = pkaMob.getDamage();
 				attributesAttacker = pkaMob.getAttributes();
-			} else if (event.getDamager() instanceof Player) {
+			} else if (damager instanceof Player) {
 				//TODO
-				event.setCancelled(false);
+				event.setCancelled(true);
 				return;
 			} else {
 				event.getEntity().remove();
 			}
-			PlayerProcessor.damagePlayerByEntity(player, damage, attributesAttacker);
+			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+			if (pkaPlayer == null) {
+				event.setCancelled(true);
+				return;
+			}
+			PlayerProcessor.damagePlayerByEntity(player, pkaPlayer, damage, attributesAttacker);
 		} else {
 			event.getEntity().remove();
 		}
@@ -97,6 +106,7 @@ public class CombatListener implements Listener {
 			return;
 		}
 
+		event.setDamage(0d);
 		LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
 		if (livingEntity instanceof Player) {

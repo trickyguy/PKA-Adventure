@@ -50,6 +50,8 @@ public class ShopUtil {
 		if(item.getItemMeta().getDisplayName() == null) return;
 
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
 		int cost = ItemUtil.getIntValueFromLore(item.getItemMeta().getLore(), "Cost");
 		int goldAmount = pkaPlayer.getGoldAmount();
 		if(cost <= goldAmount) {
@@ -73,6 +75,8 @@ public class ShopUtil {
 		if(item.getItemMeta().getDisplayName() == null) return;
 
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
 		int worth = ItemUtil.getIntValueFromLore(item.getItemMeta().getLore(), "Worth");
 
 		ItemStack newItem = createItem(item);

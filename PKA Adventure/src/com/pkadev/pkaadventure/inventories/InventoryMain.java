@@ -59,6 +59,8 @@ public class InventoryMain {
 	
 	public static ItemStack setPiggyBank(String playerName) {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
+		if (pkaPlayer == null)
+			return null;
 		ItemStack gold = new ItemStack(Material.CHEST, 1);
 		ItemMeta goldMeta = gold.getItemMeta();
 		goldMeta.setDisplayName("§6Piggy Bank");
@@ -71,6 +73,8 @@ public class InventoryMain {
 	
 	public static void updatePiggyBank(Inventory inventory, String playerName) {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
+		if (pkaPlayer == null)
+			return;
 		ItemStack gold = inventory.getItem(inventory.getSize() - 1);
 		ItemMeta goldMeta = gold.getItemMeta();
 		List<String> goldLore = gold.getItemMeta().getLore();

@@ -29,7 +29,7 @@ public class MobProcessor {
 		}
 	}
 	
-	public static void damagePlayerByEntity(LivingEntity livingEntity, double damage, int[] attributesAttacker, String damagerName) {
+	public static void damageMobByEntity(LivingEntity livingEntity, double damage, int[] attributesAttacker, String damagerName) {
 		MobMonster mobMonster = (MobMonster) livingEntity;
 		PKAMob pkaMob = mobMonster.getPKAMob();
 		double finalDamage = DamageUtil.getFinalizedDamage(damage, attributesAttacker, pkaMob.getAttributes());

@@ -18,11 +18,13 @@ import org.bukkit.inventory.PlayerInventory;
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.ClassType;
+import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class PlayerProcessor {
 	private static Main plugin = Main.instance;
@@ -70,10 +72,15 @@ public class PlayerProcessor {
 	 * @param player
 	 * @param classTypeString
 	 */
-	private static void loadPlayer(Player player, ClassType classType) {
+	private static void loadPlayer(Player player, ClassType classType) {		
 		String playerName = player.getName();
 		String classTypeString = classType.toString();
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
+		
+		if (classType == ClassType.NONE) {
+			MessageUtil.sendMessage(player, "Select a class before you can start playing.", MessageType.SINGLE);
+			return;
+		}
 		
 		int level = 					getLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int maxHealth = 				getMaxHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
@@ -98,7 +105,6 @@ public class PlayerProcessor {
 		updateHealth(Bukkit.getPlayer(playerName), pkaPlayer);
 
 		if (!hasStatItem(player)) {
-			ItemStack itemStack = giveStatPearl(player);
 			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		}
 	}
@@ -276,6 +282,8 @@ public class PlayerProcessor {
 	private static void savePlayer(Player player) {
 		String playerName = player.getName();
 		PKAPlayer pkaPlayer = getPKAPlayer(playerName);
+		if (pkaPlayer == null)
+			return;
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
 
 		String classTypeString = pkaPlayer.getClassType().toString();
@@ -435,16 +443,15 @@ public class PlayerProcessor {
 			return;
 		else {
 			PKAPlayer pkaPlayer = getPKAPlayer(player);
+			if (pkaPlayer == null)
+				return;
 			double maxHealth = pkaPlayer.getMaxHealth();
 			double finalDamage = DamageUtil.getFinalizedDamage(minecraftDamage, maxHealth);
 			damagePlayer(player, pkaPlayer, finalDamage);
 		}
 	}
 
-	public static void damagePlayerByEntity(Player player, double damage, int[] attributesAttacker) {
-		if (player.getNoDamageTicks() > 10)
-			return;
-		PKAPlayer pkaPlayer = getPKAPlayer(player);
+	public static void damagePlayerByEntity(Player player, PKAPlayer pkaPlayer, double damage, int[] attributesAttacker) {
 		double finalDamage = DamageUtil.getFinalizedDamage(damage, attributesAttacker, pkaPlayer.getAttributes());
 		damagePlayer(player, pkaPlayer, finalDamage);
 	}
@@ -472,9 +479,12 @@ public class PlayerProcessor {
 	public static void playerDeath(Entity entity) {
 		Player player = (Player) entity;
 		PKAPlayer pkaPlayer = getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
 		pkaPlayer.setHealth(pkaPlayer.getMaxHealth());
 		setHomeToNearestBeacon(player);
 		damageArmor(player);
+		MessageUtil.sendMessage(player, "You died, your armor has been damaged.", MessageType.SINGLE);
 	}
 
 }
