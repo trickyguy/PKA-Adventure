@@ -25,7 +25,7 @@ public class CommandProcessor implements CommandExecutor {
 		Player player = (Player) sender;
 
 		if (argsLength == 0) {
-			//TODO
+			InventoryUtil.openInventory(player, "selection");
 		} else if (argsLength == 1) {
 			if (args[0].equalsIgnoreCase("create")) {
 				MessageUtil.sendMessage(player, "/create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);

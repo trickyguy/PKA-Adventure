@@ -1,10 +1,15 @@
 package com.pkadev.pkaadventure.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -32,40 +37,7 @@ public class InventoryUtil {
 	}
 	
 	public static void load() {
-		//TODO improve upon this code
-		Inventory skillInventory = Bukkit.createInventory(null, 9, "Select a class!");
 		
-		ItemStack woodyItem = 	new ItemStack(Material.WOOD_SWORD);
-		ItemStack kyleItem = 	new ItemStack(Material.BOW);
-		ItemStack leftyItem = 	new ItemStack(Material.GOLD_AXE);
-		ItemStack wingsItem = 	new ItemStack(Material.BOW);
-		
-		ItemMeta itemMeta = woodyItem.getItemMeta();
-		String woodyName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.woody_selection_name", "config.yml");
-		itemMeta.setDisplayName(woodyName.replace('&', '§'));
-		woodyItem.setItemMeta(itemMeta);
-		
-		itemMeta = kyleItem.getItemMeta();
-		String kyleName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.kyle_selection_name", "config.yml");
-		itemMeta.setDisplayName(kyleName.replace('&', '§'));
-		kyleItem.setItemMeta(itemMeta);
-		
-		itemMeta = leftyItem.getItemMeta();
-		String leftyName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.lefty_selection_name", "config.yml");
-		itemMeta.setDisplayName(leftyName.replace('&', '§'));
-		leftyItem.setItemMeta(itemMeta);
-		
-		itemMeta = wingsItem.getItemMeta();
-		String wingsName = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), 	"Lore.wings_selection_name", "config.yml");
-		itemMeta.setDisplayName(wingsName.replace('&', '§'));
-		wingsItem.setItemMeta(itemMeta);
-		
-		skillInventory.setItem(2, woodyItem);
-		skillInventory.setItem(3, kyleItem);
-		skillInventory.setItem(4, leftyItem);
-		skillInventory.setItem(6, wingsItem);
-		
-		setInventory(InventoryType.SKILL, skillInventory);
 	}
 	
 	public static void compressAndSaveInventory(Player player) {
@@ -130,13 +102,21 @@ public class InventoryUtil {
 	 * @return
 	 */
 	public static int getWeaponSlot(Player player) {
-		int weaponSlot = 9;
 		PlayerInventory playerInventory = player.getInventory();
 		for (int i = 0; i < 9; i++) {
 			if (ItemUtil.isWeapon(playerInventory.getItem(i)))
 				return i;
 		}
-		return weaponSlot;
+		return 9;
+	}
+	
+	public static int getActualWeaponSlot(Player player) {
+		PlayerInventory playerInventory = player.getInventory();
+		for (int i = 0; i < playerInventory.getSize(); i++) {
+			if (ItemUtil.isWeapon(playerInventory.getItem(i)))
+				return i;
+		}
+		return 0;
 	}
 	
 	public static ItemStack getStatItem(Player player) {
@@ -161,12 +141,12 @@ public class InventoryUtil {
 		player.getInventory().addItem(itemStack);
 	}
 	
-	public static void openStaticInventory(Player player, InventoryType inventoryType) {
-		player.openInventory(getInventory(inventoryType));
-	}
-	
-	public static void openDynamicInventory(Player player, InventoryType inventoryType) {
-		//TODO (something stored inside inventoryType, ill think of something configurable)
+	/**
+	 * @param player
+	 * @param reference: usually the name of the mob he is opening shop from
+	 */
+	public static void openInventory(Player player, String reference) {
+		player.openInventory(ElementsUtil.getInventoryElement(reference, player.getLevel()));
 	}
 	
 	public static void openShopInventory(Player player, InventoryType inventoryType) {
@@ -176,6 +156,149 @@ public class InventoryUtil {
 		inventoryd.setContents(items);
 		inventoryd.setItem(inventory.getSize() - 1, InventoryMain.setPiggyBank(player.getName()));
 		player.openInventory(inventoryd);
+	}
+	
+	public static InventoryType getInventoryTypeFromName(String nameReference) {
+		return ElementsUtil.getInventoryTypeElement(nameReference);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static Inventory getInitialInventory(String reference, InventoryType inventoryType, int level) {
+		String configFileReference = "inventories.yml";
+		YamlConfiguration inventoriesConfig = FileUtil.getInventoryConfig();
+		
+		int size = 						FileUtil.getIntValueFromConfig(inventoriesConfig, reference + ".size", configFileReference);
+		String title = 					FileUtil.getStringValueFromConfig(inventoriesConfig, reference + ".name", configFileReference);
+		List<String> elements = 		FileUtil.getStringArrayFromConfig(inventoriesConfig, reference + ".elements", configFileReference);
+		
+		Inventory element = Bukkit.createInventory(null, size, title);
+		
+		if (inventoryType == InventoryType.SHOP_STATIC) {
+			InventoryUtil.fillStaticInventory(element, level, elements);
+		} else if (inventoryType == InventoryType.SHOP_DYNAMIC) {
+			List<String> endElements = 	FileUtil.getStringArrayFromConfig(inventoriesConfig, reference + ".endelements", configFileReference);
+			InventoryUtil.fillDynamicInventory(element, level, endElements);
+		} else if (inventoryType == InventoryType.SHOP_MIXED) {
+			List<String> endElements = 	FileUtil.getStringArrayFromConfig(inventoriesConfig, reference + ".endelements", configFileReference);
+			InventoryUtil.fillMixedInventory(element, level, elements, endElements);
+		}
+		
+		return element;
+	}
+	
+	//element: 		reference#amount#rarity#slotnumber
+	//endElement: 	reference#amount#rarity#amount (second amount = how often will this be placed into inventory)
+	
+	public static void fillStaticInventory(Inventory inventory, int level, List<String> elements) {
+		for (String element : elements) {
+			int primaryDivider = 	getInventoryElementDivider(element, -1);
+			int secondaryDivider = 	getInventoryElementDivider(element, primaryDivider);
+			int tertiaryDivider = 	getInventoryElementDivider(element, secondaryDivider);
+			String reference = 		getInventoryElement(element, primaryDivider);
+			int amount = 			getInventoryElementAmount(element, primaryDivider, secondaryDivider);
+			int rarity = 			getInventoryElementRarity(element, secondaryDivider, tertiaryDivider);
+			int slot = 				getInventoryElementSlot(element, tertiaryDivider);
+			ItemStack itemStack = 	ItemUtil.getInitialItem(reference, level, rarity);
+			itemStack.setAmount(amount);
+			inventory.setItem(slot, itemStack);
+		}
+	}
+	
+	public static void fillDynamicInventory(Inventory inventory, int level, List<String> endElements) {
+		HashMap<ItemStack, Integer> items = 	convertInventoryEndElements(level, endElements);
+		List<ItemStack> itemList =			 	new ArrayList<ItemStack>();
+		for (ItemStack itemStack : items.keySet()) {
+			int placeAmount = 					items.get(itemStack);
+			for (int i = 0; i < placeAmount; i++) {
+				itemList.add(itemStack);
+			}
+		}
+		Collections.shuffle(itemList);
+		int slot = 0;
+		for (int i = 0; i < inventory.getSize(); i++) {
+			if (itemList.isEmpty())
+				return;
+			ItemStack itemStack = 				itemList.get(0);
+			int placeAmount = 					items.get(itemStack);
+			if (random.nextBoolean()) {
+				if (hasItemInSlot(inventory, i)) {
+					inventory.setItem(i, itemStack);
+					if (placeAmount == 1) {
+						itemList.remove(itemStack);
+					}
+				}
+			}
+			slot++;
+		}
+	}
+	
+	public static void fillMixedInventory(Inventory inventory, int level, List<String> elements, List<String> endElements) {
+		fillStaticInventory(inventory, level, elements);
+		fillDynamicInventory(inventory, level, endElements);
+	}
+	
+	/**
+	 *  Integer value is how many of them will be randomly placed in inventory
+	 * @param elements
+	 * @return
+	 */
+	private static HashMap<ItemStack, Integer> convertInventoryEndElements(int level, List<String> endElements) {
+		HashMap<ItemStack, Integer> convertedElements = new HashMap<ItemStack, Integer>();
+		
+		for (String endElement : endElements) {
+			int primaryDivider = 	getInventoryElementDivider(endElement, -1);
+			int secondaryDivider = 	getInventoryElementDivider(endElement, primaryDivider);
+			int tertiaryDivider = 	getInventoryElementDivider(endElement, secondaryDivider);
+			String reference = 		getInventoryElement(endElement, primaryDivider);
+			int amount = 			getInventoryElementAmount(endElement, primaryDivider, secondaryDivider);
+			int rarity = 			getInventoryElementRarity(endElement, secondaryDivider, tertiaryDivider);
+			int placeAmount = 		getInventoryElementSlot(endElement, tertiaryDivider);
+			ItemStack itemStack = 	ItemUtil.getInitialItem(reference, level, rarity);
+			itemStack.setAmount(amount);
+			convertedElements.put(itemStack, placeAmount);
+		}
+		
+		return convertedElements;
+	}
+	
+	private static int getInventoryElementDivider(String element, int previousDivider) {
+		return element.indexOf("#", previousDivider + 1);
+	}
+	
+	private static String getInventoryElement(String element, int divider) {
+		return element.substring(0, divider);
+	}
+	
+	private static int getInventoryElementAmount(String element, int primaryDivider, int secondaryDivider) {
+		return Integer.parseInt(element.substring(primaryDivider + 1, secondaryDivider));
+	}
+
+	private static int getInventoryElementRarity(String element, int secondaryDivider, int tertiaryDivider) {
+		if (tertiaryDivider == -1) {
+			return Integer.parseInt(element.substring(secondaryDivider + 1));
+		} else {
+			return Integer.parseInt(element.substring(secondaryDivider + 1, tertiaryDivider));
+		}
+	}
+	
+	private static int getInventoryElementSlot(String element, int tertiaryDivider) {
+		return Integer.parseInt(element.substring(tertiaryDivider + 1));
+	}
+
+	private static boolean hasItemInSlot(Inventory inventory, int slot) {
+		if (inventory.getItem(slot).getType() == Material.AIR)
+			return false;
+		return true;
 	}
 }
 

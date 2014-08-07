@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
@@ -52,9 +53,9 @@ public class InventoryListener implements Listener {
 		else if (event.getClick() == ClickType.DOUBLE_CLICK 
 				|| event.getClick() == ClickType.LEFT 
 				|| event.getClick() == ClickType.RIGHT) {
+			ItemStack clickedItem = event.getCurrentItem();
+			ItemStack cursorItem = 	event.getCursor();
 			if (event.getSlotType() == SlotType.ARMOR) {
-				ItemStack clickedItem = event.getCurrentItem();
-				ItemStack cursorItem = 	event.getCursor();
 				if (ItemUtil.isArmorItem(cursorItem)) {
 					int[] cursorItemAttributes = ItemUtil.getAttributesFromItemStack(cursorItem);
 					if (event.getAction() == InventoryAction.DROP_ALL_CURSOR || event.getAction() == InventoryAction.DROP_ONE_CURSOR) {
@@ -65,6 +66,13 @@ public class InventoryListener implements Listener {
 						pkaPlayer.addAttributes(cursorItemAttributes);
 					}
 					ItemUtil.updateStatItemMeta(player, pkaPlayer);
+				}
+			} else {
+				InventoryView inventoryView = 	event.getView();
+				String nameReference = 			event.getInventory().getName();
+				if (inventoryView.getTopInventory().contains(clickedItem)) {
+					InventoryType inventoryType = InventoryUtil.getInventoryTypeFromName(nameReference);
+					
 				}
 			}
 		}
@@ -99,11 +107,11 @@ public class InventoryListener implements Listener {
 			if(event.getView().getTopInventory().contains(event.getCurrentItem())) {
 				InventoryType type = ShopUtil.getInventoryTypeFromString(inventory.getName());
 				event.setCancelled(true);
-				if(type.equals(InventoryType.FOOD_STORE_BUYING)) {
+				if(type.equals(InventoryType.SHOP_DYNAMIC)) {
 					if(event.getSlot() == 8) {
 						player.closeInventory();
 						ShopUtil.playSound(player, SoundType.SWITCH);
-						InventoryUtil.openShopInventory(player, InventoryType.FOOD_STORE_SELLING);
+						InventoryUtil.openShopInventory(player, InventoryType.SHOP_DYNAMIC);
 						return;
 					} if(event.getSlot() == event.getInventory().getSize() - 1) {
 						player.sendMessage("§cYou can't move your Piggy Bank.");
@@ -113,11 +121,11 @@ public class InventoryListener implements Listener {
 					ShopUtil.purcase(event.getCurrentItem(), player);
 					InventoryMain.updatePiggyBank(event.getInventory(), player.getName());
 					return;
-				} if(type.equals(InventoryType.FOOD_STORE_SELLING)) {
+				} if(type.equals(InventoryType.SHOP_DYNAMIC)) {
 					if(event.getSlot() == 8) {
 						player.closeInventory();
 						ShopUtil.playSound(player, SoundType.SWITCH);
-						InventoryUtil.openShopInventory(player, InventoryType.FOOD_STORE_BUYING);
+						InventoryUtil.openShopInventory(player, InventoryType.SHOP_DYNAMIC);
 						return;
 					} if(event.getSlot() == event.getInventory().getSize() - 1) {
 						player.sendMessage("§cYou can't move your Piggy Bank.");

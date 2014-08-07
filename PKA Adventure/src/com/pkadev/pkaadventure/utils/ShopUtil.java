@@ -30,9 +30,9 @@ public class ShopUtil {
 		default:
 			return null;
 		case "Food Store - Buying":
-			return InventoryType.FOOD_STORE_BUYING;
+			return InventoryType.SHOP_DYNAMIC;
 		case "Food Store - Selling":
-			return InventoryType.FOOD_STORE_SELLING;
+			return InventoryType.SHOP_DYNAMIC;
 		}
 	}
 

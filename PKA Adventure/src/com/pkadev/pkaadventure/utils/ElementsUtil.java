@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.ItemType;
+import com.pkadev.pkaadventure.types.InventoryType;
 
 public class ElementsUtil {
 	private static Main plugin = Main.instance;
@@ -238,6 +241,54 @@ public class ElementsUtil {
 	
 	private static void setDropElement(String reference, List<String> element) {
 		dropElements.put(reference, element);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	private static HashMap<String, Inventory> inventoryElements = new HashMap<String, Inventory>();
+	private static HashMap<String, InventoryType> inventoryNameElements = new HashMap<String, InventoryType>();
+	
+	public static Inventory getInventoryElement(String reference, int level) {
+		if (inventoryElements.containsKey(reference))
+			return inventoryElements.get(reference);
+		else {
+			InventoryType inventoryType = 	InventoryType.valueOf(FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), reference + ".inventorytype", "inventories.yml").toUpperCase());
+			Inventory element = 			InventoryUtil.getInitialInventory(reference, inventoryType, level);
+			String nameReference = 			element.getName();
+			setInventoryElement(reference, element);
+			setInventoryNameElement(nameReference, inventoryType);
+			return element;
+		}
+	}
+	
+	public static InventoryType getInventoryTypeElement(String nameReference) {
+		if (inventoryNameElements.containsKey(nameReference))
+			return inventoryNameElements.get(nameReference);
+		return InventoryType.NONE;
+	}
+	
+	private static void setInventoryElement(String reference, Inventory element) {
+		inventoryElements.put(reference, element);
+	}
+	
+	private static void setInventoryNameElement(String nameReference, InventoryType inventoryType) {
+		inventoryNameElements.put(nameReference, inventoryType);
 	}
 	
 }

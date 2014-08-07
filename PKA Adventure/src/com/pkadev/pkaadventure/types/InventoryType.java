@@ -2,6 +2,7 @@ package com.pkadev.pkaadventure.types;
 
 public enum InventoryType {
 
-	SKILL, CLASS_SELECTION, GENERAL_STORE, FOOD_STORE_BUYING, FOOD_STORE_SELLING;
+	NONE, SHOP_STATIC, SHOP_DYNAMIC, SHOP_MIXED,
+	SELECT;
 	
 }

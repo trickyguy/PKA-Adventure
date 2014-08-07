@@ -266,7 +266,7 @@ public class PlayerProcessor {
 		//TODO REMOVE BELOW (will load inventory in the future)
 		ItemStack weapon = ItemUtil.getClassWeapon(classType);
 		ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
-		InventoryUtil.setItem(player, InventoryUtil.getWeaponSlot(player), weapon);
+		InventoryUtil.setItem(player, InventoryUtil.getActualWeaponSlot(player), weapon);
 
 		savePlayer(player);
 

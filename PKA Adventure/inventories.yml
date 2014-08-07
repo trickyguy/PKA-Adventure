@@ -1,31 +1,9 @@
-Inventories:
-  Food:
-    Name: Food Store
-    Size: 1
-    Contents:
-      1:
-        Name: Cooked Beef
-        Lore:
-        - Something witty.
-        ID: COOKED_BEEF
-        Amount: 1
-        Cost: 8
-        Worth: 6
-      2:
-        Name: Bread
-        Lore:
-        - Freshly baked from
-        - Theo's gas chamber.
-        ID: BREAD
-        Amount: 2
-        Cost: 6
-        Worth: 4
-      3:
-        Name: Apple
-        Lore:
-        - Hand picked from the forbidden
-        - tree. Fuck you, God.
-        ID: APPLE
-        Amount: 4
-        Cost: 6
-        Worth: 4
+selection:
+  size: 9
+  name: Select a class!
+  inventorytype: select
+  elements:
+  - woody_selection
+  - wings_selection
+  - lefty_selection
+  - kyle_selection
