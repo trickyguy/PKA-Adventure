@@ -47,3 +47,31 @@ kyle_selection:
   endelements:
   - ""
   maxendelements: 0
+woody_weapon:
+  elements:
+  - woody_damage
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0
+wings_weapon:
+  elements:
+  - wings_damage
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0
+lefty_weapon:
+  elements:
+  - lefty_damage
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0
+kyle_weapon:
+  elements:
+  - kyle_damage
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0

@@ -5,8 +5,16 @@ armor:
 woody_selection:
 - §r§6Woody
 wings_selection:
-- &r§6Wings
+- §r§6Wings
 lefty_selection:
-- &r§6Lefty
+- §r§6Lefty
 kyle_selection:
-- &r§6Kyle
+- §r§6Kyle
+woody_weapon:
+- §r§6Woody's Punisher
+wings_weapon:
+- §r§6Wings's Funshooter
+lefty_weapon:
+- §r§6Lefty's Heavy Hitter 
+kyle_weapon:
+- §r§6Kyle's Stick Launcher

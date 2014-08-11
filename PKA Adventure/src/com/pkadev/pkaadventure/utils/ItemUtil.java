@@ -440,6 +440,7 @@ public class ItemUtil {
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		updateStatItemMetaLore(itemMeta, pkaPlayer);
 		updateStatItemMetaName(itemMeta, pkaPlayer);
+		itemStack.setItemMeta(itemMeta);
 	}
 
 	private static void updateStatItemMetaLore(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
@@ -624,6 +625,10 @@ public class ItemUtil {
 		} else {
 			statItem = new ItemStack(Material.EYE_OF_ENDER);
 		}
+		ItemMeta itemMeta = statItem.getItemMeta();
+		updateStatItemMetaLore(itemMeta, pkaPlayer);
+		updateStatItemMetaName(itemMeta, pkaPlayer);
+		statItem.setItemMeta(itemMeta);
 		return statItem;
 	}
 	

@@ -19,12 +19,14 @@ import org.bukkit.inventory.ItemStack;
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.processors.InventoryProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.SoundType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 import com.pkadev.pkaadventure.utils.ShopUtil;
 
 public class InventoryListener implements Listener {
@@ -46,8 +48,9 @@ public class InventoryListener implements Listener {
 	public void onInventoryClick(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-		if (pkaPlayer == null)
-			return;
+		boolean hasPKAPlayer = false; //if this is false the only thing that will trigger anything is if they click in Selection menu
+		if (pkaPlayer != null)
+			hasPKAPlayer = true;
 		if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT) {
 			event.setCancelled(true);
 			return;
@@ -57,7 +60,7 @@ public class InventoryListener implements Listener {
 				|| event.getClick() == ClickType.RIGHT) {
 			ItemStack clickedItem = event.getCurrentItem();
 			ItemStack cursorItem = 	event.getCursor();
-			if (event.getSlotType() == SlotType.ARMOR) {
+			if (event.getSlotType() == SlotType.ARMOR && hasPKAPlayer) {
 				if (ItemUtil.isArmorItem(cursorItem)) {
 					int[] cursorItemAttributes = ItemUtil.getAttributesFromItemStack(cursorItem);
 					if (event.getAction() == InventoryAction.DROP_ALL_CURSOR || event.getAction() == InventoryAction.DROP_ONE_CURSOR) {
@@ -73,21 +76,16 @@ public class InventoryListener implements Listener {
 				InventoryView inventoryView = 	event.getView();
 				String nameReference = 			event.getInventory().getName();
 				if (inventoryView.getTopInventory().contains(clickedItem)) {
-					InventoryType inventoryType = InventoryUtil.getInventoryTypeFromName(nameReference);
-					if (inventoryType == InventoryType.SELECT) {
-						if (ItemUtil.isAttributeItem(clickedItem))
-							PlayerProcessor.switchClass(player, ClassType.valueOf(ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName())));
+					if (InventoryProcessor.clickInNamedUpperInventory(player, nameReference, clickedItem, true)) {
+						event.setCancelled(true);
+						return;
+					}
+				} else {
+					if (InventoryProcessor.clickInNamedUpperInventory(player, nameReference, clickedItem, false)) {
+						event.setCancelled(true);
+						return;
 					}
 				}
-			}
-		}
-		if (ItemUtil.isWeapon(event.getCurrentItem())) {
-			pkaPlayer.setWeaponSlot(9);
-		} else if (ItemUtil.isWeapon(event.getCursor())) {
-			if (event.getSlotType() == SlotType.QUICKBAR) {
-				pkaPlayer.setWeaponSlot(event.getSlot());
-			} else {
-				pkaPlayer.setWeaponSlot(9);
 			}
 		}
 	}

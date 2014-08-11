@@ -129,7 +129,6 @@ public class InventoryUtil {
 			if (pkaPlayer == null)
 				return new ItemStack(Material.AIR);
 			player.getInventory().setItem(17, ItemUtil.getInitialStatItem(pkaPlayer));
-			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 			return player.getInventory().getItem(17);
 		}
 	}

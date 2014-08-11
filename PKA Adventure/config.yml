@@ -17,7 +17,7 @@ Lore:
   wings_damage: "§7Damage: §f"
   lefty_damage: "§7Damage: §f"
   kyle_damage: "§7Damage: §f"
-  woody_selection: "&6WoodyF"
+  woody_selection: "§6WoodyF"
   wings_selection: "§6WingsF"
   lefty_selection: "§6LeftyF"
   kyle_selection: "§6KyleF"
@@ -39,6 +39,10 @@ ItemStack:
   wings_selection: 261
   lefty_selection: 286
   kyle_selection: 261
+  woody_weapon: 268
+  wings_weapon: 261
+  lefty_weapon: 286
+  kyle_weapon: 261
 Math:
   max_mobdrop_amount: 3
   experience_required_range: 0.0
