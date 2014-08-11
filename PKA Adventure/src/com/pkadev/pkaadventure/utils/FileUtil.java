@@ -246,7 +246,7 @@ public class FileUtil {
 				plugin.disable();
 				return 0.0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not Integer. Double new " + configFileReference + " and trying again");
+				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not Double. Creating new " + configFileReference + " and trying again");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
 				return getDoubleValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
@@ -277,10 +277,10 @@ public class FileUtil {
 	}
 	
 	public static void writeDefaultFile(File configFile, String defaultFileReference) {
-		InputStream inputStream = plugin.getInputStream(defaultFileReference);
+		InputStream inputStream = plugin.getInputStream("PKA Adventure/" + defaultFileReference);
 
 		if(inputStream == null){
-			plugin.severe("could not write default player.yml to file");
+			plugin.severe("could not write defaultFileReference to file");
 			return;
 		}
 		try{

@@ -24,6 +24,7 @@ import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.ClassType;
+import com.pkadev.pkaadventure.types.MessageType;
 
 public class ItemUtil {
 	private static Random random = new Random();
@@ -555,6 +556,7 @@ public class ItemUtil {
 	 * @return
 	 */
 	public static ItemStack getInitialItem(String reference, int level, int rarity) {
+		MessageUtil.sendMessage(null, "creating new item: " + reference + " " + level + " " + rarity, MessageType.SERVER_DEBUG);
 		ItemStack itemStack = 	ElementsUtil.getItemElement(reference);
 		return getInitialItem(itemStack, reference, level, rarity);
 	}
@@ -634,6 +636,8 @@ public class ItemUtil {
 	
 	
 	
+	
+	
 	public static ItemStack getClassWeapon(ClassType classType) {
 		Material material = null;
 		switch(classType) {
@@ -699,18 +703,21 @@ public class ItemUtil {
 		List<String> possibleNames = ElementsUtil.getNameElement(reference);
 		String itemName = possibleNames.get(random.nextInt(possibleNames.size()));
 		switch (rarity) {
-		case 0: {
+		case 1: {
 			itemName += "§7";
 			break;
 		}
-		case 1: {
-			itemName += "§e";
-		}
 		case 2: {
-			itemName += "§b";
+			itemName += "§e";
+			break;
 		}
 		case 3: {
+			itemName += "§b";
+			break;
+		}
+		case 4: {
 			itemName += "§d";
+			break;
 		}
 		default:return "INVALID RARITY VALUE";
 		}

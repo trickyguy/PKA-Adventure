@@ -1,6 +1,5 @@
 skill:
   elements:
-  - skill_item
   - skill_level
   - skill_exp
   - ""
@@ -9,7 +8,6 @@ skill:
   maxendelements: 1
 armor:
   elements:
-  - armor_item
   - armor_level
   - ""
   endelements:
@@ -21,3 +19,31 @@ armor:
   - agility
   - restoration
   maxendelements: 4
+woody_selection:
+  elements:
+  - woody_selection_line1_blank
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0
+wings_selection:
+  elements:
+  - wings_selection_line1_blank
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0
+lefty_selection:
+  elements:
+  - lefty_selection_line1_blank
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0
+kyle_selection:
+  elements:
+  - kyle_selection_line1_blank
+  - ""
+  endelements:
+  - ""
+  maxendelements: 0

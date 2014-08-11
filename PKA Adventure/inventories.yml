@@ -3,7 +3,7 @@ selection:
   name: Select a class!
   inventorytype: select
   elements:
-  - woody_selection
-  - wings_selection
-  - lefty_selection
-  - kyle_selection
+  - woody_selection$1$1$3
+  - wings_selection$1$1$4
+  - lefty_selection$1$1$5
+  - kyle_selection$1$1$6

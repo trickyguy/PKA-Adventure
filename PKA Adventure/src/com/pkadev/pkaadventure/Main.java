@@ -3,11 +3,13 @@ package com.pkadev.pkaadventure;
 import java.io.InputStream;
 import java.util.logging.Level;
 
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.listeners.CombatListener;
+import com.pkadev.pkaadventure.listeners.DefaultListener;
 import com.pkadev.pkaadventure.listeners.InventoryListener;
 import com.pkadev.pkaadventure.listeners.JobListener;
 import com.pkadev.pkaadventure.processors.CommandProcessor;
@@ -49,9 +51,10 @@ public class Main extends JavaPlugin {
 	
 	public void registerListeners() {
 		PluginManager pluginManager = getServer().getPluginManager();
-		pluginManager.registerEvents(JobListener.i(), this);
 		pluginManager.registerEvents(CombatListener.i(), this);
+		pluginManager.registerEvents(DefaultListener.i(), this);
 		pluginManager.registerEvents(InventoryListener.i(), this);
+		pluginManager.registerEvents(JobListener.i(), this);
 	}
 	
 	/**

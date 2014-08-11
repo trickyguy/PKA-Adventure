@@ -21,6 +21,7 @@ import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.InventoryType;
+import com.pkadev.pkaadventure.types.MessageType;
 
 public class InventoryUtil {
 	private static Random random = new Random();
@@ -174,6 +175,7 @@ public class InventoryUtil {
 	
 	
 	public static Inventory getInitialInventory(String reference, InventoryType inventoryType, int level) {
+		MessageUtil.sendMessage(null, "creating new inventory", MessageType.SERVER_DEBUG);
 		String configFileReference = "inventories.yml";
 		YamlConfiguration inventoriesConfig = FileUtil.getInventoryConfig();
 		
@@ -183,7 +185,7 @@ public class InventoryUtil {
 		
 		Inventory element = Bukkit.createInventory(null, size, title);
 		
-		if (inventoryType == InventoryType.SHOP_STATIC) {
+		if (inventoryType == InventoryType.SHOP_STATIC || inventoryType == InventoryType.SELECT) {
 			InventoryUtil.fillStaticInventory(element, level, elements);
 		} else if (inventoryType == InventoryType.SHOP_DYNAMIC) {
 			List<String> endElements = 	FileUtil.getStringArrayFromConfig(inventoriesConfig, reference + ".endelements", configFileReference);
@@ -196,8 +198,8 @@ public class InventoryUtil {
 		return element;
 	}
 	
-	//element: 		reference#amount#rarity#slotnumber
-	//endElement: 	reference#amount#rarity#amount (second amount = how often will this be placed into inventory)
+	//element: 		reference$amount$rarity$slotnumber
+	//endElement: 	reference$amount$rarity$amount (second amount = how often will this be placed into inventory)
 	
 	public static void fillStaticInventory(Inventory inventory, int level, List<String> elements) {
 		for (String element : elements) {
@@ -272,7 +274,7 @@ public class InventoryUtil {
 	}
 	
 	private static int getInventoryElementDivider(String element, int previousDivider) {
-		return element.indexOf("#", previousDivider + 1);
+		return element.indexOf("$", previousDivider + 1);
 	}
 	
 	private static String getInventoryElement(String element, int divider) {

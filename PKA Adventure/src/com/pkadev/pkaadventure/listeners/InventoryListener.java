@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.listeners;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +20,7 @@ import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.SoundType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
@@ -72,7 +74,10 @@ public class InventoryListener implements Listener {
 				String nameReference = 			event.getInventory().getName();
 				if (inventoryView.getTopInventory().contains(clickedItem)) {
 					InventoryType inventoryType = InventoryUtil.getInventoryTypeFromName(nameReference);
-					
+					if (inventoryType == InventoryType.SELECT) {
+						if (ItemUtil.isAttributeItem(clickedItem))
+							PlayerProcessor.switchClass(player, ClassType.valueOf(ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName())));
+					}
 				}
 			}
 		}
@@ -99,6 +104,7 @@ public class InventoryListener implements Listener {
 	//TODO make more efficient
 	@EventHandler
 	public void onShopClick(InventoryClickEvent event) {
+		/*
 		Player player = (Player) event.getWhoClicked();
 		if(event.getCurrentItem() == null) return;
 		Inventory inventory = event.getInventory();
@@ -140,6 +146,7 @@ public class InventoryListener implements Listener {
 				event.setCancelled(true);
 			}
 		}
+		*/
 	}
 
 }

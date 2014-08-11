@@ -13,11 +13,13 @@ import org.bukkit.inventory.ItemStack;
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.types.InventoryType;
+import com.pkadev.pkaadventure.types.MessageType;
 
 public class ElementsUtil {
 	private static Main plugin = Main.instance;
 	
 	public static void load() {
+		loreElements.put("", "");
 		itemTypeElements.put("", new ItemType(null, null, 0));
 		dropElements.put("default_drop", FileUtil.getStringArrayFromConfig(FileUtil.getDropConfig(), "default_drop", 
 					     "drops.yml"));
@@ -32,8 +34,6 @@ public class ElementsUtil {
 	private static HashMap<String, String> loreElements = new HashMap<String, String>();
 	
 	public static String getLoreElementMod(String reference) {
-		if (reference == "")
-			return "";
 		if (loreElements.containsKey(reference))
 			return loreElements.get(reference);
 		else {
@@ -75,7 +75,11 @@ public class ElementsUtil {
 	}
 
 	public static String getLoreElementValue(String reference, int level) {
-		return "" + MathUtil.getValue(level, reference);
+		if (reference.endsWith("blank")) {
+			return "";
+		} else {
+			return "" + MathUtil.getValue(level, reference);
+		}
 	}
 	
 	public static List<String> getMultipleInitialLoreElements(List<String> references, int level) {
@@ -126,6 +130,7 @@ public class ElementsUtil {
 	 * @return
 	 */
 	public static ItemStack getItemElement(String reference) {
+		MessageUtil.sendMessage(null, "getting itemElement: " + reference, MessageType.SERVER_DEBUG);
 		if (reference == "")
 			return new ItemStack(Material.AIR);
 		if (itemElements.containsKey(reference))
@@ -166,9 +171,9 @@ public class ElementsUtil {
 		else {
 			String configFileReference = "itemtypes.yml";
 			YamlConfiguration config = FileUtil.getItemTypeConfig();
-			ItemType element = new ItemType(	FileUtil.getStringArrayFromConfig(config, reference + "elements", configFileReference), 
-												FileUtil.getStringArrayFromConfig(config, reference + "endelements", configFileReference),
-												FileUtil.getIntValueFromConfig(config, reference + "maxendelements", configFileReference));
+			ItemType element = new ItemType(	FileUtil.getStringArrayFromConfig(config, reference + ".elements", configFileReference), 
+												FileUtil.getStringArrayFromConfig(config, reference + ".endelements", configFileReference),
+												FileUtil.getIntValueFromConfig(config, reference + ".maxendelements", configFileReference));
 			setItemTypeElement(reference, element);
 			return element;
 		}

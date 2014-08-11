@@ -1,7 +1,6 @@
 name: PKAAdventure
 version: 0.1.0
 main: com.pkadev.pkaadventure.Main
-depend: [ProtocolLib, LibsDisguises]
 commands:
   pka:
     usage: /pka help

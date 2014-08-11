@@ -1,4 +1,12 @@
 skill:
-  - Default Skill Name
+- Default Skill Name
 armor:
-  - Default Armor Name
+- Default Armor Name
+woody_selection:
+- §r§6Woody
+wings_selection:
+- &r§6Wings
+lefty_selection:
+- &r§6Lefty
+kyle_selection:
+- &r§6Kyle
