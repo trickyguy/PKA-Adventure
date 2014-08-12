@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -20,6 +21,7 @@ import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.utils.ItemUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class CombatListener implements Listener {
 
@@ -27,7 +29,7 @@ public class CombatListener implements Listener {
 
 	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-		if (event.getEntity() instanceof LivingEntity) {
+		if (!(event.getEntity() instanceof LivingEntity)) {
 			event.setCancelled(true);
 			return;
 		}
@@ -61,8 +63,28 @@ public class CombatListener implements Listener {
 				damage = pkaPlayer.getDamage();
 				attributesAttacker = pkaPlayer.getAttributes();
 				damagerName = player.getName();
+			}  else if (damager instanceof Projectile) {
+				if (((Projectile) damager).getShooter() instanceof Player) {
+					Player player = (Player) ((Projectile) damager).getShooter();
+					PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+					if (pkaPlayer == null || (pkaPlayer.getWeaponSlot() != player.getInventory().getHeldItemSlot())) {
+						event.setCancelled(true);
+						return;
+					}
+					damage = pkaPlayer.getDamage();
+					attributesAttacker = pkaPlayer.getAttributes();
+					damagerName = player.getName();
+				} else if (MobProcessor.isMobMonster(((Projectile) damager).getShooter())) {
+					PKAMob pkaMob = MobProcessor.getMobMonster(((Projectile) damager).getShooter()).getPKAMob();
+					damage = pkaMob.getDamage();
+					attributesAttacker = pkaMob.getAttributes();
+				} else {
+					((Projectile) damager).getShooter().remove();
+					event.setCancelled(true);
+				}
 			} else {
 				damagee.remove();
+				event.setCancelled(true);
 			}
 			if (damage == 0d)
 				return;
@@ -80,11 +102,23 @@ public class CombatListener implements Listener {
 				damage = pkaMob.getDamage();
 				attributesAttacker = pkaMob.getAttributes();
 			} else if (damager instanceof Player) {
-				//TODO
 				event.setCancelled(true);
 				return;
+			} else if (damager instanceof Projectile) {
+				if (((Projectile) damager).getShooter() instanceof Player) {
+					//TODO
+					event.setCancelled(true);
+				} else if (MobProcessor.isMobMonster(((Projectile) damager).getShooter())) {
+					PKAMob pkaMob = MobProcessor.getMobMonster(((Projectile) damager).getShooter()).getPKAMob();
+					damage = pkaMob.getDamage();
+					attributesAttacker = pkaMob.getAttributes();
+				} else {
+					((Projectile) damager).getShooter().remove();
+					event.setCancelled(true);
+				}
 			} else {
 				event.getEntity().remove();
+				event.setCancelled(true);
 			}
 			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 			if (pkaPlayer == null) {
@@ -94,6 +128,7 @@ public class CombatListener implements Listener {
 			PlayerProcessor.damagePlayerByEntity(player, pkaPlayer, damage, attributesAttacker);
 		} else {
 			event.getEntity().remove();
+			event.setCancelled(true);
 		}
 
 

@@ -32,6 +32,7 @@ import com.pkadev.pkaadventure.types.SpawnNodeType;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class SpawnNodeProcessor {
 	private static Main plugin = Main.instance;
@@ -74,14 +75,14 @@ public class SpawnNodeProcessor {
 			int amount = 0;
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Mobs");
 			load(section, 1);
-			plugin.log("loaded " + amount + " mob SpawnNodes.");
+			MessageUtil.log("loaded " + amount + " mob SpawnNodes.");
 		}
 		
 		if (spawnNodeConfig.contains("Beacons")) {
 			int amount = 0;
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Beacons");
 			load(section, 2);
-			plugin.log("loaded " + amount + " beacons.");
+			MessageUtil.log("loaded " + amount + " beacons.");
 			
 			if (amount == 0) {
 				addDefaultBeaconToList2();
@@ -94,7 +95,7 @@ public class SpawnNodeProcessor {
 			int amount = 0;
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Lootcrates");
 			load(section, 3);
-			plugin.log("loaded " + amount + " lootcrates.");
+			MessageUtil.log("loaded " + amount + " lootcrates.");
 		}
 		
 		startTimer();
@@ -111,7 +112,7 @@ public class SpawnNodeProcessor {
 							, section.getInt(".Amount"), section.getString(".Mob"), MobStrength.valueOf(section.getString(".MobStrength"))
 							, MobStance.valueOf(section.getString(".MobStance")), MobType.valueOf(section.getString(".MobType")));
 				} catch (Exception ex) {
-					plugin.severe("critical loading error for spawnNode by fileName " + nodeName + ". It cannot be loaded!");
+					MessageUtil.severe("critical loading error for spawnNode by fileName " + nodeName + ". It cannot be loaded!");
 					continue;
 				}
 			} else {
@@ -322,12 +323,14 @@ public class SpawnNodeProcessor {
 			try {
 				node = new SpawnNode(location, args[0].replace('_', ' '), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), args[4], MobStrength.valueOf(args[5].toUpperCase()), MobStance.valueOf(args[6].toUpperCase()), MobType.valueOf(args[7].toUpperCase()));
 			} catch (Exception ex) {
+				MessageUtil.d(1);
 				return false;
 			}
 			addNodeToList2(node);
 			saveSpawnNode(node, fileName);
 			return true;
 		} else {
+			MessageUtil.d(2);
 			return false;
 		}
 	}

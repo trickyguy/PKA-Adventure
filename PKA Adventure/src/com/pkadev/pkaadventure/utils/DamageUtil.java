@@ -10,7 +10,7 @@ public class DamageUtil {
 		if (attributesAttacker.length == 5) {
 			attackerCritChance = 100 / attributesAttacker[4];
 		}
-		double attackerStrength = 100d / (double) attributesAttacker[4];
+		double attackerStrength = 100d / (double) attributesAttacker[0];
 		double defenderToughness = 100d / (double) attributesDefender[1];
 		if (random.nextInt(100) < attackerCritChance) {
 			damage = damage * 2d;

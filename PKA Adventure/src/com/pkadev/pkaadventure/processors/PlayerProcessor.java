@@ -54,11 +54,11 @@ public class PlayerProcessor {
 		
 		ClassType classType = getClassTypeFromPlayerConfig(playerName, playerConfig);
 		if (classType == null) {
-			plugin.severe("Had to load a players config a second time!");
+			MessageUtil.severe("Had to load a players config a second time!");
 			playerConfig = FileUtil.getPlayerConfig(playerName);
 			classType = getClassTypeFromPlayerConfig(playerName, playerConfig);
 			if (classType == null) {
-				plugin.severe("Failed to load a players config a second time, disabling plugin");
+				MessageUtil.severe("Failed to load a players config a second time, disabling plugin");
 				plugin.disable();
 				return;
 			}
@@ -74,13 +74,34 @@ public class PlayerProcessor {
 	 */
 	private static void loadPlayer(Player player, ClassType classType) {		
 		String playerName = player.getName();
-		String classTypeString = classType.toString();
-		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
-		
 		if (classType == ClassType.NONE) {
 			MessageUtil.sendMessage(player, "Select a class before you can start playing.", MessageType.SINGLE);
 			return;
 		}
+		
+		PKAPlayer pkaPlayer = getInitialPKAPlayer(player, classType);
+		addInitialArmorAttributesToPKAPlayer(player, pkaPlayer);
+		addPKAPlayer(playerName, pkaPlayer);
+		
+		updateHealth(Bukkit.getPlayer(playerName), pkaPlayer);
+
+		if (!hasStatItem(player)) {
+			ItemUtil.updateStatItemMeta(player, pkaPlayer);
+		}
+		
+		MessageUtil.log("player " + playerName + " has been loaded in.");
+	}
+
+	public static void loadAllPlayers() {
+		for (int i = 0; i < Bukkit.getOnlinePlayers().length; i++) {
+			loadPlayer(Bukkit.getOnlinePlayers()[i]);
+		}
+	}
+	
+	public static PKAPlayer getInitialPKAPlayer(Player player, ClassType classType) {
+		String playerName = player.getName();
+		String classTypeString = classType.toString();
+		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
 		
 		int level = 					getLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int maxHealth = 				getMaxHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
@@ -96,23 +117,10 @@ public class PlayerProcessor {
 		int miningExp = 				getMiningExpFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int miningLevel = 				getMiningLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		
-		PKAPlayer pkaPlayer = new PKAPlayer(playerName, classType, maxHealth, 
-				health, attributes, damage, abilityInventory, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);
-		addInitialArmorAttributesToPKAPlayer(player, pkaPlayer);
-		addPKAPlayer(playerName, pkaPlayer);
-
 		player.setLevel(level);
-		updateHealth(Bukkit.getPlayer(playerName), pkaPlayer);
-
-		if (!hasStatItem(player)) {
-			ItemUtil.updateStatItemMeta(player, pkaPlayer);
-		}
-	}
-
-	public static void loadAllPlayers() {
-		for (int i = 0; i < Bukkit.getOnlinePlayers().length; i++) {
-			loadPlayer(Bukkit.getOnlinePlayers()[i]);
-		}
+		
+		return new PKAPlayer(playerName, classType, maxHealth, 
+				health, attributes, damage, abilityInventory, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
 	}
 
 	private static boolean hasLoadedClassBefore(String playerName, ClassType classType) {
@@ -276,6 +284,7 @@ public class PlayerProcessor {
 			writeNewClassToPlayerConfig(playerName, classTypeString);
 		}
 
+		PlayerProcessor.addPKAPlayer(playerName, getInitialPKAPlayer(player, classType));
 		//TODO Inventory
 	}
 

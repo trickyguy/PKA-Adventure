@@ -34,7 +34,7 @@ public class FileUtil {
 		File dropFile = 		new File("plugins/PKAAdventure/drops.yml");
 		
 		if (!playerFolder.exists()) {
-			plugin.log("creating players folder");
+			MessageUtil.log("creating players folder");
 			playerFolder.mkdirs();
 		}
 
@@ -62,7 +62,7 @@ public class FileUtil {
 			loadDefaultConfig(dropFile, 		"drops.yml");
 		}
 
-		plugin.log("loaded all folders and config.yml");
+		MessageUtil.log("loaded all folders and config.yml");
 		config = 				YamlConfiguration.loadConfiguration(configFile);
 		spawnNodeConfig = 		YamlConfiguration.loadConfiguration(spawnNodeFile);
 		inventoryConfig = 		YamlConfiguration.loadConfiguration(inventoryFile);
@@ -81,11 +81,11 @@ public class FileUtil {
 	 * @param configFileReference: "config.yml"
 	 */
 	private static void loadDefaultConfig(File configFile, String configFileReference) {
-		plugin.log("creating " + configFileReference);
+		MessageUtil.log("creating " + configFileReference);
 		try {
 			configFile.createNewFile();
 		} catch (IOException e) {
-			plugin.severe("could not create " + configFileReference);
+			MessageUtil.severe("could not create " + configFileReference);
 			e.printStackTrace();
 			plugin.disable();
 			return;
@@ -98,7 +98,7 @@ public class FileUtil {
 		try {
 			config.save(file);
 		} catch (IOException e) {
-			plugin.severe("could not save " + filepath);
+			MessageUtil.severe("could not save " + filepath);
 			e.printStackTrace();
 		}
 	}
@@ -131,7 +131,7 @@ public class FileUtil {
 		try {
 			config.save(new File("plugins/PKAAdventure/config.yml"));
 		} catch (IOException e) {
-			plugin.severe("could not save config.yml");
+			MessageUtil.severe("could not save config.yml");
 			e.printStackTrace();
 		}
 	}
@@ -149,11 +149,11 @@ public class FileUtil {
 			return config.getString(path);
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not String. Disabling plugin, contact developer.");
+				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not String. Disabling plugin, contact developer.");
 				plugin.disable();
 				return null;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not String. Creating new " + configFileReference + " and trying again");
+				MessageUtil.severe("could not find path: " + path + " in " + configFileReference + ", or is not String. Creating new " + configFileReference + " and trying again");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
 				return getStringValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
@@ -189,11 +189,11 @@ public class FileUtil {
 			stringList = config.getStringList(path);
 		else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not List. Disabling plugin, contact developer.");
+				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not List. Disabling plugin, contact developer.");
 				plugin.disable();
 				return null;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not List. Creating new " + configFileReference + " and trying again");
+				MessageUtil.severe("could not find path: " + path + " in " + configFileReference + ", or is not List. Creating new " + configFileReference + " and trying again");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
 				return getStringArrayFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
@@ -215,11 +215,11 @@ public class FileUtil {
 			return config.getInt(path);
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not Integer. Disabling plugin, contact developer.");
+				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not Integer. Disabling plugin, contact developer.");
 				plugin.disable();
 				return 0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + configFileReference+ ", or is not Integer. Creating new " + configFileReference + " and trying again");
+				MessageUtil.severe("could not find path: " + path + " in " + configFileReference+ ", or is not Integer. Creating new " + configFileReference + " and trying again");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
 				return getIntValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
@@ -242,11 +242,11 @@ public class FileUtil {
 				return 0.0;
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not Double. Disabling plugin, contact developer.");
+				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not Double. Disabling plugin, contact developer.");
 				plugin.disable();
 				return 0.0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + configFileReference + ", or is not Double. Creating new " + configFileReference + " and trying again");
+				MessageUtil.severe("could not find path: " + path + " in " + configFileReference + ", or is not Double. Creating new " + configFileReference + " and trying again");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
 				return getDoubleValueFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
@@ -265,11 +265,11 @@ public class FileUtil {
 				return 0;
 		} else {
 			if (secondtry) {
-				plugin.severe("failed finding path: " + path + " in the default " + configFileReference + ", contact developer.");
+				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", contact developer.");
 				plugin.disable();
 				return 0;
 			} else {
-				plugin.severe("could not find path: " + path + " in " + configFileReference + ".");
+				MessageUtil.severe("could not find path: " + path + " in " + configFileReference + ".");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
 				return getListLengthFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
@@ -280,7 +280,7 @@ public class FileUtil {
 		InputStream inputStream = plugin.getInputStream("PKA Adventure/" + defaultFileReference);
 
 		if(inputStream == null){
-			plugin.severe("could not write defaultFileReference to file");
+			MessageUtil.severe("could not write defaultFileReference to file");
 			return;
 		}
 		try{

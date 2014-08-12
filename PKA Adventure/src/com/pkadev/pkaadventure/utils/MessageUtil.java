@@ -3,9 +3,11 @@ package com.pkadev.pkaadventure.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.types.MessageType;
 
 public class MessageUtil {
+	private static final Main plugin = Main.instance;
 	
 	public static void sendMessage(Player player, String message, MessageType messageType) {
 		String finalizedMessage = messageType.getFinalizedMessage(message);
@@ -13,6 +15,14 @@ public class MessageUtil {
 			Bukkit.broadcastMessage(finalizedMessage);
 		else if (messageType == MessageType.SINGLE || messageType == MessageType.SINGLE_DEBUG)
 			player.sendMessage(finalizedMessage);
+	}
+	
+	public static void log(String message) {
+		plugin.log(message);
+	}
+	
+	public static void severe(String message) {
+		plugin.severe(message);
 	}
 	
 	public static void d(int i) {
