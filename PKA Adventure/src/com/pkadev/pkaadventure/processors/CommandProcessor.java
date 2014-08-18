@@ -73,11 +73,14 @@ public class CommandProcessor implements CommandExecutor {
 			}
 		}
 	}
-
+	// 0      1      2       3 4 5  6      7       8      9
+	//create testMob testMob 1 1 1 zombie minion hostile bad
 	public void newSpawnNode(Player player, String[] args) {
-		String[] newArgs = new String[7];
-		for (int i = 1; i < 7; i++) {
-			newArgs[i] = args[i];
+		String[] newArgs = new String[8];
+		int j = 0;
+		for (int i = 2; i < 10; i++) {
+			newArgs[j] = args[i];
+			j++;
 		}
 		String fileName = args[1];
 		if (!SpawnNodeProcessor.newSpawnNode(player.getLocation(), newArgs, fileName))

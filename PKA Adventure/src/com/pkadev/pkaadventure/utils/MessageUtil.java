@@ -29,4 +29,7 @@ public class MessageUtil {
 		sendMessage(null, "" + i, MessageType.SERVER_DEBUG);
 	}
 	
+	public static void d(String s) {
+		sendMessage(null, s, MessageType.SERVER_DEBUG);
+	}
 }

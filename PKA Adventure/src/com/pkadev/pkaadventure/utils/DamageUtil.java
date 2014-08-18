@@ -10,12 +10,17 @@ public class DamageUtil {
 		if (attributesAttacker.length == 5) {
 			attackerCritChance = 100 / attributesAttacker[4];
 		}
-		double attackerStrength = 100d / (double) attributesAttacker[0];
-		double defenderToughness = 100d / (double) attributesDefender[1];
+		double attackerStrength = (double) attributesAttacker[0] / 100d;
+		double defenderToughness = (double) attributesDefender[1] / 100d;
+		if (Double.isInfinite(attackerStrength))
+			attackerStrength = 0d;
+		if (Double.isInfinite(defenderToughness))
+			defenderToughness = 0d;
 		if (random.nextInt(100) < attackerCritChance) {
 			damage = damage * 2d;
 		}
-		return (damage * attackerStrength) - (damage * defenderToughness);
+		damage = damage + (damage * attackerStrength) - (damage * defenderToughness);
+		return damage;
 	}
 	
 	public static double getFinalizedDamage(double minecraftDamage, double maxHealth) {

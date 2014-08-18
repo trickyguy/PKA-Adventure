@@ -6,14 +6,25 @@ import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
+import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class MobProcessor {
-
+	private static Main plugin = Main.instance;
+	
+	public static void removeAllLivingMobs() {
+		for (Entity entity : plugin.world.getEntities()) {
+			if (entity instanceof LivingEntity) {
+				entity.remove();
+			}
+		}
+	}
+	
 	public static void damageMobByEnvironment(LivingEntity livingEntity, double minecraftDamage) {
 		if (livingEntity.getNoDamageTicks() > 10)
 			return;
@@ -29,18 +40,17 @@ public class MobProcessor {
 		}
 	}
 	
-	public static void damageMobByEntity(LivingEntity livingEntity, double damage, int[] attributesAttacker, String damagerName) {
-		MobMonster mobMonster = (MobMonster) livingEntity;
-		PKAMob pkaMob = mobMonster.getPKAMob();
-		double finalDamage = DamageUtil.getFinalizedDamage(damage, attributesAttacker, pkaMob.getAttributes());
-		damageMob(mobMonster, pkaMob, finalDamage, damagerName);
+	public static void damageMobByEntity(LivingEntity livingEntity, double finalizedDamage, String damagerName) {
+		MobMonster mobMonster = 	getMobMonster(livingEntity);
+		PKAMob pkaMob = 			getMobMonster(livingEntity).getPKAMob();
+		damageMob(mobMonster, pkaMob, finalizedDamage, damagerName);
 	}
 	
-	private static void damageMob(MobMonster mobMonster, PKAMob pkaMob, double damage, String damagerName) {
-		if (damage <= 0d)
+	private static void damageMob(MobMonster mobMonster, PKAMob pkaMob, double finalizedDamage, String damagerName) {
+		if (finalizedDamage <= 0d)
 			return;
-		double finalHealth = pkaMob.getHealth() - damage;
-		pkaMob.addDamageDoneBy(damagerName, damage);
+		double finalHealth = pkaMob.getHealth() - finalizedDamage;
+		pkaMob.addDamageDoneBy(damagerName, finalizedDamage);
 		if (finalHealth > 0)
 			damageMobNonLethal(mobMonster, pkaMob, finalHealth);
 		else {

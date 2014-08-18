@@ -579,7 +579,7 @@ public class ItemUtil {
 	
 	private static ItemStack getInitialArmorItemStack(int level, int slot, int rarity) {
 		//TODO USE RARE
-		String material = "WOOD_";
+		String material = "LEATHER_";
 		String item = "HELMET";
 		if (level < 10) {
 

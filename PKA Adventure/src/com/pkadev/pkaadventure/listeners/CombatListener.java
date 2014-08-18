@@ -20,8 +20,8 @@ import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class CombatListener implements Listener {
 
@@ -29,109 +29,86 @@ public class CombatListener implements Listener {
 
 	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-		if (!(event.getEntity() instanceof LivingEntity)) {
+		LivingEntity damagee = 		null;
+		LivingEntity damager = 		null;
+		Projectile projectile = 	null;
+		
+		if (event.getDamager() instanceof LivingEntity) {
+			damager = (LivingEntity) event.getDamager();
+		} else if (event.getDamager() instanceof Projectile) {
+			projectile = (Projectile) event.getDamager();
+		} else {
+			event.setCancelled(true);
+			return;
+		}
+		if (event.getEntity() instanceof LivingEntity) {
+			damagee = (LivingEntity) event.getEntity();
+		} else {
 			event.setCancelled(true);
 			return;
 		}
 		
-		event.setDamage(0d);
-		Entity damagee = event.getEntity();
-		Entity damager = event.getDamager();
-		
-		double damage = 0d;
-		int[] attributesAttacker = new int[]{0, 0, 0, 0};
-		String damagerName = "";
-
-		if (MobProcessor.isMobMonster(damagee)) {
-			LivingEntity livingEntity = (LivingEntity) damagee;
-			if (livingEntity.getNoDamageTicks() > 10) {
-				event.setCancelled(true);
-				return;
-			}
-
-			if (MobProcessor.isMobMonster(damager)) {
-				PKAMob pkaMob = MobProcessor.getMobMonster(livingEntity).getPKAMob();
-				damage = pkaMob.getDamage();
-				attributesAttacker = pkaMob.getAttributes();
-			} else if (damager instanceof Player) {
-				Player player = (Player) damagee;
-				PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-				if (pkaPlayer == null || (pkaPlayer.getWeaponSlot() != player.getInventory().getHeldItemSlot())) {
-					event.setCancelled(true);
-					return;
-				}
-				damage = pkaPlayer.getDamage();
-				attributesAttacker = pkaPlayer.getAttributes();
-				damagerName = player.getName();
-			}  else if (damager instanceof Projectile) {
-				if (((Projectile) damager).getShooter() instanceof Player) {
-					Player player = (Player) ((Projectile) damager).getShooter();
-					PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-					if (pkaPlayer == null || (pkaPlayer.getWeaponSlot() != player.getInventory().getHeldItemSlot())) {
-						event.setCancelled(true);
-						return;
-					}
-					damage = pkaPlayer.getDamage();
-					attributesAttacker = pkaPlayer.getAttributes();
-					damagerName = player.getName();
-				} else if (MobProcessor.isMobMonster(((Projectile) damager).getShooter())) {
-					PKAMob pkaMob = MobProcessor.getMobMonster(((Projectile) damager).getShooter()).getPKAMob();
-					damage = pkaMob.getDamage();
-					attributesAttacker = pkaMob.getAttributes();
-				} else {
-					((Projectile) damager).getShooter().remove();
-					event.setCancelled(true);
-				}
-			} else {
-				damagee.remove();
-				event.setCancelled(true);
-			}
-			if (damage == 0d)
-				return;
-
-			MobProcessor.damageMobByEntity(livingEntity, damage, attributesAttacker, damagerName);
-		} else if (damagee instanceof Player) {
-			Player player = (Player) damagee;
-			if (player.getNoDamageTicks() > 10) {
-				event.setCancelled(true);
-				return;
-			}
-
-			if (MobProcessor.isMobMonster(damager)) {
-				PKAMob pkaMob = MobProcessor.getMobMonster(damager).getPKAMob();
-				damage = pkaMob.getDamage();
-				attributesAttacker = pkaMob.getAttributes();
-			} else if (damager instanceof Player) {
-				event.setCancelled(true);
-				return;
-			} else if (damager instanceof Projectile) {
-				if (((Projectile) damager).getShooter() instanceof Player) {
-					//TODO
-					event.setCancelled(true);
-				} else if (MobProcessor.isMobMonster(((Projectile) damager).getShooter())) {
-					PKAMob pkaMob = MobProcessor.getMobMonster(((Projectile) damager).getShooter()).getPKAMob();
-					damage = pkaMob.getDamage();
-					attributesAttacker = pkaMob.getAttributes();
-				} else {
-					((Projectile) damager).getShooter().remove();
-					event.setCancelled(true);
-				}
-			} else {
-				event.getEntity().remove();
-				event.setCancelled(true);
-			}
-			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-			if (pkaPlayer == null) {
-				event.setCancelled(true);
-				return;
-			}
-			PlayerProcessor.damagePlayerByEntity(player, pkaPlayer, damage, attributesAttacker);
-		} else {
-			event.getEntity().remove();
+		if (damagee.getNoDamageTicks() > 10) {
 			event.setCancelled(true);
+			return;
+		}	
+		
+		int[] attackerAttributes = null;
+		int[] defenderAttributes = null;
+		double damage = 0d;
+		boolean isDamageePlayer = false;
+		String damagerName = "";
+		
+		if (PlayerProcessor.isPlayer(damager)) {
+			Player player = 			PlayerProcessor.getPlayer(damager);
+			damagerName = player.getName();
+			PKAPlayer pkaPlayer = 		PlayerProcessor.getPKAPlayer(damagerName);
+			attackerAttributes = 		pkaPlayer.getAttributes();
+			damage = 					pkaPlayer.getDamage();
+		} else if (MobProcessor.isMobMonster(damager)) {
+			PKAMob pkaMob = 			MobProcessor.getMobMonster(damager).getPKAMob();
+			attackerAttributes = 		pkaMob.getAttributes();
+			damage =					pkaMob.getDamage();
+		} else if (projectile != null) {
+			if (PlayerProcessor.isPlayer(projectile.getShooter())) {
+				PKAPlayer pkaPlayer = 	PlayerProcessor.getPKAPlayer(PlayerProcessor.getPlayer(projectile.getShooter()));
+				attackerAttributes = 	pkaPlayer.getAttributes();
+				damage =				pkaPlayer.getDamage();
+			} else if (MobProcessor.isMobMonster(projectile.getShooter())) {
+				PKAMob pkaMob =			MobProcessor.getMobMonster(projectile.getShooter()).getPKAMob();
+				attackerAttributes = 	pkaMob.getAttributes();
+				damage =				pkaMob.getDamage();
+			} else {
+				event.setCancelled(true);
+				damager.remove();
+				projectile.getShooter().remove();
+				return;
+			}
+		} else {
+			event.setCancelled(true);
+			damager.remove();
+			return;
 		}
-
-
+		
+		if (PlayerProcessor.isPlayer(damagee)) {
+			isDamageePlayer = true;
+			defenderAttributes = PlayerProcessor.getPlayerAttributes(PlayerProcessor.getPlayer(damagee).getName());
+		} else if (MobProcessor.isMobMonster(damagee)) {
+			defenderAttributes = MobProcessor.getMobMonster(damagee).getPKAMob().getAttributes();
+		} else {
+			event.setCancelled(true);
+			damagee.remove();
+			return;
+		}
+		
+		double finalizedDamage = DamageUtil.getFinalizedDamage(damage, attackerAttributes, defenderAttributes);
+		event.setDamage(0d);
+		
+		if (isDamageePlayer) {
+			PlayerProcessor.damagePlayerByEntity(damagee, finalizedDamage);
+		} else {
+			MobProcessor.damageMobByEntity(damagee, finalizedDamage, damagerName);
+		}
 	}
 
 	@EventHandler

@@ -10,6 +10,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -287,6 +288,14 @@ public class PlayerProcessor {
 		PlayerProcessor.addPKAPlayer(playerName, getInitialPKAPlayer(player, classType));
 		//TODO Inventory
 	}
+	
+	public static boolean isPlayer(LivingEntity livingEntity) {
+		return livingEntity instanceof Player;
+	}
+	
+	public static Player getPlayer(LivingEntity livingEntity) {
+		return (Player) livingEntity;
+	}
 
 	private static void savePlayer(Player player) {
 		String playerName = player.getName();
@@ -460,17 +469,24 @@ public class PlayerProcessor {
 		}
 	}
 
+	public static void damagePlayerByEntity(LivingEntity livingEntity, double finalizedDamage) {
+		Player player = getPlayer(livingEntity);
+		PKAPlayer pkaPlayer = getPKAPlayer(player);
+		damagePlayer(player, pkaPlayer, finalizedDamage);
+	}
+	
 	public static void damagePlayerByEntity(Player player, PKAPlayer pkaPlayer, double damage, int[] attributesAttacker) {
 		double finalDamage = DamageUtil.getFinalizedDamage(damage, attributesAttacker, pkaPlayer.getAttributes());
 		damagePlayer(player, pkaPlayer, finalDamage);
 	}
 
-	private static void damagePlayer(Player player, PKAPlayer pkaPlayer, double damage) {
-		if (damage <= 0d)
+	private static void damagePlayer(Player player, PKAPlayer pkaPlayer, double finalizedDamage) {
+		if (finalizedDamage <= 0d)
 			return;
-		double finalHealth = pkaPlayer.getHealth() - damage;
-		if (finalHealth > 0)
+		double finalHealth = pkaPlayer.getHealth() - finalizedDamage;
+		if (finalHealth > 0) {
 			damagePlayerNonLethal(player, pkaPlayer, finalHealth);
+		}
 		else {
 			damagePlayerLethal(player);
 		}

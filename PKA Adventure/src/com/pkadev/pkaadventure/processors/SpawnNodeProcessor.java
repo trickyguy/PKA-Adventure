@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import net.minecraft.server.v1_7_R3.WorldServer;
 
@@ -37,7 +38,8 @@ import com.pkadev.pkaadventure.utils.MessageUtil;
 public class SpawnNodeProcessor {
 	private static Main plugin = Main.instance;
 	private static Random random = new Random();
-	private static WorldServer world = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"))).getHandle();
+	private static WorldServer worldServer = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"))).getHandle();
+	private static World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
 	
 	//1 = mobs, 2 = beacons, 3 = lootcrate
 	private static HashMap<SpawnNode, Integer> 	list1 = new HashMap<SpawnNode, Integer>();
@@ -72,18 +74,15 @@ public class SpawnNodeProcessor {
 		YamlConfiguration spawnNodeConfig = FileUtil.getSpawnNodeConfig();
 		
 		if (spawnNodeConfig.contains("Mobs")) {
-			int amount = 0;
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Mobs");
-			load(section, 1);
-			MessageUtil.log("loaded " + amount + " mob SpawnNodes.");
+			int amount = load(section, 1);
+			MessageUtil.log("loaded " + amount + " mob nodes.");
 		}
 		
 		if (spawnNodeConfig.contains("Beacons")) {
-			int amount = 0;
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Beacons");
-			load(section, 2);
+			int amount = load(section, 2);
 			MessageUtil.log("loaded " + amount + " beacons.");
-			
 			if (amount == 0) {
 				addDefaultBeaconToList2();
 			}
@@ -92,10 +91,8 @@ public class SpawnNodeProcessor {
 		}
 		
 		if (spawnNodeConfig.contains("Lootcrates")) {
-			int amount = 0;
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Lootcrates");
 			load(section, 3);
-			MessageUtil.log("loaded " + amount + " lootcrates.");
 		}
 		
 		startTimer();
@@ -108,26 +105,25 @@ public class SpawnNodeProcessor {
 			SpawnNode node = null;
 			if (listNumber == 1) {
 				try {
-					node = new SpawnNode(getLocation(section), section.getString(".Name"), section.getInt(".Radius"), section.getInt(".Level")
-							, section.getInt(".Amount"), section.getString(".Mob"), MobStrength.valueOf(section.getString(".MobStrength"))
-							, MobStance.valueOf(section.getString(".MobStance")), MobType.valueOf(section.getString(".MobType")));
+					node = new SpawnNode(getLocation(section, nodeName), section.getString(nodeName + ".Name"), section.getInt(nodeName + ".Radius"), section.getInt(nodeName + ".Level")
+							, section.getInt(nodeName + ".Amount"), section.getString(nodeName + ".Mob"), MobStrength.valueOf(section.getString(nodeName + ".MobStrength").toUpperCase())
+							, MobStance.valueOf(section.getString(nodeName + ".MobStance").toUpperCase()), MobType.valueOf(section.getString(nodeName + ".MobType").toUpperCase()));
 				} catch (Exception ex) {
+					ex.printStackTrace();
 					MessageUtil.severe("critical loading error for spawnNode by fileName " + nodeName + ". It cannot be loaded!");
 					continue;
 				}
 			} else {
-				node = new SpawnNode(getLocation(section));
+				node = new SpawnNode(getLocation(section, nodeName));
 			}
-			
 			addSpawnNode(node, listNumber);
-			amount ++;
+			amount += 1;
 		}
 		return amount;
 	}
 	
-	private static Location getLocation(ConfigurationSection section) {
-		String prefix = ".Location.";
-		World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
+	private static Location getLocation(ConfigurationSection section, String nodeName) {
+		String prefix = nodeName + ".Location.";
 		int x = section.getInt(prefix + "X");
 		int y = section.getInt(prefix + "Y");
 		int z = section.getInt(prefix + "Z");
@@ -279,10 +275,13 @@ public class SpawnNodeProcessor {
 	private static void spawnMobs(SpawnNode node, int amount) {
 		for (int i = 0; i < node.getAmount(); i++) {
 			MobMonster mobMonster = getMobMonster(node);
+			if (mobMonster == null) {
+				return;
+			}
 			initiateMobMonster(mobMonster, node);
 			addMobToNode(node, mobMonster);
 			setSpawnLocation(node.getLocation(), mobMonster, node.getRadius());
-			world.addEntity(mobMonster.getEntity());
+			worldServer.addEntity(mobMonster.getEntity());
 		}
 	}
 
@@ -294,7 +293,7 @@ public class SpawnNodeProcessor {
 	public static void despawn(SpawnNode node) {
 		for (int i = 0; i < node.getLiveMobAmount(); i++) {
 			MobMonster mobMonster = node.getLiveMobs().get(i);
-			world.removeEntity(mobMonster.getEntity());
+			worldServer.removeEntity(mobMonster.getEntity());
 		}
 		node.getLiveMobs().clear();
 	}
@@ -323,14 +322,13 @@ public class SpawnNodeProcessor {
 			try {
 				node = new SpawnNode(location, args[0].replace('_', ' '), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), args[4], MobStrength.valueOf(args[5].toUpperCase()), MobStance.valueOf(args[6].toUpperCase()), MobType.valueOf(args[7].toUpperCase()));
 			} catch (Exception ex) {
-				MessageUtil.d(1);
+				ex.printStackTrace();
 				return false;
 			}
-			addNodeToList2(node);
+			addNodeToList1(node);
 			saveSpawnNode(node, fileName);
 			return true;
 		} else {
-			MessageUtil.d(2);
 			return false;
 		}
 	}
@@ -353,8 +351,9 @@ public class SpawnNodeProcessor {
 		}
 		Location location = node.getLocation();
 		spawnNodeConfig.set(prefix + ".Location.X", 		(int) location.getX());
-		spawnNodeConfig.set(prefix + ".Location.X", 		(int) location.getY());
-		spawnNodeConfig.set(prefix + ".Location.X", 		(int) location.getZ());
+		spawnNodeConfig.set(prefix + ".Location.Y", 		(int) location.getY());
+		spawnNodeConfig.set(prefix + ".Location.Z", 		(int) location.getZ());
+		FileUtil.save(spawnNodeConfig, "plugins/PKAAdventure/spawnnodes.yml");
 	}
 	
 	/**
@@ -373,39 +372,58 @@ public class SpawnNodeProcessor {
 	}
 	
 	private static MobMonster getMobMonster(SpawnNode node) {
-		String customEntityTypeString = "CustomEntity" + node.getMob() + node.getMobStance().toString();
-		MobMonster mobMonster = getMobMonster(customEntityTypeString, node.getMobStance());
+		String mobString = node.getMob();
+		MobMonster mobMonster = getInitialMobMonster(node);
 		return mobMonster;
 	}
 	
-	private static MobMonster getMobMonster(String customEntityTypeString, MobStance mobStance) {
-		switch(mobStance) {
+	private static MobMonster getInitialMobMonster(SpawnNode node) {
+		MobMonster mobMonster = null;
+		switch(node.getMobStance()) {
 			case EVIL:{
-				switch(customEntityTypeString.toLowerCase()) {
-					case "zombie":return new CustomEntityZombieEvil(world);
+				switch(node.getMob()) {
+					case "zombie":{
+						mobMonster = new CustomEntityZombieEvil(worldServer);
+						break;
+					}
 					default:return null;
 				}
+				break;
 			}
 			case GOOD:{
-				switch(customEntityTypeString.toLowerCase()) {
-				case "zombie":return new CustomEntityZombieGood(world);
-				default:return null;
-			}
+				switch(node.getMob()) {
+					case "zombie": { 
+						mobMonster = new CustomEntityZombieGood(worldServer);
+						break;
+					}
+					default:return null;
+				}
+				break;
 			}
 			case NEUTRAL:{
-				switch(customEntityTypeString.toLowerCase()) {
-				case "zombie":return new CustomEntityZombieNeutral(world);
-				default:return null;
-			}
+				switch(node.getMob()) {
+					case "zombie": {
+						mobMonster = new CustomEntityZombieNeutral(worldServer);
+						break;
+					}
+					default:return null;
+				}
+				break;
 			}
 			case PASSIVE:{
-				switch(customEntityTypeString.toLowerCase()) {
-				case "zombie":return new CustomEntityZombiePassive(world);
-				default:return null;
-			}
+				switch(node.getMob()) {
+					case "zombie": {
+						mobMonster = new CustomEntityZombiePassive(worldServer);
+						break;
+					}
+					default:return null;
+				}
+				break;
 			}
 			default:return null;
 		}
+		mobMonster.TEMPinitiate(node);
+		return mobMonster;
 	}
 	
 	private static void initiateMobMonster(MobMonster mobMonster, SpawnNode node) {
