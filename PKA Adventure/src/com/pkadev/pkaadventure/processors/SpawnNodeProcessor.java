@@ -113,6 +113,8 @@ public class SpawnNodeProcessor {
 					MessageUtil.severe("critical loading error for spawnNode by fileName " + nodeName + ". It cannot be loaded!");
 					continue;
 				}
+			} else if (listNumber == 2) {
+				node = new SpawnNode(getLocation(section, nodeName), section.getString(nodeName + ".Name"));
 			} else {
 				node = new SpawnNode(getLocation(section, nodeName));
 			}
@@ -207,7 +209,7 @@ public class SpawnNodeProcessor {
 		addNodeToList2(new SpawnNode(
 				new Location(
 						Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml")), 
-						1, 64, 1)));
+						1, 64, 1), "Default"));
 	}
 	
 	private static boolean isAnyPlayerClose(Location location, List<Location> onlinePlayerLocations) {
@@ -239,24 +241,23 @@ public class SpawnNodeProcessor {
 		node.getLiveMobs().remove(mobMonster);
 	}
 	
-	public static Location getNearestBeacon(Location playerLocation) {
+	public static SpawnNode getNearestBeacon(Location playerLocation) {
 		double shortestDistanceSquared = 0d;
-		Location shortestDistanceLocation = null;
+		SpawnNode nearestNode = null;
 		
 		for (SpawnNode node : getBeaconList()) {
-			Location beaconLocation = node.getLocation();
-			double distanceSquared = beaconLocation.distanceSquared(playerLocation);
+			double distanceSquared = node.getLocation().distanceSquared(playerLocation);
 			
 			if (distanceSquared < shortestDistanceSquared) {
 				shortestDistanceSquared = distanceSquared;
-				shortestDistanceLocation = beaconLocation;
+				nearestNode = node;
 			} else if (shortestDistanceSquared == 0d) {
 				shortestDistanceSquared = distanceSquared;
-				shortestDistanceLocation = beaconLocation;
+				nearestNode = node;
 			}
 		}
 		
-		return shortestDistanceLocation;
+		return nearestNode;
 	}
 	
 	public static void spawn(SpawnNode node) {
@@ -307,15 +308,15 @@ public class SpawnNodeProcessor {
 		SpawnNode node = null;
 		
 		if (args == null) {
-			//beacon
+			//lootcrate
 			node = new SpawnNode(location);
-			addNodeToList2(node);
+			addNodeToList3(node);
 			saveSpawnNode(node, fileName);
 			return true;
 		} else if (args.length == 1) {
-			//lootcrate
-			node = new SpawnNode(location, 0);
-			addNodeToList3(node);
+			//beacons
+			node = new SpawnNode(location, args[0]);
+			addNodeToList2(node);
 			saveSpawnNode(node, fileName);
 			return true;
 		} else if (args.length == 8) {
@@ -338,6 +339,7 @@ public class SpawnNodeProcessor {
 		String prefix = "Lootcrates." + fileName;
 		if (node.getSpawnNodeType() == SpawnNodeType.BEACON) {
 			prefix = "Beacons." + fileName;
+			spawnNodeConfig.set(prefix + ".Name",           node.getName());
 		} else if (node.getSpawnNodeType() == SpawnNodeType.MOB) {
 			prefix = "Mobs." + fileName;
 			spawnNodeConfig.set(prefix + ".Name", 			node.getName());

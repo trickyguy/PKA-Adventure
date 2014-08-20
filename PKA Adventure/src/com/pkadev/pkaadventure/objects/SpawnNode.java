@@ -42,9 +42,10 @@ public class SpawnNode {
 	 * beacon
 	 * @param location
 	 */
-	public SpawnNode(Location location) {
+	public SpawnNode(Location location, String name) {
 		setSpawnNodeType(SpawnNodeType.BEACON);
 		setLocation(location);
+		setName(name);
 	}
 	
 	/**
@@ -53,7 +54,7 @@ public class SpawnNode {
 	 * @param radius
 	 * @param level
 	 */
-	public SpawnNode(Location location, int i) {
+	public SpawnNode(Location location) {
 		setSpawnNodeType(SpawnNodeType.LOOTCRATE);
 		setLocation(location);
 	}

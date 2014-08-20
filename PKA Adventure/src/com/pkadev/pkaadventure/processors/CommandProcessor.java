@@ -34,14 +34,20 @@ public class CommandProcessor implements CommandExecutor {
 			}
 		} else if (argsLength == 3) {
 			if (args[0].equalsIgnoreCase("create")) {
-				//create lootcrate/beacon
+				//pka create lootcrate fileName
 				if (args[1].equalsIgnoreCase("lootcrate")) {
-					newSpawnNode(player, true, args[2]);
-				} else if (args[1].equalsIgnoreCase("beacon")) {
-					newSpawnNode(player, false, args[2]);
+					newSpawnNode(player, null, args[2]);
 				} else {
 					invalidCommand(player);
 				}
+			} else {
+				invalidCommand(player);
+			}
+		} else if (argsLength == 4) {
+			//pka create beacon name fileName
+			if (args[1].equalsIgnoreCase("beacon")) {
+				String name = args[2].replace('_', ' ');
+				newSpawnNode(player, name, args[3]);
 			} else {
 				invalidCommand(player);
 			}
@@ -58,15 +64,15 @@ public class CommandProcessor implements CommandExecutor {
 		MessageUtil.sendMessage(player, "Not a valid command", MessageType.SINGLE);
 	}
 
-	public void newSpawnNode(Player player, boolean isLootCrate, String fileName) {
-		if (isLootCrate)
-			if (!SpawnNodeProcessor.newSpawnNode(player.getLocation(), new String[]{""}, fileName))
+	public void newSpawnNode(Player player, String name, String fileName) {
+		if (name.equals(""))
+			if (!SpawnNodeProcessor.newSpawnNode(player.getLocation(), null, fileName))
 				MessageUtil.sendMessage(player, "failed creating node", MessageType.SINGLE);
 			else {
 				MessageUtil.sendMessage(player, "created new Lootcrate node", MessageType.SINGLE);
 			}
 		else {
-			if (!SpawnNodeProcessor.newSpawnNode(player.getLocation(), null, fileName))
+			if (!SpawnNodeProcessor.newSpawnNode(player.getLocation(), new String[]{name}, fileName))
 				MessageUtil.sendMessage(player, "failed creating node", MessageType.SINGLE);
 			else {
 				MessageUtil.sendMessage(player, "created new Beacon node", MessageType.SINGLE);

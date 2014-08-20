@@ -301,6 +301,24 @@ public class InventoryUtil {
 			return false;
 		return true;
 	}
+
+	public static ItemStack[] getArmorContent(Player player) {
+		return player.getInventory().getArmorContents();
+	}
+	
+	/**
+	 * @param player
+	 * @return number of the slot it was move to (-1 if dropped)
+	 */
+	public static int moveItemIntoInventory(Player player, ItemStack itemStack) {
+		int firstEmpty = player.getInventory().firstEmpty();
+		if (firstEmpty == -1)
+			ItemUtil.addDroppedItem(player.getLocation(), itemStack, player.getName());
+		else {
+			player.getInventory().setItem(firstEmpty, itemStack);
+		}
+		return firstEmpty;
+	}
 }
 
 

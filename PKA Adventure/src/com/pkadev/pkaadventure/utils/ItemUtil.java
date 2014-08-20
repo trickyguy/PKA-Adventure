@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -47,6 +48,11 @@ public class ItemUtil {
 	public static void addDroppedItem(Item item, String playerName) {
 		droppedItems.put(item, playerName);
 		droppedItemsRemoveTick.put(item, 5);
+	}
+	
+	public static void addDroppedItem(Location location, ItemStack itemStack, String playerName) {
+		Item item = location.getWorld().dropItem(location, itemStack);
+		addDroppedItem(item, playerName);
 	}
 
 	public static String getDroppedItemOwner(Item item) {
@@ -384,10 +390,12 @@ public class ItemUtil {
 	 * @return The value of a certain line
 	 */
 	private static String getValueFromString(String lineString) {
+		return getValueFromBytes(stripAndGetBytes(lineString));
+	}
+	
+	private static String getValueFromBytes(byte[] bytes) {
 		String value = "";
-
-		byte[] bytes = stripAndGetBytes(lineString);
-		for (int i = lineString.length() - 1; i > 1; i--) {
+		for (int i = bytes.length - 1; i > 1; i--) {
 			Character c = (char) bytes[i];
 			if (c == ' ')
 				return value;
@@ -422,6 +430,23 @@ public class ItemUtil {
 		}
 	}
 	
+	/**
+	 * @param itemLore
+	 * @param referenceToBeReplaced
+	 * @param value
+	 * @return the new value
+	 */
+	public static int addValueInItemLore(List<String> itemLore, String referenceToBeReplaced, int value) {
+		String modificationToBeReplaced = ElementsUtil.getLoreElementMod(referenceToBeReplaced);
+		for (int i = 0; i < itemLore.size(); i++) {
+			if (itemLore.get(i).startsWith(modificationToBeReplaced)) {
+				int oldValue = Integer.parseInt(getValueFromBytes(stripAndGetBytes(itemLore.get(i))));
+				int newValue = oldValue + value;
+				return newValue;
+			}
+		}
+		return -1;
+	}
 	
 	
 	

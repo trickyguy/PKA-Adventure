@@ -15,9 +15,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.DamageUtil;
@@ -381,12 +385,27 @@ public class PlayerProcessor {
 		return getPKAPlayer(playerName).getDamage();
 	}
 
-	private static void setHomeToNearestBeacon(Player player) {
-		//TODO
+	private static void teleportToNearestBeacon(Player player) {
+		SpawnNode node = SpawnNodeProcessor.getNearestBeacon(player.getLocation());
+		player.teleport(node.getLocation());
+		MessageUtil.sendMessage(player, "You have spawned in " + node.getName(), MessageType.SINGLE);
 	}
 
 	private static void damageArmor(Player player) {
-		//TODO
+		for (ItemStack itemStack : InventoryUtil.getArmorContent(player)) {
+			if (!ItemUtil.isAttributeItem(itemStack))
+				continue;
+			ItemMeta itemMeta = itemStack.getItemMeta();
+			List<String> lore = itemMeta.getLore();
+			int newDurability = ItemUtil.addValueInItemLore(lore, "durability", -5);
+			itemMeta.setLore(lore);
+			if (newDurability <= 5);
+				InventoryUtil.moveItemIntoInventory(player, itemStack);
+		}
+	}
+	
+	private static void applyDeathEffect(Player player) {
+		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 2));
 	}
 
 	/*
@@ -468,16 +487,9 @@ public class PlayerProcessor {
 			damagePlayer(player, pkaPlayer, finalDamage);
 		}
 	}
-
-	public static void damagePlayerByEntity(LivingEntity livingEntity, double finalizedDamage) {
-		Player player = getPlayer(livingEntity);
-		PKAPlayer pkaPlayer = getPKAPlayer(player);
-		damagePlayer(player, pkaPlayer, finalizedDamage);
-	}
 	
-	public static void damagePlayerByEntity(Player player, PKAPlayer pkaPlayer, double damage, int[] attributesAttacker) {
-		double finalDamage = DamageUtil.getFinalizedDamage(damage, attributesAttacker, pkaPlayer.getAttributes());
-		damagePlayer(player, pkaPlayer, finalDamage);
+	public static void damagePlayerByEntity(Player player, PKAPlayer pkaPlayer, double finalizedDamage) {
+		damagePlayer(player, pkaPlayer, finalizedDamage);
 	}
 
 	private static void damagePlayer(Player player, PKAPlayer pkaPlayer, double finalizedDamage) {
@@ -498,16 +510,12 @@ public class PlayerProcessor {
 	}
 
 	private static void damagePlayerLethal(Player player) {
-		player.setHealth(0);
-	}
-
-	public static void playerDeath(Entity entity) {
-		Player player = (Player) entity;
 		PKAPlayer pkaPlayer = getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
 		pkaPlayer.setHealth(pkaPlayer.getMaxHealth());
-		setHomeToNearestBeacon(player);
+		teleportToNearestBeacon(player);
+		applyDeathEffect(player);
 		damageArmor(player);
 		MessageUtil.sendMessage(player, "You died, your armor has been damaged.", MessageType.SINGLE);
 	}
