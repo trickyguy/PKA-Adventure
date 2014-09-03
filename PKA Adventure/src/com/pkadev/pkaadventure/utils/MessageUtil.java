@@ -26,10 +26,10 @@ public class MessageUtil {
 	}
 	
 	public static void d(int i) {
-		sendMessage(null, "" + i, MessageType.SERVER_DEBUG);
+		sendMessage(null, (short) System.currentTimeMillis() + " " + i, MessageType.SERVER_DEBUG);
 	}
 	
 	public static void d(String s) {
-		sendMessage(null, s, MessageType.SERVER_DEBUG);
+		sendMessage(null, (short) System.currentTimeMillis() + " " + s, MessageType.SERVER_DEBUG);
 	}
 }

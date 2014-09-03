@@ -1,4 +1,4 @@
-package com.pkadev.pkaadventure.abilities.particles;
+package com.pkadev.pkaadventure.objects;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.pkadev.pkaadventure.abilities.particles.ReflectionUtil.DynamicPackage;
+import com.pkadev.pkaadventure.objects.ReflectionUtil.DynamicPackage;
 
 /**
  * ParticleEffect Library v1.3

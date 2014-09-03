@@ -25,7 +25,7 @@ Lore:
   wings_selection_line1_blank: "§7Runs"
   lefty_selection_line1_blank: "§7Flies"
   kyle_selection_line1_blank: "§6Cries"
-  skill_doubledrop_percent: "§cDouble Drop: §f"
+  skill_doubledrop: "§cDouble Drop: §f"
   skill_level: "§7Level: §f"
   skill_exp: "§7Exp: §f"
   armor_item: "§7Armor"
@@ -34,17 +34,15 @@ Lore:
   toughness: "§7Toughness: §f"
   agility: "§7Agility: §f"
   restoration: "§7Restoration: §f"
-ItemStack:
-  woody_selection: 268
-  wings_selection: 261
-  lefty_selection: 286
-  kyle_selection: 261
-  woody_weapon: 268
-  wings_weapon: 261
-  lefty_weapon: 286
-  kyle_weapon: 261
+  durability_divide: "§7Durability: §f"
 Math:
   max_mobdrop_amount: 3
+  durability_divide_range: 1.2
+  durability_divide_multiplier: 0.1
+  durability_divide_yoffset: 15
+  armor_level_range: 1.0
+  armor_level_multiplier: 1.0
+  armor_level_yoffset: 1
   experience_required_range: 0.0
   experience_required_multiplier: 1.0
   experience_required_yoffset: 20
@@ -63,24 +61,27 @@ Math:
   none_damage_range: 0.0
   none_damage_multiplier: 0.0
   none_damage_yoffset: 0
-  skill_doubledrop_percent_range: 1.5
-  skill_doubledrop_percent_multiplier: 0.0
-  skill_doubledrop_percent_yoffset: 5
+  skill_doubledrop_range: 1.5
+  skill_doubledrop_multiplier: 0.0
+  skill_doubledrop_yoffset: 5
   skill_exp_range: 1.5
   skill_exp_multiplier: 1.0
   skill_exp_yoffset: 5
-  strength_exp_range: 1.5
-  strength_exp_multiplier: 1.0
-  strength_exp_yoffset: 5
-  toughness_exp_range: 1.5
-  toughness_exp_multiplier: 1.0
-  toughness_exp_yoffset: 5
-  agility_exp_range: 1.5
-  agility_exp_multiplier: 1.0
-  agility_exp_yoffset: 5
-  restoration_exp_range: 1.5
-  restoration_exp_multiplier: 1.0
-  restoration_exp_yoffset: 5
+  skill_level_range: 1.5
+  skill_level_multiplier: 1.0
+  skill_level_yoffset: 5
+  strength_range: 1.5
+  strength_multiplier: 1.0
+  strength_yoffset: 5
+  toughness_range: 1.5
+  toughness_multiplier: 1.0
+  toughness_yoffset: 5
+  agility_range: 1.5
+  agility_multiplier: 1.0
+  agility_yoffset: 5
+  restoration_range: 1.5
+  restoration_multiplier: 1.0
+  restoration_yoffset: 5
   mob_maxhealth_range: 1.3
   mob_maxhealth_multiplier: 2.0
   mob_maxhealth_yoffset: 20

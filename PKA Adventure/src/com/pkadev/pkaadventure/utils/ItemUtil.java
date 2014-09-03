@@ -22,10 +22,12 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.types.AbilityType;
 import com.pkadev.pkaadventure.types.ClassType;
-import com.pkadev.pkaadventure.types.MessageType;
+
 
 public class ItemUtil {
 	private static Random random = new Random();
@@ -132,6 +134,15 @@ public class ItemUtil {
 			return true;
 		return false;
 	}
+	
+	public static boolean isAbilityItem(ItemStack itemStack) {
+		if (!isAttributeItem(itemStack))
+			return false;
+		List<String> possibleIds = FileUtil.getStringListFromConfig(FileUtil.getItemTypeConfig(), "ability_id.id", "itemtypes.yml");
+		if (possibleIds.contains(itemStack.getType().toString()))
+			return true;
+		return false;
+	}
 
 	public static ItemStack getWeapon(Player player) {
 		PlayerInventory playerInventory = player.getInventory();
@@ -206,7 +217,7 @@ public class ItemUtil {
 	
 	
 	public static int[] getAttributesFromItemStack(ItemStack itemStack) {
-		return getAttributesFromArmorItemLore(itemStack.getItemMeta().getLore());
+		return getValuesFromItem(itemStack, 1);
 	}
 
 	public static ClassType getClassTypeFromSelectionMenuItem(ItemStack itemStack) {
@@ -253,19 +264,12 @@ public class ItemUtil {
 		}
 	}
 
-	/**
-	 * @param itemLore
-	 * @return int[]: int[0] = value of strength, 1 = toughness, 2 = agility, 3 = restoration
-	 */
-	private static int[] getAttributesFromArmorItemLore(List<String> itemLore) {
-		int[] attributes = new int[4];
+	private static int[] getValuesFromItem(ItemStack itemStack, int startLine) {
+		boolean isArmor = isArmorItem(itemStack);
+		List<String> itemLore = itemStack.getItemMeta().getLore();
+		int[] values = new int[itemLore.size() - startLine];
 
-		for (int i = 0; i < 4; i++) {
-			attributes[i] = 0;
-		}
-
-		//       i = 1 since the first line is inuse for level
-		for (int i = 1; i < itemLore.size(); i++) {
+		for (int i = startLine; i < itemLore.size(); i++) {
 			String line = itemLore.get(i);
 			byte[] bytes = stripAndGetBytes(line);
 
@@ -276,28 +280,34 @@ public class ItemUtil {
 			//       j = 8 so we skip most of the word
 			for (int j = 8; j < bytes.length; j++) {
 				Character c = (char) bytes[j];
-				if (c == ' ') {
-					/*toughness is default, it's rewarded most*/
-					if (j == 9/*strength*/) {
-						addto = 0;
-					} else if (j == 8/*agility*/) {
-						addto = 2;
-					} else if (j == 12/*restoration*/) {
-						addto = 3;
-					}
+				if (isArmor) {
+					if (c == ' ') {
+						/*toughness is default, it's rewarded most*/
+						if (j == 9/*strength*/) {
+							addto = 0;
+						} else if (j == 8/*agility*/) {
+							addto = 2;
+						} else if (j == 12/*restoration*/) {
+							addto = 3;
+						}
 
-					//skip the §f
-					continue;
-				} else {
-					if (Character.isDigit(c)) {
-						value += c;
+						//skip the §f
+						continue;
+					} else {
+						if (Character.isDigit(c)) {
+							value += c;
+						}
 					}
+				} else {
+					if (Character.isDigit(c))
+						value += c;
+					addto = i;
 				}
 			}
-			attributes[addto] = Integer.valueOf(value);
+			values[addto] = Integer.valueOf(value);
 		}
 
-		return attributes;
+		return values;
 	}
 
 	/**
@@ -331,6 +341,45 @@ public class ItemUtil {
 		return exp;
 	}
 
+	/**
+	 * if an ability item has been moved into the ability inventory, or moved to a new slot
+	 * @param slot
+	 * @return
+	 */
+	public static Ability getAbilityFromItem(ItemStack itemStack) {
+		String itemName = ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
+		itemName = itemName.replace(' ', '_');
+		return AbilityType.valueOf(itemName).getAbility();
+	}
+	
+	public static ItemStack getItemFromAbility(Ability ability) {
+		return ItemUtil.getExistingItem(ability.getReference(), ability.getValues(), ability.getRarity());
+	}
+	
+	public static HashMap<Integer, ItemStack> getItemStacksFromAbilities(HashMap<Integer, Ability> abilities) {
+		HashMap<Integer, ItemStack> itemStacks = new HashMap<Integer, ItemStack>();
+		for (Integer i : abilities.keySet()) {
+			if (abilities.containsValue(i) && abilities.get(i) != null)
+				itemStacks.put(i, getItemFromAbility(abilities.get(i)));
+			else {
+				itemStacks.put(i, new ItemStack(Material.AIR));
+			}
+		}
+		return itemStacks;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * @param line
 	 * @return The line in form of byte[]
@@ -390,6 +439,9 @@ public class ItemUtil {
 	 * @return The value of a certain line
 	 */
 	private static String getValueFromString(String lineString) {
+		if (lineString.contains("/")) {
+			return getValueFromBytesDivide(stripAndGetBytes(lineString));
+		}
 		return getValueFromBytes(stripAndGetBytes(lineString));
 	}
 	
@@ -400,6 +452,21 @@ public class ItemUtil {
 			if (c == ' ')
 				return value;
 			value += c;
+		}
+		return value;
+	}
+	
+	private static String getValueFromBytesDivide(byte[] bytes) {
+		String value = "";
+		boolean isValue = false;
+		for (int i = bytes.length - 2; i > 1; i--) {
+			Character c = (char) bytes[i];
+			if (c == ' ')
+				return value;
+			if (isValue)
+				value += c;
+			if (c == '/')
+				isValue = true;
 		}
 		return value;
 	}
@@ -440,7 +507,7 @@ public class ItemUtil {
 		String modificationToBeReplaced = ElementsUtil.getLoreElementMod(referenceToBeReplaced);
 		for (int i = 0; i < itemLore.size(); i++) {
 			if (itemLore.get(i).startsWith(modificationToBeReplaced)) {
-				int oldValue = Integer.parseInt(getValueFromBytes(stripAndGetBytes(itemLore.get(i))));
+				int oldValue = Integer.parseInt(getValueFromString((itemLore.get(i))));
 				int newValue = oldValue + value;
 				return newValue;
 			}
@@ -582,7 +649,6 @@ public class ItemUtil {
 	 * @return
 	 */
 	public static ItemStack getInitialItem(String reference, int level, int rarity) {
-		MessageUtil.sendMessage(null, "creating new item: " + reference + " " + level + " " + rarity, MessageType.SERVER_DEBUG);
 		ItemStack itemStack = 	ElementsUtil.getItemElement(reference);
 		return getInitialItem(itemStack, reference, level, rarity);
 	}
@@ -657,7 +723,14 @@ public class ItemUtil {
 		return statItem;
 	}
 	
-	
+	public static ItemStack getExistingItem(String reference, int[] values, int rarity) {
+		ItemStack itemStack = ElementsUtil.getItemElement(reference);
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		itemMeta.setDisplayName(getExistingItemName(reference, rarity));
+		itemMeta.setLore(getExistingItemLore(reference, values));
+		itemStack.setItemMeta(itemMeta);
+		return itemStack;
+	}
 	
 	
 	
@@ -729,9 +802,35 @@ public class ItemUtil {
 		return itemLore;
 	}
 	
+	/**
+	 * cannot add endElements
+	 * @param reference
+	 * @param values
+	 * @return
+	 */
+	private static List<String> getExistingItemLore(String reference, int[] values) {
+		List<String> itemLore = new ArrayList<String>();
+		ItemType itemType = ElementsUtil.getItemTypeElement(reference);
+		itemLore.addAll(ElementsUtil.getMultipleExistingLoreElements(itemType.getElements(), values));
+		return itemLore;
+	}
+	
 	private static String getInitialItemName(String reference, int rarity) {
 		List<String> possibleNames = ElementsUtil.getNameElement(reference);
 		String itemName = possibleNames.get(random.nextInt(possibleNames.size()));
+		return getFinalizedItemName(itemName, rarity);
+	}
+	
+	/**
+	 * gets the first entry in the list of possible names
+	 * @param reference
+	 * @return
+	 */
+	private static String getExistingItemName(String reference, int rarity) {
+		return getFinalizedItemName(ElementsUtil.getNameElement(reference).get(0), rarity);
+	}
+	
+	private static String getFinalizedItemName(String itemName, int rarity) {
 		switch (rarity) {
 		case 1: {
 			itemName += "§7";
@@ -753,7 +852,6 @@ public class ItemUtil {
 		}
 		return itemName;
 	}
-	
 	
 	
 	

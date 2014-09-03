@@ -3,6 +3,7 @@ package com.pkadev.pkaadventure.listeners;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,6 +24,7 @@ import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class CombatListener implements Listener {
 
@@ -131,44 +134,36 @@ public class CombatListener implements Listener {
 
 	@EventHandler
 	public void onEntityDamageByEnvironment(EntityDamageEvent event) {
-		if (event.getEntity() instanceof LivingEntity) {
+		if (!(event.getEntity() instanceof LivingEntity)) {
 			event.setCancelled(true);
 			return;
 		}
 
-		event.setDamage(0d);
+		if (event.getCause() == DamageCause.ENTITY_ATTACK || event.getCause() == DamageCause.PROJECTILE)
+			return;
+		
 		LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
 		if (livingEntity instanceof Player) {
 			PlayerProcessor.damagePlayerByEnvironment((Player) event.getEntity(), event.getDamage());
 		} else if (MobProcessor.isMobMonster(livingEntity)) {
-			MobProcessor.damageMobByEnvironment((LivingEntity) event.getEntity(), event.getDamage());
+			MobProcessor.damageMobByEnvironment(livingEntity, event.getDamage());
 		} else {
 			livingEntity.remove();
 		}
+		
+		event.setDamage(0d);
 	}
 
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
-		event.setDroppedExp(0);//TODO do the exp drop sytem
+		event.setDroppedExp(0);	//TODO do the exp drop sytem
 		event.getDrops().clear();
-
-		Entity entity = event.getEntity();
 		
-		if (MobProcessor.isMobMonster(entity)) {
-			MobMonster mobMonster = MobProcessor.getMobMonster(entity);
-			MobProcessor.mobDeath(mobMonster);
-			PKAMob pkaMob = mobMonster.getPKAMob();
-			pkaMob.getDamageDoneBy().remove("");
-			HashMap<String, List<ItemStack>> drops = ItemUtil.getNewItemDrop(pkaMob.getDamageDoneBy().keySet(), pkaMob.getMobName(), pkaMob.getLevel(), pkaMob.getRareItemInt());
-			for (String player : drops.keySet()) {
-				for (ItemStack itemStack : drops.get(player)) {
-					Item item = entity.getWorld().dropItem(entity.getLocation(), itemStack);
-					ItemUtil.addDroppedItem(item, player);
-				}
-			}
-		} else if (entity instanceof Player) {
-			((Player) entity).kickPlayer("Something went wrong. You are not supposed to die.");
+		LivingEntity livingEntity = event.getEntity();
+		
+		if (MobProcessor.isMobMonster(livingEntity)) {
+			MobProcessor.mobDeath(MobProcessor.getMobMonster(livingEntity), livingEntity.getLocation());
 		}
 	}
 }

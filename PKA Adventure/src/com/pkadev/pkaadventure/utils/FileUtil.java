@@ -164,8 +164,8 @@ public class FileUtil {
 	 * @param path possible paths: "MessageType.SINGLE.togglecolors for SINGLE, GORUP, SERVER, SINGLE_DEBUG, etc."
 	 * @return
 	 */
-	public static List<String> getStringArrayFromConfig(YamlConfiguration config, String path, String configFileReference) {		
-		return getStringArrayFromConfig(config, path, configFileReference, false);
+	public static List<String> getStringListFromConfig(YamlConfiguration config, String path, String configFileReference) {		
+		return getStringListFromConfig(config, path, configFileReference, false);
 	}
 	
 	/**
@@ -175,7 +175,7 @@ public class FileUtil {
 	 * @param configFileReference
 	 * @return
 	 */
-	public static List<String> getStringArrayFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
+	public static List<String> getStringListFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
 		if (config.contains(path) && config.isList(path))
 			return config.getStringList(path);
 		else {
@@ -183,7 +183,7 @@ public class FileUtil {
 		}
 	}
 	
-	private static List<String> getStringArrayFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {		
+	private static List<String> getStringListFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {		
 		List<String> stringList = null;
 		if (config.contains(path) && config.isList(path))
 			stringList = config.getStringList(path);
@@ -195,7 +195,7 @@ public class FileUtil {
 			} else {
 				MessageUtil.severe("could not find path: " + path + " in " + configFileReference + ", or is not List. Creating new " + configFileReference + " and trying again");
 				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
-				return getStringArrayFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
+				return getStringListFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 
 		}

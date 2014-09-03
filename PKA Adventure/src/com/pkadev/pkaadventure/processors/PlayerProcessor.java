@@ -113,7 +113,6 @@ public class PlayerProcessor {
 		int health = 					getHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int[] attributes = 				getAttributesFromPlayerConfig(playerName, playerConfig, classTypeString);
 		double damage = 				getDamageFromPlayerConfig(playerName, classTypeString, level);
-		Inventory abilityInventory = 	Bukkit.createInventory(null, 9, "Abilities");
 		int weaponSlot = 				InventoryUtil.getWeaponSlot(player);
 		int availableUpgradePoints = 	getUpgradePointsFromPlayerConfig(playerName, playerConfig, classTypeString);
 		
@@ -125,7 +124,7 @@ public class PlayerProcessor {
 		player.setLevel(level);
 		
 		return new PKAPlayer(playerName, classType, maxHealth, 
-				health, attributes, damage, abilityInventory, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
+				health, attributes, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
 	}
 
 	private static boolean hasLoadedClassBefore(String playerName, ClassType classType) {
@@ -139,6 +138,8 @@ public class PlayerProcessor {
 	private static void writeNewClassToPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
 		// CHANGED TO INT, MIGHT BREAK IT. Marcus
 		List<Integer> attributes = new ArrayList<Integer>();
+		List<String> emptyList = new ArrayList<String>();
+		emptyList.add("");
 		attributes.add(0); attributes.add(0); attributes.add(0); attributes.add(0);
 		
 		playerConfig.set(classTypeString + ".maxhealth", 100.0);
@@ -148,6 +149,9 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".level", 1);
 		
 		playerConfig.set(classTypeString + ".gold", 0);
+		
+		playerConfig.set(classTypeString + ".Inventories.Ability", emptyList);
+		
 		// Mining
 		playerConfig.set(classTypeString + ".mining.exp", 0);
 		playerConfig.set(classTypeString + ".mining.level", 1);
@@ -377,6 +381,18 @@ public class PlayerProcessor {
 		updateHealth(player, pkaPlayers.get(player.getName()));
 	}
 
+	/*
+	 * use updateHealth(player) please
+	 */
+	private static void updateHealth(Player player, PKAPlayer pkaPlayer) {
+		double newHealth = 1d;
+		newHealth = (pkaPlayer.getHealth() / pkaPlayer.getMaxHealth()) * 20d;
+		if (newHealth > 20d || newHealth <= 0d) {
+			player.setGameMode(GameMode.CREATIVE);
+		}
+		player.setHealth(newHealth);
+	}
+	
 	public static int[] getPlayerAttributes(String playerName) {
 		return getPKAPlayer(playerName).getAttributes();
 	}
@@ -406,18 +422,6 @@ public class PlayerProcessor {
 	
 	private static void applyDeathEffect(Player player) {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 2));
-	}
-
-	/*
-	 * use updateHealth(player) please
-	 */
-	private static void updateHealth(Player player, PKAPlayer pkaPlayer) {
-		double newHealth = 1d;
-		newHealth = (pkaPlayer.getHealth() / pkaPlayer.getMaxHealth()) * 20d;
-		if (newHealth > 20d || newHealth <= 0d) {
-			player.setGameMode(GameMode.CREATIVE);
-		}
-		player.setHealth(newHealth);
 	}
 
 	public static void rewardExperience(String playerName, int experience) {

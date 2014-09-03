@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.types.InventoryType;
-import com.pkadev.pkaadventure.types.MessageType;
 
 public class ElementsUtil {
 	private static Main plugin = Main.instance;
@@ -21,7 +20,7 @@ public class ElementsUtil {
 	public static void load() {
 		loreElements.put("", "");
 		itemTypeElements.put("", new ItemType(null, null, 0));
-		dropElements.put("default_drop", FileUtil.getStringArrayFromConfig(FileUtil.getDropConfig(), "default_drop", 
+		dropElements.put("default_drop", FileUtil.getStringListFromConfig(FileUtil.getDropConfig(), "default_drop", 
 					     "drops.yml"));
 	}
 	
@@ -58,6 +57,8 @@ public class ElementsUtil {
 		String mod = getLoreElementMod(reference);
 		if (mod == "")
 			return "";
+		if (reference.endsWith("divide"))
+			return mod + getLoreElementValue(reference, level, 0);
 		return mod + getLoreElementValue(reference, level);
 	}
 
@@ -74,6 +75,17 @@ public class ElementsUtil {
 		return mod + value;
 	}
 
+	/**
+	 * only used if you need something like: Strength: 5/10
+	 * @param divideReference
+	 * @param level
+	 * @param value
+	 * @return
+	 */
+	public static String getLoreElementValue(String divideReference, int level, int value) {
+		return value + "/" + MathUtil.getValue(level, divideReference);
+	}
+	
 	public static String getLoreElementValue(String reference, int level) {
 		if (reference.endsWith("blank")) {
 			return "";
@@ -130,14 +142,21 @@ public class ElementsUtil {
 	 * @return
 	 */
 	public static ItemStack getItemElement(String reference) {
-		MessageUtil.sendMessage(null, "getting itemElement: " + reference, MessageType.SERVER_DEBUG);
 		if (reference == "")
 			return new ItemStack(Material.AIR);
 		if (itemElements.containsKey(reference))
 			return itemElements.get(reference);
 		else {
-			String configFileReference = "config.yml";
-			ItemStack element = new ItemStack(FileUtil.getIntValueFromConfig(FileUtil.getConfig(), "ItemStack." + reference, configFileReference));
+			String configFileReference = "itemtypes.yml";
+			int id = 1;
+			YamlConfiguration itemTypeConfig = FileUtil.getInventoryConfig();
+			if (itemTypeConfig.contains(reference + ".id")) {
+				if (itemTypeConfig.isInt(reference + ".id"))
+					id = FileUtil.getIntValueFromConfig(itemTypeConfig, reference + ".id", configFileReference);
+			} else {
+				return new ItemStack(Material.AIR);
+			}
+			ItemStack element = new ItemStack(id);
 			setItemElement(reference, element);
 			return element;
 		}
@@ -171,8 +190,8 @@ public class ElementsUtil {
 		else {
 			String configFileReference = "itemtypes.yml";
 			YamlConfiguration config = FileUtil.getItemTypeConfig();
-			ItemType element = new ItemType(	FileUtil.getStringArrayFromConfig(config, reference + ".elements", configFileReference), 
-												FileUtil.getStringArrayFromConfig(config, reference + ".endelements", configFileReference),
+			ItemType element = new ItemType(	FileUtil.getStringListFromConfig(config, reference + ".elements", configFileReference), 
+												FileUtil.getStringListFromConfig(config, reference + ".endelements", configFileReference),
 												FileUtil.getIntValueFromConfig(config, reference + ".maxendelements", configFileReference));
 			setItemTypeElement(reference, element);
 			return element;
@@ -203,7 +222,7 @@ public class ElementsUtil {
 			return nameElements.get(reference);
 		else {
 			String configFileReference = "names.yml";
-			List<String> element = FileUtil.getStringArrayFromConfig(FileUtil.getNameConfig(), reference, configFileReference);
+			List<String> element = FileUtil.getStringListFromConfig(FileUtil.getNameConfig(), reference, configFileReference);
 			setNameElement(reference, element);
 			return element;
 		}
@@ -236,7 +255,7 @@ public class ElementsUtil {
 			return dropElements.get(reference);
 		else {
 			String configFileReference = "drops.yml";
-			List<String> element = FileUtil.getStringArrayFromConfigSAFE(FileUtil.getDropConfig(), reference, configFileReference);
+			List<String> element = FileUtil.getStringListFromConfigSAFE(FileUtil.getDropConfig(), reference, configFileReference);
 			if (element == null)
 				return dropElements.get("default_drop");
 			setDropElement(reference, element);
@@ -268,8 +287,11 @@ public class ElementsUtil {
 	
 	private static HashMap<String, Inventory> inventoryElements = new HashMap<String, Inventory>();
 	private static HashMap<String, InventoryType> inventoryNameElements = new HashMap<String, InventoryType>();
+	private static String abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
 	
 	public static Inventory getInventoryElement(String reference, int level) {
+		if (reference.equals("ability"))
+			return Bukkit.createInventory(null, 9, abilityInventoryName);
 		if (inventoryElements.containsKey(reference))
 			return inventoryElements.get(reference);
 		else {

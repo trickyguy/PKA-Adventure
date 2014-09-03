@@ -1,20 +1,26 @@
 package com.pkadev.pkaadventure.objects;
 
-import org.bukkit.inventory.Inventory;
+import java.util.HashMap;
 
+import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.types.ClassType;
+import com.pkadev.pkaadventure.utils.ElementsUtil;
+import com.pkadev.pkaadventure.utils.InventoryUtil;
+import com.pkadev.pkaadventure.utils.ItemUtil;
 
 public class PKAPlayer {
 
 	public PKAPlayer(String playerName, ClassType classType, int maxHealth, 
-			int health, int[] attributes, double damage, 
-			Inventory abilityInventory, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold) {
+			int health, int[] attributes, double damage, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold) {
 		setPlayerName(playerName);
 		setClassType(classType);
 		setMaxHealth(maxHealth);
 		setHealth(health);
 		setAttributes(attributes);
-		setAbilityInventory(abilityInventory);
 		setDamage(damage);
 		setWeaponSlot(weaponSlot);
 		setAvailableUpgradePoints(availableUpgradePoints);
@@ -30,7 +36,11 @@ public class PKAPlayer {
 	private double maxHealth;
 	private double health;
 	private double damage;
-	private Inventory abilityInventory;
+	private HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
+	private HashMap<Integer, ItemStack> cachedItems = new HashMap<Integer, ItemStack>();
+	private boolean isSneaking = false;
+	//there might be more than 1 way for players to select abilities
+	private int abilityTriggerType = 1;
 	private int weaponSlot;
 	private int availableUpgradePoints;
 	private int experience;
@@ -84,10 +94,37 @@ public class PKAPlayer {
 		this.health -= damage;
 	}
 	public Inventory getAbilityInventory() {
-		return abilityInventory;
+		return InventoryUtil.fillInventory("ability", ItemUtil.getItemStacksFromAbilities(abilities));
 	}
-	public void setAbilityInventory(Inventory abilityInventory) {
-		this.abilityInventory = abilityInventory;
+	public HashMap<Integer, Ability> getAbilities() {
+		return abilities;
+	}
+	public Ability getAbility(Integer i) {
+		return abilities.get(i);
+	}
+	public void setAbility(Integer i, Ability ability) {
+		abilities.put(i, ability);
+	}
+	public HashMap<Integer, ItemStack> getCachedItems() {
+		return cachedItems;
+	}
+	public void setCachedItems(HashMap<Integer, ItemStack> cachedItems) {
+		this.cachedItems = cachedItems;
+	}
+	public boolean isSneaking() {
+		return isSneaking;
+	}
+	public void setSneaking() {
+		isSneaking = true;
+	}
+	public void setNotSneaking() {
+		isSneaking = false;
+	}
+	public int getAbiltiyTriggerType() {
+		return abilityTriggerType;
+	}
+	public void setAbilityTriggerType(int abilityTriggerType) {
+		this.abilityTriggerType = abilityTriggerType;
 	}
 	public double getDamage() {
 		return damage;

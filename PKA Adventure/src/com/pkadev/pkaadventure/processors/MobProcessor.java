@@ -1,16 +1,23 @@
 package com.pkadev.pkaadventure.processors;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.utils.DamageUtil;
+import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
@@ -36,17 +43,17 @@ public class MobProcessor {
 			PKAMob pkaMob = mobMonster.getPKAMob();
 			double maxHealth = pkaMob.getMaxHealth();
 			double finalDamage = DamageUtil.getFinalizedDamage(minecraftDamage, maxHealth);
-			damageMob(mobMonster, pkaMob, finalDamage, "");
+			damageMob(mobMonster, pkaMob, livingEntity, finalDamage, "");
 		}
 	}
 	
 	public static void damageMobByEntity(LivingEntity livingEntity, double finalizedDamage, String damagerName) {
 		MobMonster mobMonster = 	getMobMonster(livingEntity);
 		PKAMob pkaMob = 			getMobMonster(livingEntity).getPKAMob();
-		damageMob(mobMonster, pkaMob, finalizedDamage, damagerName);
+		damageMob(mobMonster, pkaMob, livingEntity, finalizedDamage, damagerName);
 	}
 	
-	private static void damageMob(MobMonster mobMonster, PKAMob pkaMob, double finalizedDamage, String damagerName) {
+	private static void damageMob(MobMonster mobMonster, PKAMob pkaMob, LivingEntity livingEntity, double finalizedDamage, String damagerName) {
 		if (finalizedDamage <= 0d)
 			return;
 		double finalHealth = pkaMob.getHealth() - finalizedDamage;
@@ -54,7 +61,7 @@ public class MobProcessor {
 		if (finalHealth > 0)
 			damageMobNonLethal(mobMonster, pkaMob, finalHealth);
 		else {
-			damageMobLethal(mobMonster);
+			damageMobLethal(livingEntity);
 		}
 	}
 	
@@ -63,18 +70,29 @@ public class MobProcessor {
 		updateHealth(mobMonster, pkaMob);
 	}
 	
-	private static void damageMobLethal(MobMonster mobMonster) {
-		mobMonster.getEntity().setHealth(0f);
+	private static void damageMobLethal(LivingEntity livingEntity) {
+		Bukkit.broadcastMessage("a");
+		livingEntity.damage(100d);
 	}
 	
-	public static void mobDeath(MobMonster mobMonster) {
+	public static void mobDeath(MobMonster mobMonster, Location location) {
+		PKAMob pkaMob = mobMonster.getPKAMob();
 		giveOutExperience(mobMonster, mobMonster.getPKAMob());
 		SpawnNodeProcessor.removeMobFromNode(mobMonster.getSpawnNode(), mobMonster);
 		Arrays.fill(mobMonster.getEntity().getEquipment(), null);
+		pkaMob.getDamageDoneBy().remove("");
+		HashMap<String, List<ItemStack>> drops = ItemUtil.getNewItemDrop(pkaMob.getDamageDoneBy().keySet(), pkaMob.getMobName(), pkaMob.getLevel(), pkaMob.getRareItemInt());
+		for (String player : drops.keySet()) {
+			MessageUtil.d(player);
+			for (ItemStack itemStack : drops.get(player)) {
+				Item item = location.getWorld().dropItem(location, itemStack);
+				ItemUtil.addDroppedItem(item, player);
+			}
+		}
 	}
 	
 	private static void updateHealth(MobMonster mobMonster, PKAMob pkaMob) {
-		mobMonster.getEntity().setCustomName("§c[" + pkaMob.getHealth() + "/" + pkaMob.getMaxHealth() + "] &6Lvl. " + pkaMob.getLevel());
+		mobMonster.getEntity().setCustomName("§c[" + (int) pkaMob.getHealth() + "/" + (int) pkaMob.getMaxHealth() + "] §6Lvl. " + pkaMob.getLevel());
 	}
 	
 	private static void giveOutExperience(MobMonster mobMonster, PKAMob pkaMob) {

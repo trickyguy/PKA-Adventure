@@ -3,7 +3,9 @@ package com.pkadev.pkaadventure.processors;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.w3c.dom.Entity;
 
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.InventoryType;
@@ -29,6 +31,12 @@ public class CommandProcessor implements CommandExecutor {
 		} else if (argsLength == 1) {
 			if (args[0].equalsIgnoreCase("create")) {
 				MessageUtil.sendMessage(player, "/create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
+			} else if (args[0].equalsIgnoreCase("test")) {
+				for (org.bukkit.entity.Entity entity : player.getLocation().getWorld().getEntities()) {
+					if (entity instanceof LivingEntity && !(entity instanceof Player))
+						if (entity.getLocation().distanceSquared(player.getLocation()) < 144)
+							MessageUtil.d("" + ((LivingEntity) entity).getCustomName());
+				}
 			} else {
 				invalidCommand(player);
 			}
