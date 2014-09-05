@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.objects.abilities;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
@@ -8,8 +9,7 @@ public class FlameThrower implements Ability {
 
 	@Override
 	public void trigger() {
-		// TODO Auto-generated method stub
-		
+		Bukkit.broadcastMessage("a");
 	}
 
 	@Override
@@ -20,20 +20,17 @@ public class FlameThrower implements Ability {
 
 	@Override
 	public String getReference() {
-		// TODO Auto-generated method stub
-		return null;
+		return "ability_flame_thrower";
 	}
 
 	@Override
 	public int[] getValues() {
-		// TODO Auto-generated method stub
-		return null;
+		return new int[]{1};
 	}
 
 	@Override
 	public int getRarity() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 2;
 	}
 
 

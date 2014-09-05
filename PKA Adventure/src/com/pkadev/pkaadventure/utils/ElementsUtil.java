@@ -72,6 +72,9 @@ public class ElementsUtil {
 		String mod = getLoreElementMod(reference);
 		if (mod == "")
 			return "";
+		if (reference.endsWith("blank")) {
+			return mod;
+		}
 		return mod + value;
 	}
 
@@ -149,12 +152,15 @@ public class ElementsUtil {
 		else {
 			String configFileReference = "itemtypes.yml";
 			int id = 1;
-			YamlConfiguration itemTypeConfig = FileUtil.getInventoryConfig();
+			YamlConfiguration itemTypeConfig = FileUtil.getItemTypeConfig();
 			if (itemTypeConfig.contains(reference + ".id")) {
 				if (itemTypeConfig.isInt(reference + ".id"))
 					id = FileUtil.getIntValueFromConfig(itemTypeConfig, reference + ".id", configFileReference);
+				else {
+					return new ItemStack(Material.STONE);
+				}
 			} else {
-				return new ItemStack(Material.AIR);
+				return new ItemStack(Material.STONE);
 			}
 			ItemStack element = new ItemStack(id);
 			setItemElement(reference, element);
@@ -288,6 +294,7 @@ public class ElementsUtil {
 	private static HashMap<String, Inventory> inventoryElements = new HashMap<String, Inventory>();
 	private static HashMap<String, InventoryType> inventoryNameElements = new HashMap<String, InventoryType>();
 	private static String abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
+	private static String selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
 	
 	public static Inventory getInventoryElement(String reference, int level) {
 		if (reference.equals("ability"))
@@ -316,6 +323,14 @@ public class ElementsUtil {
 	
 	private static void setInventoryNameElement(String nameReference, InventoryType inventoryType) {
 		inventoryNameElements.put(nameReference, inventoryType);
+	}
+	
+	public static String getSelectionInventoryName() {
+		return selectionInventoryName;
+	}
+	
+	public static String getAbilityInventoryName() {
+		return abilityInventoryName;
 	}
 	
 }

@@ -347,23 +347,21 @@ public class ItemUtil {
 	 * @return
 	 */
 	public static Ability getAbilityFromItem(ItemStack itemStack) {
+		if (itemStack == null || itemStack.getType() == Material.AIR)
+			return null;
 		String itemName = ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
 		itemName = itemName.replace(' ', '_');
 		return AbilityType.valueOf(itemName).getAbility();
 	}
 	
 	public static ItemStack getItemFromAbility(Ability ability) {
-		return ItemUtil.getExistingItem(ability.getReference(), ability.getValues(), ability.getRarity());
+		return getExistingItem(ability.getReference(), ability.getValues(), ability.getRarity());
 	}
 	
 	public static HashMap<Integer, ItemStack> getItemStacksFromAbilities(HashMap<Integer, Ability> abilities) {
 		HashMap<Integer, ItemStack> itemStacks = new HashMap<Integer, ItemStack>();
 		for (Integer i : abilities.keySet()) {
-			if (abilities.containsValue(i) && abilities.get(i) != null)
-				itemStacks.put(i, getItemFromAbility(abilities.get(i)));
-			else {
-				itemStacks.put(i, new ItemStack(Material.AIR));
-			}
+			itemStacks.put(i, getItemFromAbility(abilities.get(i)));
 		}
 		return itemStacks;
 	}

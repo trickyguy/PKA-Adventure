@@ -11,6 +11,7 @@ import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
+import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class CommandProcessor implements CommandExecutor {
@@ -26,43 +27,43 @@ public class CommandProcessor implements CommandExecutor {
 			return false;
 		Player player = (Player) sender;
 
-		if (argsLength == 0) {
-			InventoryUtil.openInventory(player, "selection");
-		} else if (argsLength == 1) {
-			if (args[0].equalsIgnoreCase("create")) {
-				MessageUtil.sendMessage(player, "/create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
-			} else if (args[0].equalsIgnoreCase("test")) {
-				for (org.bukkit.entity.Entity entity : player.getLocation().getWorld().getEntities()) {
-					if (entity instanceof LivingEntity && !(entity instanceof Player))
-						if (entity.getLocation().distanceSquared(player.getLocation()) < 144)
-							MessageUtil.d("" + ((LivingEntity) entity).getCustomName());
-				}
-			} else {
-				invalidCommand(player);
-			}
-		} else if (argsLength == 3) {
-			if (args[0].equalsIgnoreCase("create")) {
-				//pka create lootcrate fileName
-				if (args[1].equalsIgnoreCase("lootcrate")) {
-					newSpawnNode(player, null, args[2]);
+		if (cmd.getName().equalsIgnoreCase("pka")) {
+			if (argsLength == 0) {
+				InventoryUtil.openInventory(player, "selection");
+			} else if (argsLength == 1) {
+				if (args[0].equalsIgnoreCase("create")) {
+					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
+				} else if (args[0].equalsIgnoreCase("ability")) {
+					InventoryUtil.openInventory(player, "ability");
+				} else if (args[0].equalsIgnoreCase("test")) {
+					InventoryUtil.addItem(player, ItemUtil.getInitialItem("ability_flame_thrower", -1, 2));
 				} else {
 					invalidCommand(player);
 				}
+			} else if (argsLength == 3) {
+				if (args[0].equalsIgnoreCase("create")) {
+					//pka create lootcrate fileName
+					if (args[1].equalsIgnoreCase("lootcrate")) {
+						newSpawnNode(player, null, args[2]);
+					} else {
+						invalidCommand(player);
+					}
+				} else {
+					invalidCommand(player);
+				}
+			} else if (argsLength == 4) {
+				//pka create beacon name fileName
+				if (args[1].equalsIgnoreCase("beacon")) {
+					String name = args[2].replace('_', ' ');
+					newSpawnNode(player, name, args[3]);
+				} else {
+					invalidCommand(player);
+				}
+			} else if (argsLength == 10) {
+				newSpawnNode(player, args);
 			} else {
 				invalidCommand(player);
 			}
-		} else if (argsLength == 4) {
-			//pka create beacon name fileName
-			if (args[1].equalsIgnoreCase("beacon")) {
-				String name = args[2].replace('_', ' ');
-				newSpawnNode(player, name, args[3]);
-			} else {
-				invalidCommand(player);
-			}
-		} else if (argsLength == 10) {
-			newSpawnNode(player, args);
-		} else {
-			invalidCommand(player);
 		}
 
 		return true;

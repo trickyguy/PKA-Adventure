@@ -22,6 +22,7 @@ import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.types.SlotType;
@@ -150,7 +151,7 @@ public class InventoryUtil {
 	 */
 	public static void openInventory(Player player, String reference) {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-		if (pkaPlayer == null)
+		if (pkaPlayer == null && !reference.equals("selection"))
 			return;
 		Inventory inventory = ElementsUtil.getInventoryElement(reference, player.getLevel());
 		String playerName = player.getName();
@@ -270,7 +271,7 @@ public class InventoryUtil {
 		fillStaticInventory(inventory, level, elements);
 		fillDynamicInventory(inventory, level, endElements);
 	}
-	
+
 	public static Inventory fillInventory(String reference, HashMap<Integer, ItemStack> itemStacks) {
 		Inventory inventory = ElementsUtil.getInventoryElement(reference, -1);
 		for (Integer i : itemStacks.keySet()) {
@@ -346,7 +347,7 @@ public class InventoryUtil {
 		}
 		return hotbarItems;
 	}
-	
+
 	/**
 	 * Toggles hotbar between abilities and normal items
 	 * @param player
@@ -357,13 +358,12 @@ public class InventoryUtil {
 			return;
 		if (pkaPlayer.isSneaking()) {
 			replaceHotbarItems(player, pkaPlayer, pkaPlayer.getCachedItems());
-			pkaPlayer.setNotSneaking();
 		} else {
+			pkaPlayer.setCachedItems(getHotbarItems(player));
 			replaceHotbarItems(player, pkaPlayer, ItemUtil.getItemStacksFromAbilities(pkaPlayer.getAbilities()));
-			pkaPlayer.setSneaking();
 		}
 	}
-	
+
 	private static void replaceHotbarItems(Player player, PKAPlayer pkaPlayer, HashMap<Integer, ItemStack> itemStacks) {
 		PlayerInventory inventory = player.getInventory();
 		for (int i = 0; i < 9; i++) {
@@ -376,7 +376,7 @@ public class InventoryUtil {
 				pkaPlayer.setWeaponSlot(i);
 		}
 	}
-	
+
 	/**
 	 * @param player
 	 * @return number of the slot it was move to (-1 if dropped)
@@ -390,7 +390,7 @@ public class InventoryUtil {
 			SlotType slotType = SlotType.NORMAL;
 			if (firstEmpty < 9)
 				slotType = SlotType.HOTBAR;
-			dropItemInSlot(player, PlayerProcessor.getPKAPlayer(player), itemStack, slotType, firstEmpty);
+			dropItemInSlot(player, PlayerProcessor.getPKAPlayer(player), itemStack, slotType, firstEmpty, "");
 		}
 		return firstEmpty;
 	}
@@ -402,17 +402,19 @@ public class InventoryUtil {
 	 * @param slotType
 	 * @return if false, cancel the event
 	 */
-	public static boolean dropItemInSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot) {
+	public static boolean dropItemInSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, String inventoryName) {
 		if (slotType == SlotType.ARMOR)
 			pkaPlayer.addAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
-		else if (slotType == SlotType.HOTBAR)
+		else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
 				pkaPlayer.setWeaponSlot(slot);
-		else if (slotType == SlotType.ABILITY)
+		} else if (slotType == SlotType.ABILITY) {
+			MessageUtil.d(1);
 			pkaPlayer.setAbility(Integer.valueOf(slot), ItemUtil.getAbilityFromItem(itemStack));
+		}
 		return true;
 	}
-	
+
 	/**
 	 * IMPORTANT method
 	 * @param player
@@ -420,19 +422,42 @@ public class InventoryUtil {
 	 * @param slotType
 	 * @return if false, cancel the event
 	 */
-	public static boolean pickupItemFromSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, boolean isAlsoDropping) {
+	public static boolean pickupItemFromSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, String inventoryName, boolean isAlsoDropping) {
 		if (slot == 27)
 			return false;
 		if (slotType == SlotType.ARMOR)
 			pkaPlayer.removeAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
-		else if (slotType == SlotType.HOTBAR)
+		else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
 				pkaPlayer.setWeaponSlot(9);
-		else if (slotType == SlotType.ABILITY)
+		} else if (slotType == SlotType.ABILITY) {
 			if (!isAlsoDropping)
 				pkaPlayer.setAbility(Integer.valueOf(slot), null);
+		} else if (slotType == SlotType.UPPER)
+			if (!clickInNamedUpperInventory(player, inventoryName, itemStack, true))
+				return false;
 		return true;
 	}
-	
+
+	/**
+	 * @param player
+	 * @param inventoryName
+	 * @param clickedItem
+	 * @param isUpperInventory
+	 * @return false if event has to be cancelled 
+	 */
+	public static boolean clickInNamedUpperInventory(Player player, String inventoryName, ItemStack clickedItem, boolean isUpperInventory) {
+		if (isUpperInventory) {
+			InventoryType inventoryType = InventoryUtil.getInventoryTypeFromName(inventoryName);
+			if (inventoryType == InventoryType.SELECT) {
+				if (!ItemUtil.isAttributeItem(clickedItem))
+					return true;
+				PlayerProcessor.switchClass(player, ClassType.valueOf(ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).toUpperCase()));
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
 

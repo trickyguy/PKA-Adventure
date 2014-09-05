@@ -54,6 +54,14 @@ ability_id:
   - 1
   - 2
   - 3
+ability_flame_thrower:
+  elements:
+  - ability_flame_thrower_1_blank
+  endelements:
+  - ""
+  maxendelements: 0
+  id:
+  - 1
 woody_selection:
   elements:
   - woody_selection_line1_blank

@@ -1,4 +1,5 @@
-ability_inventory_name: You can drag/drop abilities into any slot.
+ability_inventory_name: Abilities
+selection_inventory_name: Select a class!
 selection:
   size: 9
   name: Select a class!

@@ -35,6 +35,7 @@ Lore:
   agility: "§7Agility: §f"
   restoration: "§7Restoration: §f"
   durability_divide: "§7Durability: §f"
+  ability_flame_thrower_1_blank: "§7Sup mah niggu"
 Math:
   max_mobdrop_amount: 3
   durability_divide_range: 1.2

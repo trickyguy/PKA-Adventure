@@ -11,6 +11,7 @@ import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class PKAPlayer {
 
@@ -40,6 +41,7 @@ public class PKAPlayer {
 	private HashMap<Integer, ItemStack> cachedItems = new HashMap<Integer, ItemStack>();
 	private boolean isSneaking = false;
 	//there might be more than 1 way for players to select abilities
+	// 1 = change the hotbar, 2 = shift + number
 	private int abilityTriggerType = 1;
 	private int weaponSlot;
 	private int availableUpgradePoints;
@@ -113,6 +115,9 @@ public class PKAPlayer {
 	}
 	public boolean isSneaking() {
 		return isSneaking;
+	}
+	public void setIsSneaking(boolean isSneaking) {
+		this.isSneaking = isSneaking;
 	}
 	public void setSneaking() {
 		isSneaking = true;

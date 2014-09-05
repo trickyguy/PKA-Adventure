@@ -4,30 +4,26 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
-import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
-import com.pkadev.pkaadventure.processors.InventoryProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
-import com.pkadev.pkaadventure.types.ClassType;
-import com.pkadev.pkaadventure.types.InventoryType;
-import com.pkadev.pkaadventure.types.SoundType;
+import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
-import com.pkadev.pkaadventure.utils.ShopUtil;
+import com.pkadev.pkaadventure.types.SlotType;
 
 public class InventoryListener implements Listener {
 	private Main plugin = Main.instance;
@@ -46,105 +42,145 @@ public class InventoryListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
+		MessageUtil.d(10);
 		Player player = (Player) event.getWhoClicked();
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-		boolean hasPKAPlayer = false; //if this is false the only thing that will trigger anything is if they click in Selection menu
-		if (pkaPlayer != null)
-			hasPKAPlayer = true;
-		if (event.getClick() == ClickType.SHIFT_LEFT || event.getClick() == ClickType.SHIFT_RIGHT) {
+		if (pkaPlayer == null && (event.getClickedInventory() == null || !event.getClickedInventory().getTitle().equals(ElementsUtil.getSelectionInventoryName())))
+			return;
+		if (event.isShiftClick()) {
 			event.setCancelled(true);
 			return;
 		}
-		else if (event.getClick() == ClickType.DOUBLE_CLICK 
-				|| event.getClick() == ClickType.LEFT 
-				|| event.getClick() == ClickType.RIGHT) {
-			ItemStack clickedItem = event.getCurrentItem();
-			ItemStack cursorItem = 	event.getCursor();
-			if (event.getSlotType() == SlotType.ARMOR && hasPKAPlayer) {
-				if (ItemUtil.isArmorItem(cursorItem)) {
-					int[] cursorItemAttributes = ItemUtil.getAttributesFromItemStack(cursorItem);
-					if (event.getAction() == InventoryAction.DROP_ALL_CURSOR || event.getAction() == InventoryAction.DROP_ONE_CURSOR) {
-						pkaPlayer.addAttributes(cursorItemAttributes);
-					} else if (event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
-						int[] clickedItemAttributes = ItemUtil.getAttributesFromItemStack(clickedItem);
-						pkaPlayer.removeAttributes(clickedItemAttributes);
-						pkaPlayer.addAttributes(cursorItemAttributes);
-					}
-					ItemUtil.updateStatItemMeta(player, pkaPlayer);
-				}
-			} else {
-				InventoryView inventoryView = 	event.getView();
-				String nameReference = 			event.getInventory().getName();
-				if (inventoryView.getTopInventory().contains(clickedItem)) {
-					if (InventoryProcessor.clickInNamedUpperInventory(player, nameReference, clickedItem, true)) {
-						event.setCancelled(true);
-						return;
-					}
-				} else {
-					if (InventoryProcessor.clickInNamedUpperInventory(player, nameReference, clickedItem, false)) {
-						event.setCancelled(true);
-						return;
-					}
-				}
-			}
+		
+		MessageUtil.d(11);
+		
+		//ill use my own slotType
+		SlotType slotType = getClicksSlotType(event);
+		if (slotType == null)
+			return;
+		int slot = event.getSlot();
+		ItemStack currentItem = event.getCurrentItem();
+		ItemStack cursorItem = event.getCursor();
+		boolean drop = false;
+		boolean pickup = false;
+		
+		if (event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
+			drop = true;
+			pickup = true;
+		} else if (event.getAction() == InventoryAction.PICKUP_ALL) {
+			pickup = true;
+		} else if (event.getAction() == InventoryAction.PLACE_ALL) {
+			drop = true;
 		}
+		
+		MessageUtil.d("drop " + drop + " pickup " + pickup);
+		
+		if (pickup && drop) {
+			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getView().getTitle(), true))
+				event.setCancelled(true);
+			else {
+				if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getView().getTitle()))
+					event.setCancelled(true);
+			}
+		} else if (pickup) {
+			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getView().getTitle(), true))
+				event.setCancelled(true);
+		} else if (drop) {
+			MessageUtil.d(13);
+			if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getView().getTitle()))
+				event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onClick(PlayerInteractEvent event) {
+		Player player = event.getPlayer();
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		if (!pkaPlayer.isSneaking())
+			return;
+		if (pkaPlayer.getAbiltiyTriggerType() != 1)
+			return;
+		if (!(event.getAction() == Action.RIGHT_CLICK_AIR) && !(event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+			return;
+		}
+		
+		pkaPlayer.getAbilities().get(Integer.valueOf(player.getInventory().getHeldItemSlot())).trigger();
+		event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onChangeSlot(PlayerItemHeldEvent event) {
+		Player player = event.getPlayer();
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		if (!pkaPlayer.isSneaking())
+			return;
+		if (pkaPlayer.getAbiltiyTriggerType() != 2)
+			return;
+		
+		pkaPlayer.getAbilities().get(Integer.valueOf(event.getNewSlot()));
+		event.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onSneakChange(PlayerToggleSneakEvent event) {
+		Player player = event.getPlayer();
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		if (pkaPlayer.getAbiltiyTriggerType() == 1) {
+			InventoryUtil.toggleHotbar(player);
+		}
+		pkaPlayer.setIsSneaking(event.isSneaking());
 	}
 
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent event) {
+		Player player = event.getPlayer();
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
 		if (ItemUtil.isWeapon(event.getItemDrop().getItemStack()))
 			event.setCancelled(true);
 		else {
-			ItemUtil.addDroppedItem(event.getItemDrop(), event.getPlayer().getName());
+			ItemUtil.addDroppedItem(event.getItemDrop(), player.getName());
 		}
 	}
-
-	//TODO make more efficient
-	@EventHandler
-	public void onShopClick(InventoryClickEvent event) {
-		/*
-		Player player = (Player) event.getWhoClicked();
-		if(event.getCurrentItem() == null) return;
-		Inventory inventory = event.getInventory();
-
-		if(ShopUtil.isShop(inventory.getName())) {
-			if(event.getView().getTopInventory().contains(event.getCurrentItem())) {
-				InventoryType type = ShopUtil.getInventoryTypeFromString(inventory.getName());
+	
+	private SlotType getClicksSlotType(InventoryClickEvent event) {
+		SlotType slotType = SlotType.NORMAL;
+		
+		if (event.getView().getType() == InventoryType.PLAYER) {
+			if (event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.ARMOR) {
+				slotType = SlotType.ARMOR;
+			} else if (event.getSlotType() == 
+					org.bukkit.event.inventory.InventoryType.SlotType.QUICKBAR) {
+				slotType = SlotType.HOTBAR;
+			} else if (event.getSlotType() ==
+					org.bukkit.event.inventory.InventoryType.SlotType.OUTSIDE) {
+				slotType = SlotType.OUTSIDE;
+			} else if (event.getSlotType() ==
+					org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER) {
+				
+			} else {
 				event.setCancelled(true);
-				if(type.equals(InventoryType.SHOP_DYNAMIC)) {
-					if(event.getSlot() == 8) {
-						player.closeInventory();
-						ShopUtil.playSound(player, SoundType.SWITCH);
-						InventoryUtil.openShopInventory(player, InventoryType.SHOP_DYNAMIC);
-						return;
-					} if(event.getSlot() == event.getInventory().getSize() - 1) {
-						player.sendMessage("§cYou can't move your Piggy Bank.");
-						ShopUtil.playSound(player, SoundType.ERROR);
-						return;
-					}
-					ShopUtil.purcase(event.getCurrentItem(), player);
-					InventoryMain.updatePiggyBank(event.getInventory(), player.getName());
-					return;
-				} if(type.equals(InventoryType.SHOP_DYNAMIC)) {
-					if(event.getSlot() == 8) {
-						player.closeInventory();
-						ShopUtil.playSound(player, SoundType.SWITCH);
-						InventoryUtil.openShopInventory(player, InventoryType.SHOP_DYNAMIC);
-						return;
-					} if(event.getSlot() == event.getInventory().getSize() - 1) {
-						player.sendMessage("§cYou can't move your Piggy Bank.");
-						ShopUtil.playSound(player, SoundType.ERROR);
-						return;
-					}
-					ShopUtil.sell(event.getCurrentItem(), player);
-					InventoryMain.updatePiggyBank(event.getInventory(), player.getName());
-					return;
-				}
-			} else if(event.getView().getBottomInventory().contains(event.getCurrentItem())) {
-				event.setCancelled(true);
+				return null;
 			}
+		} else if (event.getView().getType() == InventoryType.CHEST) {
+			if (event.getView().getTopInventory().getTitle().equals(ElementsUtil.getAbilityInventoryName()))
+				slotType = SlotType.ABILITY;
+			else {
+				slotType = SlotType.UPPER;
+			}
+		} else {
+			event.setCancelled(true);
+			return null;
 		}
-		*/
+		
+		return slotType;
 	}
 
 }
