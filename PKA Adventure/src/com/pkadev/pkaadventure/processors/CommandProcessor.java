@@ -40,6 +40,17 @@ public class CommandProcessor implements CommandExecutor {
 				} else {
 					invalidCommand(player);
 				}
+			} else if (argsLength == 2) {
+				if (args[0].equalsIgnoreCase("ability")) {
+					try {
+						int abilityTriggerType = Integer.parseInt(args[1]);
+						PlayerProcessor.getPKAPlayer(player).setAbilityTriggerType(abilityTriggerType);
+					} catch (IllegalArgumentException ex) {
+						MessageUtil.sendMessage(player, "usage: /pka ability triggerType", MessageType.SINGLE);
+					}
+				} else {
+					invalidCommand(player);
+				}
 			} else if (argsLength == 3) {
 				if (args[0].equalsIgnoreCase("create")) {
 					//pka create lootcrate fileName

@@ -9,7 +9,6 @@ import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.pkadev.pkaadventure.inventories.InventoryMain;
 import com.pkadev.pkaadventure.listeners.CombatListener;
 import com.pkadev.pkaadventure.listeners.DefaultListener;
 import com.pkadev.pkaadventure.listeners.InventoryListener;
@@ -38,7 +37,6 @@ public class Main extends JavaPlugin {
 		CustomEntityType.load();
 		SpawnNodeProcessor.load();
 		InventoryUtil.load();
-		InventoryMain.loadShops();
 		ItemUtil.load();
 		ElementsUtil.load();
 		

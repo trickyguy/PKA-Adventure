@@ -3,6 +3,8 @@ package com.pkadev.pkaadventure.objects;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,6 +45,7 @@ public class PKAPlayer {
 	//there might be more than 1 way for players to select abilities
 	// 1 = change the hotbar, 2 = shift + number
 	private int abilityTriggerType = 1;
+	private Integer currentlySelectedAbility = 9;
 	private int weaponSlot;
 	private int availableUpgradePoints;
 	private int experience;
@@ -107,6 +110,15 @@ public class PKAPlayer {
 	public void setAbility(Integer i, Ability ability) {
 		abilities.put(i, ability);
 	}
+	public void removeAbility(Integer i) {
+		abilities.remove(i);
+	}
+	public void triggerAbility(Integer i) {
+		Ability ability = abilities.get(i);
+		if (ability == null)
+			return;
+		ability.trigger();
+	}
 	public HashMap<Integer, ItemStack> getCachedItems() {
 		return cachedItems;
 	}
@@ -130,6 +142,20 @@ public class PKAPlayer {
 	}
 	public void setAbilityTriggerType(int abilityTriggerType) {
 		this.abilityTriggerType = abilityTriggerType;
+	}
+	public Integer getCurrentlySelectedAbility() {
+		return currentlySelectedAbility;
+	}
+	/**
+	 * @param currentlySelectedAbility
+	 * @return abilityName
+	 */
+	public String setCurrentlySelectedAbility(Integer currentlySelectedAbility) {
+		this.currentlySelectedAbility = currentlySelectedAbility;
+		Ability ability = abilities.get(currentlySelectedAbility);
+		if (ability == null)
+			return "null";
+		return abilities.get(currentlySelectedAbility).getName();
 	}
 	public double getDamage() {
 		return damage;

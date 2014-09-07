@@ -23,6 +23,7 @@ import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.types.SlotType;
 
 public class InventoryListener implements Listener {
@@ -42,7 +43,6 @@ public class InventoryListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		MessageUtil.d(10);
 		Player player = (Player) event.getWhoClicked();
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null && (event.getClickedInventory() == null || !event.getClickedInventory().getTitle().equals(ElementsUtil.getSelectionInventoryName())))
@@ -51,8 +51,6 @@ public class InventoryListener implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		
-		MessageUtil.d(11);
 		
 		//ill use my own slotType
 		SlotType slotType = getClicksSlotType(event);
@@ -67,13 +65,11 @@ public class InventoryListener implements Listener {
 		if (event.getAction() == InventoryAction.SWAP_WITH_CURSOR) {
 			drop = true;
 			pickup = true;
-		} else if (event.getAction() == InventoryAction.PICKUP_ALL) {
+		} else if (event.getAction() == InventoryAction.PICKUP_ALL || ((event.getAction() == InventoryAction.PICKUP_HALF || event.getAction() == InventoryAction.PICKUP_ONE) && event.getCurrentItem().getAmount() == 1)) {
 			pickup = true;
-		} else if (event.getAction() == InventoryAction.PLACE_ALL) {
+		} else if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE) {
 			drop = true;
 		}
-		
-		MessageUtil.d("drop " + drop + " pickup " + pickup);
 		
 		if (pickup && drop) {
 			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getView().getTitle(), true))
@@ -86,7 +82,6 @@ public class InventoryListener implements Listener {
 			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getView().getTitle(), true))
 				event.setCancelled(true);
 		} else if (drop) {
-			MessageUtil.d(13);
 			if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getView().getTitle()))
 				event.setCancelled(true);
 		}
@@ -98,6 +93,10 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
+		if (player.getInventory().getHeldItemSlot() == pkaPlayer.getWeaponSlot() && !pkaPlayer.isSneaking() && pkaPlayer.getAbiltiyTriggerType() == 3) {
+			pkaPlayer.triggerAbility(pkaPlayer.getCurrentlySelectedAbility());
+			return;
+		}
 		if (!pkaPlayer.isSneaking())
 			return;
 		if (pkaPlayer.getAbiltiyTriggerType() != 1)
@@ -106,7 +105,7 @@ public class InventoryListener implements Listener {
 			return;
 		}
 		
-		pkaPlayer.getAbilities().get(Integer.valueOf(player.getInventory().getHeldItemSlot())).trigger();
+		pkaPlayer.triggerAbility(Integer.valueOf(player.getInventory().getHeldItemSlot()));
 		event.setCancelled(true);
 	}
 	
@@ -121,7 +120,7 @@ public class InventoryListener implements Listener {
 		if (pkaPlayer.getAbiltiyTriggerType() != 2)
 			return;
 		
-		pkaPlayer.getAbilities().get(Integer.valueOf(event.getNewSlot()));
+		pkaPlayer.triggerAbility(Integer.valueOf(event.getNewSlot()));
 		event.setCancelled(true);
 	}
 	
@@ -131,8 +130,16 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
-		if (pkaPlayer.getAbiltiyTriggerType() == 1) {
-			InventoryUtil.toggleHotbar(player);
+		if (pkaPlayer.getAbiltiyTriggerType() == 1 || pkaPlayer.getAbiltiyTriggerType() == 3) {
+			int abilitySlot = InventoryUtil.toggleHotbar(player, pkaPlayer);
+			if (!event.isSneaking()) {
+				String abilityName = pkaPlayer.setCurrentlySelectedAbility(Integer.valueOf(abilitySlot));
+				if (abilityName == null)
+					MessageUtil.sendMessage(player, "No ability selected!", MessageType.SINGLE);
+				else {
+					MessageUtil.sendMessage(player, abilityName + " ability selected!", MessageType.SINGLE);
+				}
+			}
 		}
 		pkaPlayer.setIsSneaking(event.isSneaking());
 	}

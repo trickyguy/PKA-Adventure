@@ -5,8 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.pkadev.pkaadventure.Main;
@@ -146,7 +148,7 @@ public class FileUtil {
 
 	private static String getStringValueFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {
 		if (config.contains(path) && config.isString(path)) {
-			return config.getString(path);
+			return config.getString(path).replace('=', '§');
 		} else {
 			if (secondtry) {
 				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not String. Disabling plugin, contact developer.");
@@ -177,16 +179,15 @@ public class FileUtil {
 	 */
 	public static List<String> getStringListFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
 		if (config.contains(path) && config.isList(path))
-			return config.getStringList(path);
+			return getFinalizedStringList(config.getStringList(path));
 		else {
 			return null;
 		}
 	}
 	
 	private static List<String> getStringListFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {		
-		List<String> stringList = null;
 		if (config.contains(path) && config.isList(path))
-			stringList = config.getStringList(path);
+			return getFinalizedStringList(config.getStringList(path));
 		else {
 			if (secondtry) {
 				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not List. Disabling plugin, contact developer.");
@@ -199,7 +200,7 @@ public class FileUtil {
 			}
 
 		}
-		return stringList;
+		
 	}
 
 	/**
@@ -274,6 +275,14 @@ public class FileUtil {
 				return getListLengthFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
 			}
 		}
+	}
+	
+	private static List<String> getFinalizedStringList(List<String> list) {
+		List<String> newList = new ArrayList<String>();
+		for (String s : list) {
+			newList.add(s.replace('=', '§'));
+		}
+		return newList;
 	}
 	
 	public static void writeDefaultFile(File configFile, String defaultFileReference) {

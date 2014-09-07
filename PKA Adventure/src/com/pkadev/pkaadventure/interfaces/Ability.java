@@ -14,5 +14,6 @@ public interface Ability {
 	public String getReference();
 	public int[] getValues();
 	public int getRarity();
+	public String getName();
 
 }

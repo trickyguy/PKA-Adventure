@@ -1,12 +1,12 @@
 package com.pkadev.pkaadventure.types;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
-import com.pkadev.pkaadventure.objects.abilities.FlameThrower;
+import com.pkadev.pkaadventure.objects.abilities.Flame_Thrower;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public enum AbilityType {
 
-	Flame_Thrower(FlameThrower.class);
+	Flame_Thrower(Flame_Thrower.class);
 	
 	private Class<? extends Ability> ability;
 	

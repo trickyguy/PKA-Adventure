@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -83,7 +83,6 @@ public class MobProcessor {
 		pkaMob.getDamageDoneBy().remove("");
 		HashMap<String, List<ItemStack>> drops = ItemUtil.getNewItemDrop(pkaMob.getDamageDoneBy().keySet(), pkaMob.getMobName(), pkaMob.getLevel(), pkaMob.getRareItemInt());
 		for (String player : drops.keySet()) {
-			MessageUtil.d(player);
 			for (ItemStack itemStack : drops.get(player)) {
 				Item item = location.getWorld().dropItem(location, itemStack);
 				ItemUtil.addDroppedItem(item, player);

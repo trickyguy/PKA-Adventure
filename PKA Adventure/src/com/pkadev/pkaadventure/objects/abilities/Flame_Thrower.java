@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
 
-public class FlameThrower implements Ability {
+public class Flame_Thrower implements Ability {
 
 	@Override
 	public void trigger() {
@@ -33,5 +33,8 @@ public class FlameThrower implements Ability {
 		return 2;
 	}
 
-
+	@Override
+	public String getName() {
+		return "Flame Thrower";
+	}
 }
