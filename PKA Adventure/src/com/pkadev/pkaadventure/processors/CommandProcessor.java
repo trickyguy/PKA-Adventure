@@ -36,7 +36,9 @@ public class CommandProcessor implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("ability")) {
 					InventoryUtil.openInventory(player, "ability");
 				} else if (args[0].equalsIgnoreCase("test")) {
-					InventoryUtil.addItem(player, ItemUtil.getInitialItem("ability_flame_thrower", -1, 2));
+					InventoryUtil.moveItemIntoInventory(player, ItemUtil.getInitialItem("ability_flame_thrower", -1, 2));
+				} else if (args[0].equalsIgnoreCase("leave")) {
+					PlayerProcessor.removePKAPlayer(player);
 				} else {
 					invalidCommand(player);
 				}
@@ -44,7 +46,7 @@ public class CommandProcessor implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("ability")) {
 					try {
 						int abilityTriggerType = Integer.parseInt(args[1]);
-						PlayerProcessor.getPKAPlayer(player).setAbilityTriggerType(abilityTriggerType);
+						PlayerProcessor.getPKAPlayer(player).setAbilitySelectionType(abilityTriggerType);
 					} catch (IllegalArgumentException ex) {
 						MessageUtil.sendMessage(player, "usage: /pka ability triggerType", MessageType.SINGLE);
 					}

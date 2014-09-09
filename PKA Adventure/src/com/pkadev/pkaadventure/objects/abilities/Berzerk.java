@@ -1,42 +1,54 @@
 package com.pkadev.pkaadventure.objects.abilities;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 
-public class Flame_Thrower implements Ability {
+public class Berzerk implements Ability {
 
+	private Player player;
+	private PKAPlayer pkaPlayer;
+	private int[] values;
+	private int rarity;
+	private String reference = "ability_berzerk";
+	private String name = "Berzerk";
+	
 	@Override
 	public void trigger(LivingEntity livingEntity) {
-		Bukkit.broadcastMessage("a");
-	}
-
-	@Override
-	public void initialize(PKAPlayer pkaPlayer, int[] values, int rarity) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
+	public void initialize(PKAPlayer pkaPlayer, int[] values, int rarity) {
+		this.player = player;
+		this.pkaPlayer = pkaPlayer;
+		this.values = values;
+		this.rarity = rarity;
+	}
+
+	@Override
 	public String getReference() {
-		return "ability_flame_thrower";
+		return reference;
 	}
 
 	@Override
 	public int[] getValues() {
-		return new int[]{1};
+		return values;
 	}
 
 	@Override
 	public int getRarity() {
-		return 2;
+		return rarity;
 	}
 
 	@Override
 	public String getName() {
-		return "Flame Thrower";
+		return name;
 	}
+
+	
+	
 }

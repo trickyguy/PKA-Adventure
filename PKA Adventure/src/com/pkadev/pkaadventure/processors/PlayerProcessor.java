@@ -44,6 +44,9 @@ public class PlayerProcessor {
 	private static void addPKAPlayer(String playerName, PKAPlayer pkaPlayer) {
 		pkaPlayers.put(playerName, pkaPlayer);
 	}
+	public static void removePKAPlayer(Player player) {
+		removePKAPlayer(player.getName());
+	}
 	private static void removePKAPlayer(String playerName) {
 		if (pkaPlayers.containsKey(playerName))
 			pkaPlayers.remove(playerName);
@@ -98,12 +101,12 @@ public class PlayerProcessor {
 	}
 
 	public static void loadAllPlayers() {
-		for (int i = 0; i < Bukkit.getOnlinePlayers().length; i++) {
-			loadPlayer(Bukkit.getOnlinePlayers()[i]);
+		for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().length; i++) {
+			loadPlayer(Bukkit.getServer().getOnlinePlayers()[i]);
 		}
 	}
 	
-	public static PKAPlayer getInitialPKAPlayer(Player player, ClassType classType) {
+	private static PKAPlayer getInitialPKAPlayer(Player player, ClassType classType) {
 		String playerName = player.getName();
 		String classTypeString = classType.toString();
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
@@ -279,11 +282,15 @@ public class PlayerProcessor {
 
 		String playerName = player.getName();
 		String classTypeString = classType.toString();
-
+		PlayerProcessor.addPKAPlayer(playerName, getInitialPKAPlayer(player, classType));
+		
 		//TODO REMOVE BELOW (will load inventory in the future)
 		ItemStack weapon = ItemUtil.getInitialItem(classTypeString.toLowerCase() + "_weapon", player.getLevel(), 1);
 		ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
-		InventoryUtil.setItem(player, InventoryUtil.getActualWeaponSlot(player), weapon);
+		int actualWeaponSlot = InventoryUtil.getActualWeaponSlot(player);
+		if (actualWeaponSlot != -1)
+			InventoryUtil.removeItem(player, actualWeaponSlot);
+		InventoryUtil.moveItemIntoInventory(player, weapon);
 
 		savePlayer(player);
 
@@ -292,8 +299,8 @@ public class PlayerProcessor {
 		} else {
 			writeNewClassToPlayerConfig(playerName, classTypeString);
 		}
-
-		PlayerProcessor.addPKAPlayer(playerName, getInitialPKAPlayer(player, classType));
+		
+		player.closeInventory();
 		//TODO Inventory
 	}
 	
@@ -454,9 +461,9 @@ public class PlayerProcessor {
 		String classTypeStringLowercase = pkaPlayer.getClassType().toString().toLowerCase();
 
 		if (pkaPlayer.getWeaponSlot() != 9) {
-			weapon = ItemUtil.getWeapon(player, pkaPlayer.getWeaponSlot());
+			weapon = InventoryUtil.getWeapon(player, pkaPlayer.getWeaponSlot());
 		} else {
-			weapon = ItemUtil.getWeapon(player);
+			weapon = InventoryUtil.getWeapon(player);
 		}
 
 		if (weapon == null)

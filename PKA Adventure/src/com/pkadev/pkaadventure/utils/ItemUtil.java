@@ -130,7 +130,7 @@ public class ItemUtil {
 			return false;
 		String name = itemStack.getItemMeta().getDisplayName();
 		name = ChatColor.stripColor(name);
-		if (name.startsWith("Woody's") || name.startsWith("Kyle's") || name.startsWith("Wing's") || name.startsWith("Lefty's"))
+		if (name.startsWith("Woody's") || name.startsWith("Kyle's") || name.startsWith("Wings's") || name.startsWith("Lefty's"))
 			return true;
 		return false;
 	}
@@ -142,20 +142,6 @@ public class ItemUtil {
 		if (possibleIds.contains(itemStack.getType().toString()))
 			return true;
 		return false;
-	}
-
-	public static ItemStack getWeapon(Player player) {
-		PlayerInventory playerInventory = player.getInventory();
-		for (int i = 0; i < playerInventory.getSize(); i++) {
-			if (isWeapon(playerInventory.getItem(i)))
-				return playerInventory.getItem(i);
-		}
-		return null;
-	}
-
-	public static ItemStack getWeapon(Player player, int weaponSlot) {
-		PlayerInventory playerInventory = player.getInventory();
-		return playerInventory.getItem(weaponSlot);
 	}
 
 	public static boolean isStatItem(ItemStack itemStack) {
@@ -221,19 +207,15 @@ public class ItemUtil {
 	}
 
 	public static ClassType getClassTypeFromSelectionMenuItem(ItemStack itemStack) {
-		if (!isAttributeItem(itemStack))
-			return ClassType.NONE;
-		String itemName = itemStack.getItemMeta().getDisplayName();
-		if 			(itemName.equals(ElementsUtil.getLoreElementMod("woody_selection_name"))) {
+		String itemName = ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
+		if (itemName.startsWith("Wo")) {
 			return ClassType.WOODY;
-		} else if 	(itemName.equals(ElementsUtil.getLoreElementMod("wings_selection_name"))) {
-			return ClassType.WINGS;
-		} else if 	(itemName.equals(ElementsUtil.getLoreElementMod("lefty_selection_name"))) {
+		} else if (itemName.startsWith("L")) {
 			return ClassType.LEFTY;
-		} else if 	(itemName.equals(ElementsUtil.getLoreElementMod("kyle_selection_name"))) {
-			return ClassType.KYLE;
+		} else if (itemName.startsWith("Wi")) {
+			return ClassType.WINGS;
 		}
-		return ClassType.NONE;
+		return ClassType.KYLE;
 	}
 
 	public static void updateWeaponLore(ItemStack itemStack, ClassType classType, int level) {
@@ -263,10 +245,20 @@ public class ItemUtil {
 		default:return;
 		}
 	}
+	
+	private static int getFirstLineWithValue(List<String> list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (!list.get(i).endsWith("blank"))
+				return i;
+		}
+		return 0;
+	}
 
 	private static int[] getValuesFromItem(ItemStack itemStack, int startLine) {
-		boolean isArmor = isArmorItem(itemStack);
-		List<String> itemLore = itemStack.getItemMeta().getLore();
+		return getValuesFromItem(itemStack.getItemMeta().getLore(), startLine, isArmorItem(itemStack));
+	}
+	
+	private static int[] getValuesFromItem(List<String> itemLore, int startLine, boolean isArmor) {
 		int[] values = new int[itemLore.size() - startLine];
 
 		for (int i = startLine; i < itemLore.size(); i++) {
@@ -309,7 +301,7 @@ public class ItemUtil {
 
 		return values;
 	}
-
+	
 	/**
 	 * @param itemLore
 	 * @return int[0] = exp, int[1] = reqexp for next level
@@ -346,12 +338,17 @@ public class ItemUtil {
 	 * @param slot
 	 * @return
 	 */
-	public static Ability getAbilityFromItem(ItemStack itemStack) {
+	public static Ability getAbilityFromItem(ItemStack itemStack, PKAPlayer pkaPlayer) {
 		if (itemStack == null || itemStack.getType() == Material.AIR)
 			return null;
 		String itemName = ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
 		itemName = itemName.replace(' ', '_');
-		return AbilityType.valueOf(itemName).getAbility();
+		Ability ability = AbilityType.valueOf(itemName).getAbility();
+		List<String> itemLore = itemStack.getItemMeta().getLore();
+		int[] values = getValuesFromItem(itemLore, getFirstLineWithValue(itemLore), false);
+		int rarity = getItemRarity(itemStack.getItemMeta().getDisplayName());
+		ability.initialize(pkaPlayer, values, rarity);
+		return ability;
 	}
 	
 	public static ItemStack getItemFromAbility(Ability ability) {
@@ -568,7 +565,6 @@ public class ItemUtil {
 	
 	
 	
-	
 	/**
 	 * if rareItemInt == -1 then it wont give out a rare item otherwise it does
 	 * !!make sure to remove the "" before fetching this list
@@ -739,32 +735,6 @@ public class ItemUtil {
 	
 	
 	
-	public static ItemStack getClassWeapon(ClassType classType) {
-		Material material = null;
-		switch(classType) {
-		case WOODY: {
-			material = Material.WOOD_SWORD;
-			break;
-		}
-		case WINGS: {
-			material = Material.BOW;
-			break;
-		}
-		case LEFTY: {
-			material = Material.GOLD_AXE;
-			break;
-		}
-		case KYLE: {
-			material = Material.BOW;
-			break;
-		}
-		default:material = Material.AIR;
-		}
-		return new ItemStack(material);
-	}
-	
-	
-	
 	
 	
 	
@@ -851,7 +821,13 @@ public class ItemUtil {
 		return itemName;
 	}
 	
-	
+	private static int getItemRarity(String itemName) {
+		if (itemName.contains("§e"))
+			return 2;
+		else if (itemName.contains("§b"))
+			return 3;
+		return 1;
+	}
 	
 	
 	

@@ -2,6 +2,6 @@ package com.pkadev.pkaadventure.types;
 
 public enum SlotType {
 
-	HOTBAR, ARMOR, ABILITY, NORMAL, UPPER, OUTSIDE;
+	HOTBAR, ARMOR, NORMAL, UPPER, OUTSIDE;
 	
 }

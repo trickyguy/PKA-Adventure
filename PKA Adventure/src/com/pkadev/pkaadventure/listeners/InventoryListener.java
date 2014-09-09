@@ -1,11 +1,11 @@
 package com.pkadev.pkaadventure.listeners;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
@@ -23,6 +24,8 @@ import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.types.AbilityTriggerType;
+import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.types.SlotType;
 
@@ -33,8 +36,21 @@ public class InventoryListener implements Listener {
 
 	@EventHandler
 	public void onItemPickup(PlayerPickupItemEvent event) {
-		if (event.getPlayer().getName().equals(ItemUtil.getDroppedItemOwner(event.getItem()))) {
+		Player player = event.getPlayer();
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		ClassType classType = pkaPlayer.getClassType();
+		String classTypeString = classType.toString();
+		ItemStack itemStack = event.getItem().getItemStack();
+		if (player.getName().equals(ItemUtil.getDroppedItemOwner(event.getItem()))) {
 			ItemUtil.removeDroppedItem(event.getItem());
+			if (ItemUtil.isWeapon(itemStack)) {
+				ItemStack weapon = ItemUtil.getInitialItem(classTypeString.toLowerCase() + "_weapon", player.getLevel(), 1);
+				ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
+				InventoryUtil.moveItemIntoInventory(player, weapon);
+				event.setCancelled(true);
+			}
 		} else {
 			event.setCancelled(true);
 			return;
@@ -47,8 +63,8 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null && (event.getClickedInventory() == null || !event.getClickedInventory().getTitle().equals(ElementsUtil.getSelectionInventoryName())))
 			return;
-		if (event.isShiftClick()) {
-			event.setCancelled(true);
+		if (event.isShiftClick() || event.getAction() == InventoryAction.NOTHING) {
+			event.setResult(Result.DENY);
 			return;
 		}
 		
@@ -72,18 +88,18 @@ public class InventoryListener implements Listener {
 		}
 		
 		if (pickup && drop) {
-			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getView().getTitle(), true))
-				event.setCancelled(true);
+			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getClickedInventory().getName(), true))
+				event.setResult(Result.DENY);
 			else {
-				if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getView().getTitle()))
-					event.setCancelled(true);
+				if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getClickedInventory().getName()))
+					event.setResult(Result.DENY);
 			}
 		} else if (pickup) {
-			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getView().getTitle(), true))
-				event.setCancelled(true);
+			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getClickedInventory().getName(), false))
+				event.setResult(Result.DENY);
 		} else if (drop) {
-			if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getView().getTitle()))
-				event.setCancelled(true);
+			if (!InventoryUtil.dropItemInSlot(player, pkaPlayer, cursorItem, slotType, slot, event.getClickedInventory().getName()))
+				event.setResult(Result.DENY);
 		}
 	}
 	
@@ -93,19 +109,26 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
-		if (player.getInventory().getHeldItemSlot() == pkaPlayer.getWeaponSlot() && !pkaPlayer.isSneaking() && pkaPlayer.getAbiltiyTriggerType() == 3) {
-			pkaPlayer.triggerAbility(pkaPlayer.getCurrentlySelectedAbility());
+		if (player.getInventory().getHeldItemSlot() == pkaPlayer.getWeaponSlot() && !pkaPlayer.isSneaking() && pkaPlayer.getAbiltiySelectionType() == 3) {
+			if (pkaPlayer.getClassType() == ClassType.WINGS || pkaPlayer.getClassType() == ClassType.KYLE) {
+				if (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK)
+					return;
+			} else if (pkaPlayer.getClassType() == ClassType.WOODY || pkaPlayer.getClassType() == ClassType.LEFTY) {
+				if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
+					return;
+			}
+			pkaPlayer.triggerAbility(pkaPlayer.getCurrentlySelectedAbility(), null, AbilityTriggerType.CLICK);
 			return;
 		}
 		if (!pkaPlayer.isSneaking())
 			return;
-		if (pkaPlayer.getAbiltiyTriggerType() != 1)
+		if (pkaPlayer.getAbiltiySelectionType() != 1)
 			return;
 		if (!(event.getAction() == Action.RIGHT_CLICK_AIR) && !(event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 			return;
 		}
 		
-		pkaPlayer.triggerAbility(Integer.valueOf(player.getInventory().getHeldItemSlot()));
+		pkaPlayer.triggerAbility(Integer.valueOf(player.getInventory().getHeldItemSlot()), null, AbilityTriggerType.CLICK);
 		event.setCancelled(true);
 	}
 	
@@ -117,10 +140,10 @@ public class InventoryListener implements Listener {
 			return;
 		if (!pkaPlayer.isSneaking())
 			return;
-		if (pkaPlayer.getAbiltiyTriggerType() != 2)
+		if (pkaPlayer.getAbiltiySelectionType() != 2)
 			return;
 		
-		pkaPlayer.triggerAbility(Integer.valueOf(event.getNewSlot()));
+		pkaPlayer.triggerAbility(Integer.valueOf(event.getNewSlot()), null, AbilityTriggerType.CLICK);
 		event.setCancelled(true);
 	}
 	
@@ -130,15 +153,11 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
-		if (pkaPlayer.getAbiltiyTriggerType() == 1 || pkaPlayer.getAbiltiyTriggerType() == 3) {
+		if (pkaPlayer.getAbiltiySelectionType() == 1 || pkaPlayer.getAbiltiySelectionType() == 3) {
 			int abilitySlot = InventoryUtil.toggleHotbar(player, pkaPlayer);
-			if (!event.isSneaking()) {
+			if (!event.isSneaking() && pkaPlayer.getAbiltiySelectionType() == 3) {
 				String abilityName = pkaPlayer.setCurrentlySelectedAbility(Integer.valueOf(abilitySlot));
-				if (abilityName == null)
-					MessageUtil.sendMessage(player, "No ability selected!", MessageType.SINGLE);
-				else {
-					MessageUtil.sendMessage(player, abilityName + " ability selected!", MessageType.SINGLE);
-				}
+				MessageUtil.sendMessage(player, abilityName + " ability selected!", MessageType.SINGLE);
 			}
 		}
 		pkaPlayer.setIsSneaking(event.isSneaking());
@@ -151,49 +170,32 @@ public class InventoryListener implements Listener {
 		if (pkaPlayer == null)
 			return;
 		if (ItemUtil.isWeapon(event.getItemDrop().getItemStack()))
-			event.setCancelled(true);
-		else {
-			ItemUtil.addDroppedItem(event.getItemDrop(), player.getName());
-		}
+			MessageUtil.sendMessage(player, "You've just dropped your weapon!", MessageType.SINGLE);
+		ItemUtil.addDroppedItem(event.getItemDrop(), player.getName());
 	}
 	
 	private SlotType getClicksSlotType(InventoryClickEvent event) {
 		SlotType slotType = SlotType.NORMAL;
 		
-		if (event.getView().getType() == InventoryType.PLAYER) {
-			if (event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.ARMOR) {
-				slotType = SlotType.ARMOR;
-			} else if (event.getSlotType() == 
-					org.bukkit.event.inventory.InventoryType.SlotType.QUICKBAR) {
-				slotType = SlotType.HOTBAR;
-			} else if (event.getSlotType() ==
-					org.bukkit.event.inventory.InventoryType.SlotType.OUTSIDE) {
-				slotType = SlotType.OUTSIDE;
-			} else if (event.getSlotType() ==
-					org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER) {
-				
-			} else {
-				event.setCancelled(true);
-				return null;
-			}
-		} else if (event.getView().getType() == InventoryType.CHEST) {
-			if (event.getView().getTopInventory().getTitle().equals(ElementsUtil.getAbilityInventoryName()))
-				slotType = SlotType.ABILITY;
-			else {
-				slotType = SlotType.UPPER;
-			}
-		} else {
-			event.setCancelled(true);
+		if (event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.QUICKBAR)
+			return SlotType.HOTBAR;
+		else if (event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.OUTSIDE)
+			return SlotType.OUTSIDE;
+		else if (event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.CRAFTING ||
+				event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.RESULT) {
 			return null;
+		}
+		
+		if (event.getView().getType() == InventoryType.CHEST) {
+			if (event.getClickedInventory().getType() == InventoryType.CHEST)
+				slotType = SlotType.UPPER;
+		} else if (event.getView().getType() == InventoryType.CRAFTING) {
+			if (event.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.ARMOR)
+				slotType = SlotType.ARMOR;
 		}
 		
 		return slotType;
 	}
 
 }
-
-
-
-
-
 

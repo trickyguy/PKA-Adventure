@@ -51,85 +51,121 @@ public class CombatListener implements Listener {
 			return;
 		}
 		
-		if (damagee.getNoDamageTicks() > 10) {
-			event.setCancelled(true);
-			return;
-		}	
+		boolean isDamageePlayer = false; //if false, its a mob
+		boolean isDamagerPlayer = false; //if false, its a mob
 		
-		int[] attackerAttributes = 			null;
-		int[] defenderAttributes = 			null;
-		double damage = 					0d;
-		boolean isDamageePlayer = 			false;
-		String damagerName = 				"";
-		PKAPlayer pkaPlayer = 				null;
-		PKAMob pkaMob = 					null;
-		
-		if (projectile == null) {
-			if (PlayerProcessor.isPlayer(damager)) {
-				Player player = 			PlayerProcessor.getPlayer(damager);
-				damagerName = 				player.getName();
-				pkaPlayer = 				PlayerProcessor.getPKAPlayer(damagerName);
-				if (pkaPlayer == null) {
-					event.setCancelled(true);
-					return;
-				}
-				attackerAttributes = 		pkaPlayer.getAttributes();
-				damage = 					pkaPlayer.getDamage();
-			} else if (MobProcessor.isMobMonster(damager)) {
-				pkaMob = 			MobProcessor.getMobMonster(damager).getPKAMob();
-				attackerAttributes = 		pkaMob.getAttributes();
-				damage =					pkaMob.getDamage();
-			} else {
-				event.getDamager().remove();
-				event.setCancelled(true);
-				return;
-			}
-		} else if (projectile != null) {
-			if (PlayerProcessor.isPlayer(projectile.getShooter())) {
-				pkaPlayer = 				PlayerProcessor.getPKAPlayer(PlayerProcessor.getPlayer(projectile.getShooter()));
-				if (pkaPlayer == null) {
-					event.setCancelled(true);
-					return;
-				}
-				attackerAttributes = 		pkaPlayer.getAttributes();
-				damage =					pkaPlayer.getDamage();
-			} else if (MobProcessor.isMobMonster(projectile.getShooter())) {
-				pkaMob =					MobProcessor.getMobMonster(projectile.getShooter()).getPKAMob();
-				attackerAttributes = 		pkaMob.getAttributes();
-				damage =					pkaMob.getDamage();
-			} else {
-				event.setCancelled(true);
-				damager.remove();
-				projectile.getShooter().remove();
-				return;
-			}
-		}
+		PKAPlayer damageePlayer = null;
+		PKAPlayer damagerPlayer = null;
+		MobMonster damageeMob = null;
+		MobMonster damagerMob = null;
 		
 		if (PlayerProcessor.isPlayer(damagee)) {
-			pkaPlayer =						PlayerProcessor.getPKAPlayer((Player) damagee);
-			if (pkaPlayer == null) {
+			damageePlayer = PlayerProcessor.getPKAPlayer((Player) damagee);
+			if (damageePlayer == null) {
 				event.setCancelled(true);
 				return;
 			}
-			isDamageePlayer = 				true;
-			defenderAttributes = 			pkaPlayer.getAttributes();
-		} else if (MobProcessor.isMobMonster(damagee)) {
-			pkaMob = 						MobProcessor.getMobMonster(damagee).getPKAMob();
-			defenderAttributes = 			pkaMob.getAttributes();
+			isDamageePlayer = true;
+		}
+		else if (MobProcessor.isMobMonster(damagee)) {
+			damageeMob = MobProcessor.getMobMonster(damagee);
 		} else {
 			event.setCancelled(true);
 			damagee.remove();
 			return;
 		}
 		
-		double finalizedDamage = 			DamageUtil.getFinalizedDamage(damage, attackerAttributes, defenderAttributes);
-		event.setDamage(0d);
+		if (damager == null)
+			damager = projectile.getShooter();
 		
-		if (isDamageePlayer) {
-			PlayerProcessor.damagePlayerByEntity((Player) damagee, pkaPlayer, finalizedDamage);
-		} else {
-			MobProcessor.damageMobByEntity(damagee, finalizedDamage, damagerName);
+		if (PlayerProcessor.isPlayer(damager)) {
+			damagerPlayer = PlayerProcessor.getPKAPlayer((Player) damager);
+			if (damagerPlayer == null) {
+				event.setCancelled(true);
+				return;
+			}
+			isDamagerPlayer = true;
 		}
+		else if (MobProcessor.isMobMonster(damager)) {
+			damagerMob = MobProcessor.getMobMonster(damager);
+		} else {
+			event.setCancelled(true);
+			damager.remove();
+			if (projectile != null)
+				projectile.remove();
+			return;
+		}
+		
+		if (damagee.getNoDamageTicks() < getNoDamageTicks(damagee, damager, isDamageePlayer, isDamagerPlayer)) {
+			event.setCancelled(true);
+			return;
+		}
+		
+		if (isDamagerPlayer) {
+			if (isDamageePlayer)
+				event.setCancelled(true);
+			else {
+				if (!damageMob(damageeMob, damagerPlayer, (Player) damager))
+					event.setCancelled(true);
+			}
+		} else {
+			if (isDamageePlayer)
+				if (!damagePlayer((Player) damagee, damageePlayer, damagerMob))
+					event.setCancelled(true);
+			else {
+				damageMob(damageeMob, damagerPlayer, (Player) damager);
+			}
+		}
+	}
+	
+	private int getNoDamageTicks(LivingEntity damagee, LivingEntity damager, boolean isDamageePlayer, boolean isDamagerPlayer) {
+		int damageeNoDamageTicks = -1;
+		int damagerNoDamageTicks = -1;
+		
+		if (isDamageePlayer)
+			damageeNoDamageTicks = PlayerProcessor.getPKAPlayer((Player) damagee).getNoDamageTicksTaken();
+		if (isDamagerPlayer)
+			damagerNoDamageTicks = PlayerProcessor.getPKAPlayer((Player) damager).getNoDamageTicksGiven();
+		
+		if (damageeNoDamageTicks == -1 && damagerNoDamageTicks == -1)
+			return 10;
+		else if (damageeNoDamageTicks == -1)
+			return damagerNoDamageTicks;
+		else if (damagerNoDamageTicks == -1)
+			return damageeNoDamageTicks;
+		else {
+			return damagerNoDamageTicks;
+		}
+	}
+	
+	private boolean damageMob(MobMonster mobMonster, PKAPlayer pkaPlayer, Player player) {
+		double damage = pkaPlayer.getDamage();
+		int[] attributesAttacker = pkaPlayer.getAttributes();
+		int[] attributesDefender = mobMonster.getPKAMob().getAttributes();
+		
+		damageMob(mobMonster, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender), player.getName());
+		return true;
+	}
+	
+	private void damageMob(MobMonster mobMonsterDamagee, MobMonster mobMonsterDamager) {
+		double damage = mobMonsterDamager.getPKAMob().getDamage();
+		int[] attributesAttacker = mobMonsterDamager.getPKAMob().getAttributes();
+		int[] attributesDefender = mobMonsterDamagee.getPKAMob().getAttributes();
+		
+		damageMob(mobMonsterDamagee, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender), "");
+	}
+	
+	private void damageMob(MobMonster mobMonster, double finalizedDamage, String damagerName) {
+		MobProcessor.damageMobByEntity((LivingEntity)mobMonster.getEntity(), finalizedDamage, damagerName);
+	}
+	
+	private boolean damagePlayer(Player player, PKAPlayer pkaPlayer, MobMonster mobMonster) {
+		double damage = mobMonster.getPKAMob().getDamage();
+		int[] attributesAttacker = mobMonster.getPKAMob().getAttributes();
+		int[] attributesDefender = pkaPlayer.getAttributes();
+		
+		PlayerProcessor.damagePlayerByEntity(player, pkaPlayer, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender));
+		return true;
 	}
 
 	@EventHandler

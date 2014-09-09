@@ -4,11 +4,13 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
+import com.pkadev.pkaadventure.types.AbilityTriggerType;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
@@ -44,11 +46,13 @@ public class PKAPlayer {
 	private boolean isSneaking = false;
 	//there might be more than 1 way for players to select abilities
 	// 1 = change the hotbar, 2 = shift + number
-	private int abilityTriggerType = 1;
+	private int abilitySelectionType = 1;
 	private Integer currentlySelectedAbility = 9;
 	private int weaponSlot;
 	private int availableUpgradePoints;
 	private int experience;
+	private int noDamageTicksTaken = -1;
+	private int noDamageTicksGiven = -1;
 	
 	private int goldAmount;
 	// EXP, Level
@@ -113,11 +117,11 @@ public class PKAPlayer {
 	public void removeAbility(Integer i) {
 		abilities.remove(i);
 	}
-	public void triggerAbility(Integer i) {
+	public void triggerAbility(Integer i, LivingEntity livingEntity, AbilityTriggerType abilityTriggerType) {
 		Ability ability = abilities.get(i);
 		if (ability == null)
 			return;
-		ability.trigger();
+		ability.trigger(livingEntity);
 	}
 	public HashMap<Integer, ItemStack> getCachedItems() {
 		return cachedItems;
@@ -137,11 +141,11 @@ public class PKAPlayer {
 	public void setNotSneaking() {
 		isSneaking = false;
 	}
-	public int getAbiltiyTriggerType() {
-		return abilityTriggerType;
+	public int getAbiltiySelectionType() {
+		return abilitySelectionType;
 	}
-	public void setAbilityTriggerType(int abilityTriggerType) {
-		this.abilityTriggerType = abilityTriggerType;
+	public void setAbilitySelectionType(int abilityTriggerType) {
+		this.abilitySelectionType = abilityTriggerType;
 	}
 	public Integer getCurrentlySelectedAbility() {
 		return currentlySelectedAbility;
@@ -151,10 +155,15 @@ public class PKAPlayer {
 	 * @return abilityName
 	 */
 	public String setCurrentlySelectedAbility(Integer currentlySelectedAbility) {
-		this.currentlySelectedAbility = currentlySelectedAbility;
 		Ability ability = abilities.get(currentlySelectedAbility);
-		if (ability == null)
-			return "null";
+		if (ability == null) {
+			if (abilities.get(this.currentlySelectedAbility) != null) {
+				return abilities.get(this.currentlySelectedAbility).getName();
+			} else {
+				return "No";
+			}
+		}
+		this.currentlySelectedAbility = currentlySelectedAbility;
 		return abilities.get(currentlySelectedAbility).getName();
 	}
 	public double getDamage() {
@@ -184,11 +193,21 @@ public class PKAPlayer {
 	public int getExperience() {
 		return experience;
 	}
-	
 	public void setExperience(int experience) {
 		this.experience = experience;
 	}
-	
+	public int getNoDamageTicksTaken() {
+		return noDamageTicksTaken;
+	}
+	public void setNoDamageTicksTaken(int noDamageTicksTaken) {
+		this.noDamageTicksTaken = noDamageTicksTaken;
+	}
+	public int getNoDamageTicksGiven() {
+		return noDamageTicksGiven;
+	}
+	public void setNoDamageTicksGiven(int noDamageTicksGiven) {
+		this.noDamageTicksGiven = noDamageTicksGiven;
+	}
 	public int getMiningExp() {
 		return miningExp;
 	}
