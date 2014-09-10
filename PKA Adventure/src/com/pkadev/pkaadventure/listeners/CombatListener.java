@@ -1,11 +1,5 @@
 package com.pkadev.pkaadventure.listeners;
 
-import java.util.HashMap;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -15,21 +9,18 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.interfaces.MobMonster;
-import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.utils.DamageUtil;
-import com.pkadev.pkaadventure.utils.ItemUtil;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class CombatListener implements Listener {
 
 	private static CombatListener i; private CombatListener(){} public static CombatListener i() {if (i == null)i = new CombatListener();return i;}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
 		LivingEntity damagee = 				null;
@@ -96,25 +87,31 @@ public class CombatListener implements Listener {
 			return;
 		}
 		
-		if (damagee.getNoDamageTicks() < getNoDamageTicks(damagee, damager, isDamageePlayer, isDamagerPlayer)) {
+		if (damagee.getNoDamageTicks() > getNoDamageTicks(damagee, damager, isDamageePlayer, isDamagerPlayer)) {
 			event.setCancelled(true);
 			return;
 		}
+		
+		boolean isDeadly = false;
 		
 		if (isDamagerPlayer) {
 			if (isDamageePlayer)
 				event.setCancelled(true);
 			else {
-				if (!damageMob(damageeMob, damagerPlayer, (Player) damager))
-					event.setCancelled(true);
+				isDeadly = damageMob(damageeMob, damagerPlayer, (Player) damager);
 			}
 		} else {
 			if (isDamageePlayer)
-				if (!damagePlayer((Player) damagee, damageePlayer, damagerMob))
-					event.setCancelled(true);
+				damagePlayer((Player) damagee, damageePlayer, damagerMob);
 			else {
-				damageMob(damageeMob, damagerPlayer, (Player) damager);
+				isDeadly = damageMob(damageeMob, damagerMob);
 			}
+		}
+		
+		if (isDeadly)
+			event.setDamage(100d);
+		else {
+			event.setDamage(0d);
 		}
 	}
 	
@@ -143,29 +140,27 @@ public class CombatListener implements Listener {
 		int[] attributesAttacker = pkaPlayer.getAttributes();
 		int[] attributesDefender = mobMonster.getPKAMob().getAttributes();
 		
-		damageMob(mobMonster, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender), player.getName());
-		return true;
+		return damageMob(mobMonster, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender), player.getName());
 	}
 	
-	private void damageMob(MobMonster mobMonsterDamagee, MobMonster mobMonsterDamager) {
+	private boolean damageMob(MobMonster mobMonsterDamagee, MobMonster mobMonsterDamager) {
 		double damage = mobMonsterDamager.getPKAMob().getDamage();
 		int[] attributesAttacker = mobMonsterDamager.getPKAMob().getAttributes();
 		int[] attributesDefender = mobMonsterDamagee.getPKAMob().getAttributes();
 		
-		damageMob(mobMonsterDamagee, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender), "");
+		return damageMob(mobMonsterDamagee, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender), "");
 	}
 	
-	private void damageMob(MobMonster mobMonster, double finalizedDamage, String damagerName) {
-		MobProcessor.damageMobByEntity((LivingEntity)mobMonster.getEntity(), finalizedDamage, damagerName);
+	private boolean damageMob(MobMonster mobMonster, double finalizedDamage, String damagerName) {
+		return MobProcessor.damageMobByEntity(mobMonster, finalizedDamage, damagerName);
 	}
 	
-	private boolean damagePlayer(Player player, PKAPlayer pkaPlayer, MobMonster mobMonster) {
+	private void damagePlayer(Player player, PKAPlayer pkaPlayer, MobMonster mobMonster) {
 		double damage = mobMonster.getPKAMob().getDamage();
 		int[] attributesAttacker = mobMonster.getPKAMob().getAttributes();
 		int[] attributesDefender = pkaPlayer.getAttributes();
 		
 		PlayerProcessor.damagePlayerByEntity(player, pkaPlayer, DamageUtil.getFinalizedDamage(damage, attributesAttacker, attributesDefender));
-		return true;
 	}
 
 	@EventHandler
@@ -183,7 +178,7 @@ public class CombatListener implements Listener {
 		if (livingEntity instanceof Player) {
 			PlayerProcessor.damagePlayerByEnvironment((Player) event.getEntity(), event.getDamage());
 		} else if (MobProcessor.isMobMonster(livingEntity)) {
-			MobProcessor.damageMobByEnvironment(livingEntity, event.getDamage());
+			MobProcessor.damageMobByEnvironment(MobProcessor.getMobMonster(livingEntity), event.getDamage());
 		} else {
 			livingEntity.remove();
 		}

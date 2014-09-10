@@ -26,7 +26,6 @@ public class Main extends JavaPlugin {
 	
 	public static Main instance;
 	public int derp;
-	public static World world;
 	
 	@Override
 	public void onEnable() {

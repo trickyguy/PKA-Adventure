@@ -3,12 +3,8 @@ package com.pkadev.pkaadventure.processors;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.w3c.dom.Entity;
 
-import com.pkadev.pkaadventure.objects.PKAPlayer;
-import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;

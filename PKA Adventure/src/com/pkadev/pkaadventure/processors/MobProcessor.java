@@ -17,62 +17,56 @@ import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.utils.DamageUtil;
+import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class MobProcessor {
 	private static Main plugin = Main.instance;
 	
 	public static void removeAllLivingMobs() {
-		for (Entity entity : plugin.world.getEntities()) {
+		for (Entity entity : ElementsUtil.getWorld().getEntities()) {
 			if (entity instanceof LivingEntity) {
 				entity.remove();
 			}
 		}
 	}
 	
-	public static void damageMobByEnvironment(LivingEntity livingEntity, double minecraftDamage) {
-		if (livingEntity.getNoDamageTicks() > 10)
-			return;
-		
-		if (minecraftDamage < 5d)
-			return;
-		else {
-			MobMonster mobMonster = (MobMonster) livingEntity;
-			PKAMob pkaMob = mobMonster.getPKAMob();
-			double maxHealth = pkaMob.getMaxHealth();
-			double finalDamage = DamageUtil.getFinalizedDamage(minecraftDamage, maxHealth);
-			damageMob(mobMonster, pkaMob, livingEntity, finalDamage, "");
-		}
+	/**
+	 * @param livingEntity
+	 * @param minecraftDamage
+	 * @return true if deadly
+	 */
+	public static boolean damageMobByEnvironment(MobMonster mobMonster, double minecraftDamage) {
+		PKAMob pkaMob = mobMonster.getPKAMob();
+		double maxHealth = pkaMob.getMaxHealth();
+		double finalDamage = DamageUtil.getFinalizedDamage(minecraftDamage, maxHealth);
+		return damageMob(mobMonster, pkaMob, finalDamage, "");
 	}
 	
-	public static void damageMobByEntity(LivingEntity livingEntity, double finalizedDamage, String damagerName) {
-		MobMonster mobMonster = 	getMobMonster(livingEntity);
-		PKAMob pkaMob = 			getMobMonster(livingEntity).getPKAMob();
-		damageMob(mobMonster, pkaMob, livingEntity, finalizedDamage, damagerName);
+	/**
+	 * @param livingEntity
+	 * @param finalizedDamage
+	 * @param damagerName
+	 * @return true if deadly
+	 */
+	public static boolean damageMobByEntity(MobMonster mobMonster, double finalizedDamage, String damagerName) {
+		PKAMob pkaMob = 			mobMonster.getPKAMob();
+		return damageMob(mobMonster, pkaMob, finalizedDamage, damagerName);
 	}
 	
-	private static void damageMob(MobMonster mobMonster, PKAMob pkaMob, LivingEntity livingEntity, double finalizedDamage, String damagerName) {
+	private static boolean damageMob(MobMonster mobMonster, PKAMob pkaMob, double finalizedDamage, String damagerName) {
 		if (finalizedDamage <= 0d)
-			return;
+			return false;
 		double finalHealth = pkaMob.getHealth() - finalizedDamage;
 		pkaMob.addDamageDoneBy(damagerName, finalizedDamage);
-		if (finalHealth > 0)
-			damageMobNonLethal(mobMonster, pkaMob, finalHealth);
-		else {
-			damageMobLethal(livingEntity);
+		if (finalHealth > 0) {
+			pkaMob.setHealth(finalHealth);
+			updateHealth(mobMonster, pkaMob);
+			return false;
+		} else {
+			return true;
 		}
-	}
-	
-	private static void damageMobNonLethal(MobMonster mobMonster, PKAMob pkaMob, double newHealth) {
-		pkaMob.setHealth(newHealth);
-		updateHealth(mobMonster, pkaMob);
-	}
-	
-	private static void damageMobLethal(LivingEntity livingEntity) {
-		Bukkit.broadcastMessage("a");
-		livingEntity.damage(100d);
 	}
 	
 	public static void mobDeath(MobMonster mobMonster, Location location) {

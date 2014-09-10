@@ -364,9 +364,9 @@ public class SpawnNodeProcessor {
 	 * @return
 	 */
 	private static void setSpawnLocation(Location nodeLocation, MobMonster mobMonster, int nodeRadius) {
-		int x = (int) (nodeLocation.getX() - nodeRadius + (random.nextInt(nodeRadius) * 2));
-		int y = (int) (nodeLocation.getY() - nodeRadius + (random.nextInt(nodeRadius) * 2));
-		int z = (int) (nodeLocation.getZ() - nodeRadius + (random.nextInt(nodeRadius) * 2));
+		int x = (int) (nodeLocation.getX() - nodeRadius + (random.nextInt(nodeRadius) * 2) + 1);
+		int y = (int) (nodeLocation.getY() - nodeRadius + (random.nextInt(nodeRadius) * 2) + 1);
+		int z = (int) (nodeLocation.getZ() - nodeRadius + (random.nextInt(nodeRadius) * 2) + 1);
 		float pitch = random.nextFloat();
 		float yaw = random.nextFloat();
 		mobMonster.getEntity().setLocation(x, y, z, pitch, yaw);
@@ -440,7 +440,6 @@ public class SpawnNodeProcessor {
 		MobType mobType = 			node.getMobType();
 		int rareItemInt = 			setInitialArmorContent(mobMonster, node);
 		
-		
 		PKAMob pkaMob = new PKAMob(mobName, attributes, maxHealth, damage, level,
 				mobStrength, mobStance, mobType, rareItemInt);
 		mobMonster.setPKAMob(pkaMob);
@@ -451,6 +450,7 @@ public class SpawnNodeProcessor {
 		double health = (double) MathUtil.getValue(node.getLevel(), "mob_maxhealth");
 		return MobProcessor.addMobStrengthMultiplier(health, node.getMobStrength());
 	}
+	
 	private static int[] getInitialAttributes(SpawnNode node) {
 		int[] attributes = MathUtil.getArray(node.getLevel(), new String[]{"mob_strength", "mob_toughness", "mob_agility", "mob_restoration"});
 		if (attributes == null || attributes.length != 4)
@@ -460,10 +460,12 @@ public class SpawnNodeProcessor {
 		}
 		return attributes;
 	}
+	
 	private static double getInitialDamage(SpawnNode node) {
 		double damage = (double) MathUtil.getValue(node.getLevel(), "mob_damage");
 		return MobProcessor.addMobStrengthMultiplier(damage, node.getMobStrength());
 	}
+	
 	private static int setInitialArmorContent(MobMonster mobMonster, SpawnNode node) {
 		int rareItemInt = -1;
 		if (random.nextInt(4) > 2) {

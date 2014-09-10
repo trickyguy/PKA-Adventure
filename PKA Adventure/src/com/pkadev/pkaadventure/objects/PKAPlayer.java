@@ -2,20 +2,15 @@ package com.pkadev.pkaadventure.objects;
 
 import java.util.HashMap;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.types.AbilityTriggerType;
 import com.pkadev.pkaadventure.types.ClassType;
-import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class PKAPlayer {
 

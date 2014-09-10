@@ -10,14 +10,12 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class DefaultListener implements Listener {
-	private Main plugin = Main.instance;
 
 	private static DefaultListener i; private DefaultListener(){} public static DefaultListener i() {if (i == null)i = new DefaultListener();return i;}
 	

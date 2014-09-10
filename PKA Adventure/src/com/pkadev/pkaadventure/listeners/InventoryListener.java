@@ -1,6 +1,5 @@
 package com.pkadev.pkaadventure.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,10 +13,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.utils.ElementsUtil;
@@ -30,7 +27,6 @@ import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.types.SlotType;
 
 public class InventoryListener implements Listener {
-	private Main plugin = Main.instance;
 
 	private static InventoryListener i; private InventoryListener(){} public static InventoryListener i() {if (i == null)i = new InventoryListener();return i;}
 

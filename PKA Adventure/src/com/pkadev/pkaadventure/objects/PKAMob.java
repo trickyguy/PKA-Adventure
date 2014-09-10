@@ -1,6 +1,9 @@
 package com.pkadev.pkaadventure.objects;
 
 import java.util.HashMap;
+
+import org.bukkit.Bukkit;
+
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.types.MobStrength;
 import com.pkadev.pkaadventure.types.MobType;
@@ -19,6 +22,7 @@ public class PKAMob {
 		setMobStrength(mobStrength);
 		setMobStance(mobStance);
 		setMobType(mobType);
+		Bukkit.broadcastMessage("" + rareItemInt);
 		setRareItemInt(rareItemInt);
 	}
 	

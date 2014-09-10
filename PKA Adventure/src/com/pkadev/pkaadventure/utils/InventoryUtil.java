@@ -49,58 +49,6 @@ public class InventoryUtil {
 	}
 
 	/**
-	 * @param creature
-	 * @return the slot in which a rare item has been put into: -1 if none
-	 */
-	public static int setMobInventory(Creature creature, int mobLevel) {
-		int returnInt = -1;
-		ItemStack[] armorContent = new ItemStack[4];
-		for (int i = 0; i < 4; i++) {
-			if (random.nextBoolean()) {
-				//give armorpiece
-				boolean willBeEnchanted = random.nextDouble() < MathUtil.getInt("mob_rare_drop_chance");
-				ItemStack armorPiece = getMobArmorPiece(mobLevel, i);
-				armorContent[i] = armorPiece;
-				if (willBeEnchanted) {
-					//TODO
-					returnInt = i;
-				}
-			} else {
-				//don't
-				armorContent[i] = new ItemStack(Material.AIR);
-			}
-		}
-		return returnInt;
-	}
-
-	/**
-	 * @param mobLevel
-	 * @return the kind of armor piece he would be getting at this level
-	 */
-	private static ItemStack getMobArmorPiece(int mobLevel, int slotInt) {
-		String piece = "_HELMET";
-		String material = "LEATHER";
-		switch(slotInt) {
-		default:break;
-		case 1:piece = "_CHESTPLATE";break;
-		case 2:piece = "_LEGGINGS";break;
-		case 3:piece = "_BOOTS";break;
-		}
-		if (mobLevel < 10) {
-
-		} else if (mobLevel < 20) {
-			material = "CHAINMAIL";
-		} else if (mobLevel < 30) {
-			material = "IRON";
-		} else if (mobLevel < 40) {
-			material = "GOLD";
-		} else if (mobLevel > 39) {
-			material = "DIAMOND";
-		}
-		return new ItemStack(Material.valueOf(material + piece));
-	}
-
-	/**
 	 * checks only the first 8 slots
 	 * @param player
 	 * @return
@@ -407,9 +355,10 @@ public class InventoryUtil {
 	 * @return if false, cancel the event
 	 */
 	public static boolean dropItemInSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, String inventoryName) {
-		if (slotType == SlotType.ARMOR)
+		if (slotType == SlotType.ARMOR) {
 			pkaPlayer.addAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
-		else if (slotType == SlotType.HOTBAR) {
+			ItemUtil.updateStatItemMeta(player, pkaPlayer);
+		} else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
 				pkaPlayer.setWeaponSlot(slot);
 		} else if (slotType == SlotType.UPPER) {
@@ -434,9 +383,10 @@ public class InventoryUtil {
 	public static boolean pickupItemFromSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, String inventoryName, boolean isAlsoDropping) {
 		if (slot == 27)
 			return false;
-		if (slotType == SlotType.ARMOR)
+		if (slotType == SlotType.ARMOR) {
 			pkaPlayer.removeAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
-		else if (slotType == SlotType.HOTBAR) {
+			ItemUtil.updateStatItemMeta(player, pkaPlayer);
+		} else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
 				pkaPlayer.setWeaponSlot(9);
 		} else if (slotType == SlotType.UPPER) {
@@ -457,6 +407,6 @@ public class InventoryUtil {
 		}
 		return true;
 	}
-
+	
 }
 

@@ -203,7 +203,7 @@ public class ItemUtil {
 	
 	
 	public static int[] getAttributesFromItemStack(ItemStack itemStack) {
-		return getValuesFromItem(itemStack, 1);
+		return getValuesFromItem(itemStack, 3);
 	}
 
 	public static ClassType getClassTypeFromSelectionMenuItem(ItemStack itemStack) {
@@ -522,12 +522,19 @@ public class ItemUtil {
 	
 	
 	
-	public static void updateStatItemMeta(Player player, PKAPlayer pkaPlayer) {
-		ItemStack itemStack = InventoryUtil.getStatItem(player);
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		updateStatItemMetaLore(itemMeta, pkaPlayer);
-		updateStatItemMetaName(itemMeta, pkaPlayer);
-		itemStack.setItemMeta(itemMeta);
+	public static void updateStatItemMeta(final Player player, final PKAPlayer pkaPlayer) {
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+
+			@Override
+			public void run() {
+				ItemStack itemStack = InventoryUtil.getStatItem(player);
+				ItemMeta itemMeta = itemStack.getItemMeta();
+				updateStatItemMetaLore(itemMeta, pkaPlayer);
+				updateStatItemMetaName(itemMeta, pkaPlayer);
+				itemStack.setItemMeta(itemMeta);
+			}
+			
+		}, 1l);
 	}
 
 	private static void updateStatItemMetaLore(ItemMeta itemMeta, PKAPlayer pkaPlayer) {
@@ -662,7 +669,7 @@ public class ItemUtil {
 		return getInitialItem(itemStack, "armor", level, rarity);
 	}
 	
-	private static ItemStack getInitialArmorItemStack(int level, int slot, int rarity) {
+	private static ItemStack getInitialArmorItemStack(int level, int slot, int rareItemInt) {
 		//TODO USE RARE
 		String material = "LEATHER_";
 		String item = "HELMET";
@@ -692,7 +699,8 @@ public class ItemUtil {
 	public static ItemStack[] getInitialContent(int level, int rareItemInt) {
 		//TODO rareItemInt implementation (-1 means there will be none)
 		ItemStack[] armorContent = new ItemStack[4];
-		for (int i = 0; i < 4; i++) {
+		armorContent[3] = getInitialArmorItemStack(level, 3, -1);
+		for (int i = 0; i < 3; i++) {
 			if (random.nextBoolean()) {
 				//TODO implement rarity
 				armorContent[i] = getInitialArmorItemStack(level, i, -1);

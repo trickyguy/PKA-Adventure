@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,12 @@ import com.pkadev.pkaadventure.types.InventoryType;
 
 public class ElementsUtil {
 	private static Main plugin = Main.instance;
+	
+	private static World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
+	
+	public static World getWorld() {
+		return world;
+	}
 	
 	public static void load() {
 		loreElements.put("", "");
@@ -332,5 +339,4 @@ public class ElementsUtil {
 	public static String getAbilityInventoryName() {
 		return abilityInventoryName;
 	}
-	
 }

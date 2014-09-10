@@ -1,7 +1,6 @@
 package com.pkadev.pkaadventure.interfaces;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 

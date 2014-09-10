@@ -109,6 +109,7 @@ public enum ParticleEffect {
 		return ID_MAP.get(id);
 	}
 
+	@SuppressWarnings("deprecation")
 	private static List<Player> getPlayersInRange(Location loc, double range) {
 		List<Player> players = new ArrayList<Player>();
 		String worldName = loc.getWorld().getName();
