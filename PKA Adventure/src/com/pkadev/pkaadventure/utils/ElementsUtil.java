@@ -44,6 +44,12 @@ public class ElementsUtil {
 			return loreElements.get(reference);
 		else {
 			String configFileReference = "config.yml";
+			if (reference.endsWith("damage"))
+				reference = "damage";
+			else if (reference.endsWith("price"))
+				reference = "price";
+			else if (reference.endsWith("worth"))
+				reference = "worth";
 			String element = FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "Lore." + reference, configFileReference);
 			setLoreElement(reference, element);
 			return element;
@@ -65,7 +71,7 @@ public class ElementsUtil {
 		if (mod == "")
 			return "";
 		if (reference.endsWith("divide"))
-			return mod + getLoreElementValue(reference, level, 0);
+			return mod + getLoreElementValueDivide(reference, level);
 		return mod + getLoreElementValue(reference, level);
 	}
 
@@ -92,13 +98,16 @@ public class ElementsUtil {
 	 * @param value
 	 * @return
 	 */
-	public static String getLoreElementValue(String divideReference, int level, int value) {
-		return value + "/" + MathUtil.getValue(level, divideReference);
+	public static String getLoreElementValueDivide(String divideReference, int level) {
+		int value = MathUtil.getValue(level, divideReference);
+		return value + "/" + value;
 	}
 	
 	public static String getLoreElementValue(String reference, int level) {
 		if (reference.endsWith("blank")) {
 			return "";
+		} else if (reference.endsWith("level_fixed")) {
+			return "" + level;
 		} else {
 			return "" + MathUtil.getValue(level, reference);
 		}
@@ -203,9 +212,11 @@ public class ElementsUtil {
 		else {
 			String configFileReference = "itemtypes.yml";
 			YamlConfiguration config = FileUtil.getItemTypeConfig();
-			ItemType element = new ItemType(	FileUtil.getStringListFromConfig(config, reference + ".elements", configFileReference), 
-												FileUtil.getStringListFromConfig(config, reference + ".endelements", configFileReference),
-												FileUtil.getIntValueFromConfig(config, reference + ".maxendelements", configFileReference));
+
+			ItemType element = new ItemType(FileUtil.getStringListFromConfig(config, reference + ".elements", configFileReference), 
+					FileUtil.getStringListFromConfig(config, reference + ".endelements", configFileReference), 
+					FileUtil.getIntValueFromConfig(config, reference + ".maxendelements", configFileReference));
+			
 			setItemTypeElement(reference, element);
 			return element;
 		}
@@ -304,6 +315,7 @@ public class ElementsUtil {
 	private static String selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
 	
 	public static Inventory getInventoryElement(String reference, int level) {
+		MessageUtil.d(reference);
 		if (reference.equals("ability"))
 			return Bukkit.createInventory(null, 9, abilityInventoryName);
 		if (inventoryElements.containsKey(reference))

@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
@@ -110,16 +111,17 @@ public class InventoryUtil {
 	 * @param player
 	 * @param reference: usually the name of the mob he is opening shop from
 	 */
-	public static void openInventory(Player player, String reference) {
+	public static void openInventory(Player player, int level, String reference) {
+		MessageUtil.d(level + " " + reference);
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null && !reference.equals("selection"))
 			return;
-		Inventory inventory = ElementsUtil.getInventoryElement(reference, player.getLevel());
+		Inventory inventory = ElementsUtil.getInventoryElement(reference, level);
 		String playerName = player.getName();
 		if (reference.equals("ability")) {
 			if (pkaPlayer.getAbilityInventory() == null) {
 				//ability inventory has to be loaded
-				InventoryUtil.fillStaticInventory(inventory, player.getLevel(), 
+				InventoryUtil.fillStaticInventory(inventory, level, 
 						FileUtil.getStringListFromConfig(
 								FileUtil.getPlayerConfig(playerName), 
 								pkaPlayer.getClassType().toString() + ".Inventories.Ability", 
@@ -129,6 +131,17 @@ public class InventoryUtil {
 			}
 		}
 		player.openInventory(inventory);
+	}
+	
+	public static void openInventoryDelayed(final Player player, final int level, final String reference) {
+		Bukkit.getScheduler().runTask(Main.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				openInventory(player, level, reference);
+			}
+			
+		});
 	}
 
 	public static InventoryType getInventoryTypeFromName(String nameReference) {
@@ -330,21 +343,24 @@ public class InventoryUtil {
 	}
 
 	/**
+	 * 
 	 * @param player
-	 * @return number of the slot it was move to (-1 if dropped)
+	 * @param itemStack
+	 * @return true if dropped, false if not
 	 */
-	public static int moveItemIntoInventory(Player player, ItemStack itemStack) {
+	public static boolean moveItemIntoInventory(Player player, ItemStack itemStack) {
 		int firstEmpty = player.getInventory().firstEmpty();
-		if (firstEmpty == -1)
+		if (firstEmpty == -1) {
 			ItemUtil.addDroppedItem(player.getLocation(), itemStack, player.getName());
-		else {
+			return true;
+		} else {
 			player.getInventory().setItem(firstEmpty, itemStack);
 			SlotType slotType = SlotType.NORMAL;
 			if (firstEmpty < 9)
 				slotType = SlotType.HOTBAR;
 			dropItemInSlot(player, PlayerProcessor.getPKAPlayer(player), itemStack, slotType, firstEmpty, "");
 		}
-		return firstEmpty;
+		return false;
 	}
 
 	/**
@@ -354,9 +370,13 @@ public class InventoryUtil {
 	 * @param slotType
 	 * @return if false, cancel the event
 	 */
-	public static boolean dropItemInSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, String inventoryName) {
+	public static boolean dropItemInSlot(final Player player, final PKAPlayer pkaPlayer, final ItemStack itemStack, SlotType slotType, int slot, String inventoryName) {
 		if (slotType == SlotType.ARMOR) {
-			pkaPlayer.addAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
+			if (ItemUtil.isArmorBroken(itemStack)) {
+				MessageUtil.sendMessage(player, "This armor piece is broken, go repair it.", MessageType.SINGLE);
+				return false;
+			}
+			pkaPlayer.addAttributes(ItemUtil.getArmorAttributesFromItemStack(itemStack));
 			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		} else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
@@ -367,7 +387,16 @@ public class InventoryUtil {
 			else if (inventoryName.equals(ElementsUtil.getSelectionInventoryName())) {
 				return false;
 			} else {
-				//TODO SHOP
+				if (!ItemUtil.isAttributeItem(itemStack))
+					return false;
+				int worth = ItemUtil.getIntValueFromLore(itemStack.getItemMeta().getLore(), "Worth");
+				if (worth == -1) {
+					MessageUtil.sendMessage(player, "Not sellable.", MessageType.SINGLE);
+					return false;
+				}
+				worth = worth * itemStack.getAmount();
+				pkaPlayer.addGoldAmount(worth);
+				MessageUtil.sendMessage(player, "You've sold something for " + worth + ".", MessageType.SINGLE);
 			}
 		}
 		return true;
@@ -380,11 +409,9 @@ public class InventoryUtil {
 	 * @param slotType
 	 * @return if false, cancel the event
 	 */
-	public static boolean pickupItemFromSlot(Player player, PKAPlayer pkaPlayer, ItemStack itemStack, SlotType slotType, int slot, String inventoryName, boolean isAlsoDropping) {
-		if (slot == 27)
-			return false;
+	public static boolean pickupItemFromSlot(final Player player, final PKAPlayer pkaPlayer, final ItemStack itemStack, SlotType slotType, int slot, String inventoryName, boolean isAlsoDropping) {
 		if (slotType == SlotType.ARMOR) {
-			pkaPlayer.removeAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
+			pkaPlayer.removeAttributes(ItemUtil.getArmorAttributesFromItemStack(itemStack));
 			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		} else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
@@ -397,11 +424,23 @@ public class InventoryUtil {
 				PlayerProcessor.switchClass(player, ItemUtil.getClassTypeFromSelectionMenuItem(itemStack));
 				return false;
 			} else {
-				//TODO SHOP
+				if (!ItemUtil.isAttributeItem(itemStack))
+					return false;
+				int price = ItemUtil.getIntValueFromLore(itemStack.getItemMeta().getLore(), "Price");
+				if (price == -1) {
+					MessageUtil.sendMessage(player, "Not up for sale.", MessageType.SINGLE);
+					return false;
+				}
+				price = price * itemStack.getAmount();
+				if (!pkaPlayer.removeGoldAmount(price)) {
+					MessageUtil.sendMessage(player, "Not enough money.", MessageType.SINGLE);
+					return false;
+				}
+				MessageUtil.sendMessage(player, "You've bought something for " + price + ".", MessageType.SINGLE);
 			}
 		} else if (slotType == SlotType.NORMAL) {
 			if (slot == 17) {
-				InventoryUtil.openInventory(player, "selection");
+				openInventory(player, -1, "selection");
 				return false;
 			}
 		}

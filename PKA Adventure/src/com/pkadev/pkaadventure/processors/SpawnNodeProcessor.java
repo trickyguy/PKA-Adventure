@@ -18,9 +18,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
+import com.pkadev.pkaadventure.objects.mobs.CustomEntityVillagerNPC;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieEvil;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieGood;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieNeutral;
@@ -220,7 +222,7 @@ public class SpawnNodeProcessor {
 	}
 	
 	private static boolean isPlayerClose(Location location, Location playerLocation) {
-		return location.distanceSquared(playerLocation) <= 144;
+		return location.distanceSquared(playerLocation) <= 256;
 	}
 	
 	/**
@@ -373,7 +375,6 @@ public class SpawnNodeProcessor {
 	}
 	
 	private static MobMonster getMobMonster(SpawnNode node) {
-		String mobString = node.getMob();
 		MobMonster mobMonster = getInitialMobMonster(node);
 		return mobMonster;
 	}
@@ -381,47 +382,57 @@ public class SpawnNodeProcessor {
 	private static MobMonster getInitialMobMonster(SpawnNode node) {
 		MobMonster mobMonster = null;
 		switch(node.getMobStance()) {
-			case EVIL:{
-				switch(node.getMob()) {
-					case "zombie":{
-						mobMonster = new CustomEntityZombieEvil(worldServer);
-						break;
-					}
-					default:return null;
-				}
-				break;
-			}
-			case GOOD:{
-				switch(node.getMob()) {
-					case "zombie": { 
-						mobMonster = new CustomEntityZombieGood(worldServer);
-						break;
-					}
-					default:return null;
-				}
-				break;
-			}
-			case NEUTRAL:{
-				switch(node.getMob()) {
-					case "zombie": {
-						mobMonster = new CustomEntityZombieNeutral(worldServer);
-						break;
-					}
-					default:return null;
-				}
-				break;
-			}
-			case PASSIVE:{
-				switch(node.getMob()) {
-					case "zombie": {
-						mobMonster = new CustomEntityZombiePassive(worldServer);
-						break;
-					}
-					default:return null;
-				}
+		case EVIL:{
+			switch(node.getMob()) {
+			case "zombie":{
+				mobMonster = new CustomEntityZombieEvil(worldServer);
 				break;
 			}
 			default:return null;
+			}
+			break;
+		}
+		case GOOD: {
+			switch(node.getMob()) {
+			case "zombie": { 
+				mobMonster = new CustomEntityZombieGood(worldServer);
+				break;
+			}
+			default:return null;
+			}
+			break;
+		}
+		case NEUTRAL: {
+			switch(node.getMob()) {
+			case "zombie": {
+				mobMonster = new CustomEntityZombieNeutral(worldServer);
+				break;
+			}
+			default:return null;
+			}
+			break;
+		}
+		case PASSIVE: {
+			switch(node.getMob()) {
+			case "zombie": {
+				mobMonster = new CustomEntityZombiePassive(worldServer);
+				break;
+			}
+			default:return null;
+			}
+			break;
+		}
+		case NPC: {
+			switch(node.getMob()) {
+			case "villager": {
+				mobMonster = new CustomEntityVillagerNPC(worldServer);
+				break;
+			}
+			default:return null;
+			}
+			break;
+		}
+		default:return null;
 		}
 		mobMonster.TEMPinitiate(node);
 		return mobMonster;
@@ -439,9 +450,10 @@ public class SpawnNodeProcessor {
 		MobStance mobStance = 		node.getMobStance();
 		MobType mobType = 			node.getMobType();
 		int rareItemInt = 			setInitialArmorContent(mobMonster, node);
+		HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
 		
-		PKAMob pkaMob = new PKAMob(mobName, attributes, maxHealth, damage, level,
-				mobStrength, mobStance, mobType, rareItemInt);
+		PKAMob pkaMob = new PKAMob(mobName, attributes, maxHealth, damage, level, mobStrength, mobStance, mobType, rareItemInt, abilities);
+		
 		mobMonster.setPKAMob(pkaMob);
 		mobMonster.setSpawnNode(node);
 	}

@@ -12,8 +12,10 @@ skill:
   - 3
 armor:
   elements:
-  - armor_level
+  - armor_level_fixed
   - durability_divide
+  - armor_price
+  - armor_worth
   - ""
   endelements:
   - strength

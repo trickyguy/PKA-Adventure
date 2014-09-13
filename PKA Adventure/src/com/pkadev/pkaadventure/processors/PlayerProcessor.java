@@ -80,7 +80,7 @@ public class PlayerProcessor {
 	 * @param player
 	 * @param classTypeString
 	 */
-	private static void loadPlayer(Player player, ClassType classType) {		
+	private static void loadPlayer(Player player, ClassType classType) {	
 		String playerName = player.getName();
 		if (classType == ClassType.NONE) {
 			MessageUtil.sendMessage(player, "Select a class before you can start playing.", MessageType.SINGLE);
@@ -88,14 +88,10 @@ public class PlayerProcessor {
 		}
 		
 		PKAPlayer pkaPlayer = getInitialPKAPlayer(player, classType);
-		addInitialArmorAttributesToPKAPlayer(player, pkaPlayer);
+		setAttributes(player, pkaPlayer);
 		addPKAPlayer(playerName, pkaPlayer);
 		
 		updateHealth(Bukkit.getPlayer(playerName), pkaPlayer);
-
-		if (!hasStatItem(player)) {
-			ItemUtil.updateStatItemMeta(player, pkaPlayer);
-		}
 		
 		MessageUtil.log("player " + playerName + " has been loaded in.");
 	}
@@ -114,7 +110,6 @@ public class PlayerProcessor {
 		int level = 					getLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int maxHealth = 				getMaxHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int health = 					getHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
-		int[] attributes = 				getAttributesFromPlayerConfig(playerName, playerConfig, classTypeString);
 		double damage = 				getDamageFromPlayerConfig(playerName, classTypeString, level);
 		int weaponSlot = 				InventoryUtil.getWeaponSlot(player);
 		int availableUpgradePoints = 	getUpgradePointsFromPlayerConfig(playerName, playerConfig, classTypeString);
@@ -127,7 +122,7 @@ public class PlayerProcessor {
 		player.setLevel(level);
 		
 		return new PKAPlayer(playerName, classType, maxHealth, 
-				health, attributes, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
+				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
 	}
 
 	private static boolean hasLoadedClassBefore(String playerName, ClassType classType) {
@@ -139,15 +134,11 @@ public class PlayerProcessor {
 	}
 
 	private static void writeNewClassToPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
-		// CHANGED TO INT, MIGHT BREAK IT. Marcus
-		List<Integer> attributes = new ArrayList<Integer>();
 		List<String> emptyList = new ArrayList<String>();
 		emptyList.add("");
-		attributes.add(0); attributes.add(0); attributes.add(0); attributes.add(0);
 		
 		playerConfig.set(classTypeString + ".maxhealth", 100.0);
 		playerConfig.set(classTypeString + ".health", 100.0);
-		playerConfig.set(classTypeString + ".attributes", attributes);
 		playerConfig.set(classTypeString + ".availableupgradepoints", 0);
 		playerConfig.set(classTypeString + ".level", 1);
 		
@@ -200,20 +191,6 @@ public class PlayerProcessor {
 			return 0;
 		} else {
 			return playerConfig.getInt(classTypeString + ".availableupgradepoints");
-		}
-	}
-
-	private static int[] getAttributesFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
-		if (!playerConfig.contains(classTypeString + ".attributes")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return new int[]{0, 0, 0, 0};
-		} else {
-			List<Integer> stringList = playerConfig.getIntegerList(classTypeString + ".attributes");
-			int[] stringArray = new int[4];
-			for (int i = 0; i < 4; i++) {
-				stringArray[i] = stringList.get(i);
-			}
-			return stringArray;
 		}
 	}
 
@@ -323,17 +300,6 @@ public class PlayerProcessor {
 		playerConfig.set("current_class_type", classTypeString);
 		playerConfig.set(classTypeString + ".maxhealth", pkaPlayer.getMaxHealth());
 		playerConfig.set(classTypeString + ".health", pkaPlayer.getHealth());
-
-		List<Integer> attributes = new ArrayList<Integer>();
-		int[] intList = pkaPlayer.getAttributes();
-		for (int i = 0; i < intList.length; i++) {
-			if(intList[i] != 0)
-				attributes.add(i, intList[i]);
-			else
-				attributes.add(i, 0);
-		}
-		
-		playerConfig.set(classTypeString + ".attributes", attributes);
 		playerConfig.set(classTypeString + ".availableupgradepoints", pkaPlayer.getAvailableUpgradePoints());
 		playerConfig.set(classTypeString + ".level", player.getLevel());
 		
@@ -345,29 +311,15 @@ public class PlayerProcessor {
 		FileUtil.save(playerConfig, "plugins/PKAAdventure/players/" + playerName + ".yml");
 	}
 
-	private static boolean hasStatItem(Player player) {
-		return ItemUtil.isStatItem(player.getInventory().getItem(17));
-	}
-
-	private static ItemStack giveStatPearl(Player player) {
-		ItemStack itemStack = new ItemStack(Material.ENDER_PEARL);
-		player.getInventory().setItem(17, itemStack);
-		return itemStack;
-	}
-
-	private static ItemStack giveStatEye(Player player) {
-		ItemStack itemStack = new ItemStack(Material.EYE_OF_ENDER);
-		player.getInventory().setItem(17, itemStack);
-		return itemStack;
-	}
-
-	private static void addInitialArmorAttributesToPKAPlayer(Player player, PKAPlayer pkaPlayer) {		
+	public static void setAttributes(Player player, PKAPlayer pkaPlayer) {	
 		PlayerInventory playerInventory = player.getInventory();
+		pkaPlayer.clearAttributes();
 		for (int i = 0; i < 4; i++) {
 			ItemStack itemStack = playerInventory.getArmorContents()[i];
 			if (ItemUtil.isAttributeItem(itemStack))
-				pkaPlayer.addAttributes(ItemUtil.getAttributesFromItemStack(itemStack));
+				pkaPlayer.addAttributes(ItemUtil.getArmorAttributesFromItemStack(itemStack));
 		}
+		ItemUtil.updateStatItemMeta(player, pkaPlayer);
 	}
 
 	public static int getAvailableUpgradePoints(String playerName, YamlConfiguration playerConfig, String classTypeString) {
@@ -412,19 +364,6 @@ public class PlayerProcessor {
 		SpawnNode node = SpawnNodeProcessor.getNearestBeacon(player.getLocation());
 		player.teleport(node.getLocation());
 		MessageUtil.sendMessage(player, "You have spawned in " + node.getName(), MessageType.SINGLE);
-	}
-
-	private static void damageArmor(Player player) {
-		for (ItemStack itemStack : InventoryUtil.getArmorContent(player)) {
-			if (!ItemUtil.isAttributeItem(itemStack))
-				continue;
-			ItemMeta itemMeta = itemStack.getItemMeta();
-			List<String> lore = itemMeta.getLore();
-			int newDurability = ItemUtil.addValueInItemLore(lore, "durability", -5);
-			itemMeta.setLore(lore);
-			if (newDurability <= 5);
-				InventoryUtil.moveItemIntoInventory(player, itemStack);
-		}
 	}
 	
 	private static void applyDeathEffect(Player player) {
@@ -486,48 +425,14 @@ public class PlayerProcessor {
 		player.setExp(experienceBar);
 	}
 
-	public static void damagePlayerByEnvironment(Player player, double minecraftDamage) {
-		if (minecraftDamage < 5d)
-			return;
-		else {
-			PKAPlayer pkaPlayer = getPKAPlayer(player);
-			if (pkaPlayer == null)
-				return;
-			double maxHealth = pkaPlayer.getMaxHealth();
-			double finalDamage = DamageUtil.getFinalizedDamage(minecraftDamage, maxHealth);
-			damagePlayer(player, pkaPlayer, finalDamage);
-		}
-	}
-	
-	public static void damagePlayerByEntity(Player player, PKAPlayer pkaPlayer, double finalizedDamage) {
-		damagePlayer(player, pkaPlayer, finalizedDamage);
-	}
-
-	private static void damagePlayer(Player player, PKAPlayer pkaPlayer, double finalizedDamage) {
-		if (finalizedDamage <= 0d)
-			return;
-		double finalHealth = pkaPlayer.getHealth() - finalizedDamage;
-		if (finalHealth > 0) {
-			damagePlayerNonLethal(player, pkaPlayer, finalHealth);
-		}
-		else {
-			damagePlayerLethal(player);
-		}
-	}
-
-	private static void damagePlayerNonLethal(Player player, PKAPlayer pkaPlayer, double newHealth) {
-		pkaPlayer.setHealth(newHealth);
-		updateHealth(player, pkaPlayer);
-	}
-
-	private static void damagePlayerLethal(Player player) {
+	public static void damagePlayerLethal(Player player) {
 		PKAPlayer pkaPlayer = getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
 		pkaPlayer.setHealth(pkaPlayer.getMaxHealth());
 		teleportToNearestBeacon(player);
 		applyDeathEffect(player);
-		damageArmor(player);
+		ItemUtil.damageArmor(player, pkaPlayer);
 		MessageUtil.sendMessage(player, "You died, your armor has been damaged.", MessageType.SINGLE);
 	}
 

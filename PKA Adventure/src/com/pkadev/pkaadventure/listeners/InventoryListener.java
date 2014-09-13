@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -7,6 +8,8 @@ import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -54,6 +57,11 @@ public class InventoryListener implements Listener {
 	}
 
 	@EventHandler
+	public void onDrag(InventoryDragEvent event) {
+		event.setCancelled(true);
+	}
+	
+	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		Player player = (Player) event.getWhoClicked();
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
@@ -82,6 +90,9 @@ public class InventoryListener implements Listener {
 		} else if (event.getAction() == InventoryAction.PLACE_ALL || event.getAction() == InventoryAction.PLACE_SOME || event.getAction() == InventoryAction.PLACE_ONE) {
 			drop = true;
 		}
+		
+		if (event.getResult() == Result.DENY)
+			return;
 		
 		if (pickup && drop) {
 			if (!InventoryUtil.pickupItemFromSlot(player, pkaPlayer, currentItem, slotType, slot, event.getClickedInventory().getName(), true))
@@ -191,6 +202,14 @@ public class InventoryListener implements Listener {
 		}
 		
 		return slotType;
+	}
+	
+	@EventHandler
+	public void onInventoryOpen(InventoryOpenEvent event) {
+		if (event.getInventory().getType() == InventoryType.MERCHANT) {
+			event.setCancelled(true);
+			event.getPlayer().closeInventory();
+		}
 	}
 
 }

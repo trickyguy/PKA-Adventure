@@ -5,7 +5,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.MessageType;
+import com.pkadev.pkaadventure.types.MobStance;
+import com.pkadev.pkaadventure.types.MobStrength;
+import com.pkadev.pkaadventure.types.MobType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
@@ -25,14 +29,14 @@ public class CommandProcessor implements CommandExecutor {
 
 		if (cmd.getName().equalsIgnoreCase("pka")) {
 			if (argsLength == 0) {
-				InventoryUtil.openInventory(player, "selection");
+				InventoryUtil.openInventory(player, -1, "selection");
 			} else if (argsLength == 1) {
 				if (args[0].equalsIgnoreCase("create")) {
 					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
 				} else if (args[0].equalsIgnoreCase("ability")) {
-					InventoryUtil.openInventory(player, "ability");
+					InventoryUtil.openInventory(player, -1, "ability");
 				} else if (args[0].equalsIgnoreCase("test")) {
-					InventoryUtil.moveItemIntoInventory(player, ItemUtil.getInitialItem("ability_flame_thrower", -1, 2));
+					SpawnNodeProcessor.spawn(new SpawnNode(player.getLocation(), "test_npc", 1, 1, 1, "villager", MobStrength.MINION, MobStance.NPC, MobType.NEUTRAL));
 				} else if (args[0].equalsIgnoreCase("leave")) {
 					PlayerProcessor.removePKAPlayer(player);
 				} else {

@@ -12,16 +12,12 @@ import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 
-public class PKAPlayer {
+public class PKAPlayer extends PKALivingEntity {
 
 	public PKAPlayer(String playerName, ClassType classType, int maxHealth, 
-			int health, int[] attributes, double damage, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold) {
-		setPlayerName(playerName);
+			int health, double damage, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold) {
+		super(playerName, damage, maxHealth, health);
 		setClassType(classType);
-		setMaxHealth(maxHealth);
-		setHealth(health);
-		setAttributes(attributes);
-		setDamage(damage);
 		setWeaponSlot(weaponSlot);
 		setAvailableUpgradePoints(availableUpgradePoints);
 		
@@ -30,12 +26,7 @@ public class PKAPlayer {
 		setGoldAmount(gold);
 	}
 	
-	private String playerName;
 	private ClassType classType;
-	private int[] attributes = new int[]{0, 0, 0, 0};
-	private double maxHealth;
-	private double health;
-	private double damage;
 	private HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
 	private HashMap<Integer, ItemStack> cachedItems = new HashMap<Integer, ItemStack>();
 	private boolean isSneaking = false;
@@ -54,69 +45,14 @@ public class PKAPlayer {
 	private int miningExp;
 	private int miningLevel;
 	
-	public String getPlayerName() {
-		return playerName;
-	}
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
-	}
 	public ClassType getClassType() {
 		return classType;
 	}
 	public void setClassType(ClassType classType) {
 		this.classType = classType;
 	}
-	public int[] getAttributes() {
-		return attributes;
-	}
-	public void setAttributes(int[] attributes) {
-		this.attributes = attributes;
-	}
-	public void addAttributes(int[] attributes) {
-		for (int i = 0; i < 4; i++) {
-			this.attributes[i] += attributes[i];
-		}
-	}
-	public void removeAttributes(int[] attributes) {
-		for (int i = 0; i < 4; i++) {
-			this.attributes[i] -= attributes[i];
-		}
-	}
-	public double getMaxHealth() {
-		return maxHealth;
-	}
-	public void setMaxHealth(double maxHealth) {
-		this.maxHealth = maxHealth;
-	}
-	public double getHealth() {
-		return health;
-	}
-	public void setHealth(double health) {
-		this.health = health;
-	}
-	public void removeHealth(double damage) {
-		this.health -= damage;
-	}
 	public Inventory getAbilityInventory() {
 		return InventoryUtil.fillInventory("ability", ItemUtil.getItemStacksFromAbilities(abilities));
-	}
-	public HashMap<Integer, Ability> getAbilities() {
-		return abilities;
-	}
-	public Ability getAbility(Integer i) {
-		return abilities.get(i);
-	}
-	public void setAbility(Integer i, Ability ability) {
-		abilities.put(i, ability);
-	}
-	public void removeAbility(Integer i) {
-		abilities.remove(i);
-	}
-	public void triggerAbility(Integer i, LivingEntity livingEntity, AbilityTriggerType abilityTriggerType) {
-		Ability ability = abilities.get(i);
-		if (ability == null)
-			return;
-		ability.trigger(livingEntity);
 	}
 	public HashMap<Integer, ItemStack> getCachedItems() {
 		return cachedItems;
@@ -161,12 +97,6 @@ public class PKAPlayer {
 		this.currentlySelectedAbility = currentlySelectedAbility;
 		return abilities.get(currentlySelectedAbility).getName();
 	}
-	public double getDamage() {
-		return damage;
-	}
-	public void setDamage(double damage) {
-		this.damage = damage;
-	}
 	public int getWeaponSlot() {
 		return weaponSlot;
 	}
@@ -206,24 +136,28 @@ public class PKAPlayer {
 	public int getMiningExp() {
 		return miningExp;
 	}
-	
 	public void setMiningExp(int experience) {
 		this.miningExp = experience;
 	}
-	
 	public int getMiningLevel() {
 		return miningLevel;
 	}
-	
 	public void setMiningLevel(int level) {
 		this.miningLevel = level;
 	}
-	
 	public int getGoldAmount() {
 		return goldAmount;
 	}
-	
 	public void setGoldAmount(int gold) {
 		this.goldAmount = gold;
+	}
+	public void addGoldAmount(int gold) {
+		goldAmount += gold;
+	}
+	public boolean removeGoldAmount(int gold) {
+		if (goldAmount - gold < 0)
+			return false;
+		goldAmount -= gold;
+		return true;
 	}
 }

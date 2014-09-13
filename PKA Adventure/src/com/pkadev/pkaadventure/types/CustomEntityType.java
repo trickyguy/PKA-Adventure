@@ -8,6 +8,7 @@ import net.minecraft.server.v1_7_R4.BiomeBase;
 import net.minecraft.server.v1_7_R4.BiomeMeta;
 import net.minecraft.server.v1_7_R4.EntityInsentient;
 import net.minecraft.server.v1_7_R4.EntityTypes;
+import net.minecraft.server.v1_7_R4.EntityVillager;
 import net.minecraft.server.v1_7_R4.EntityZombie;
 
 import org.bukkit.Bukkit;
@@ -16,6 +17,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import com.pkadev.pkaadventure.objects.mobs.CustomEntityVillagerNPC;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieEvil;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieGood;
 import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieNeutral;
@@ -27,7 +29,8 @@ public enum CustomEntityType {
 	ZombieEvil("ZombieEvil", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieEvil.class), 
 	ZombieGood("ZombieGood", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieGood.class), 
 	ZombiePassive("ZombiePassive", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombiePassive.class), 
-	ZombieNeutral("ZombieNeutral", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieNeutral.class);
+	ZombieNeutral("ZombieNeutral", 54, EntityType.ZOMBIE, EntityZombie.class, CustomEntityZombieNeutral.class),
+	VillagerNPC("VillagerNPC", 120, EntityType.VILLAGER, EntityVillager.class, CustomEntityVillagerNPC.class);
 	
 	private String name;
 	private int id;

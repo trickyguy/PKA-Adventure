@@ -13,23 +13,22 @@ MessageType:
   SERVER_DEBUG:
     prefix: "=eSERVER_DEBUG: "
 Lore:
-  woody_damage: "=7Damage: =f"
-  wings_damage: "=7Damage: =f"
-  lefty_damage: "=7Damage: =f"
-  kyle_damage: "=7Damage: =f"
-  woody_selection: "=6WoodyF"
-  wings_selection: "=6WingsF"
-  lefty_selection: "=6LeftyF"
-  kyle_selection: "=6KyleF"
+  price: "=fPrice: =7"
+  worth: "=fWorth: =7"
+  damage: "=7Damage: =f"
+  woody_selection: "=6Woody"
+  wings_selection: "=6Wings"
+  lefty_selection: "=6Lefty"
+  kyle_selection: "=6Kyle"
   woody_selection_line1_blank: "=7Sprints"
   wings_selection_line1_blank: "=7Runs"
   lefty_selection_line1_blank: "=7Flies"
   kyle_selection_line1_blank: "=6Cries"
   skill_doubledrop: "=cDouble Drop: =f"
   skill_level: "=7Level: =f"
+  armor_level_fixed: "=7Level: =f"
   skill_exp: "=7Exp: =f"
   armor_item: "=7Armor"
-  armor_level: "=7Level: =f"
   strength: "=7Strength: =f"
   toughness: "=7Toughness: =f"
   agility: "=7Agility: =f"
@@ -41,9 +40,12 @@ Math:
   durability_divide_range: 1.2
   durability_divide_multiplier: 0.1
   durability_divide_yoffset: 15
-  armor_level_range: 1.0
-  armor_level_multiplier: 1.0
-  armor_level_yoffset: 1
+  armor_price_range: 1.0
+  armor_price_multiplier: 1.0
+  armor_price_yoffset: 2
+  armor_worth_range: 1.0
+  armor_worth_multiplier: 1.0
+  armor_worth_yoffset: 1
   experience_required_range: 0.0
   experience_required_multiplier: 1.0
   experience_required_yoffset: 20
