@@ -112,7 +112,6 @@ public class InventoryUtil {
 	 * @param reference: usually the name of the mob he is opening shop from
 	 */
 	public static void openInventory(Player player, int level, String reference) {
-		MessageUtil.d(level + " " + reference);
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null && !reference.equals("selection"))
 			return;

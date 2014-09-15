@@ -9,7 +9,7 @@ selection:
   - wings_selection$1$1$4
   - lefty_selection$1$1$5
   - kyle_selection$1$1$6
-test_npc:
+test npc:
   size: 18
   name: Go buy some stuff
   inventorytype: shop_static

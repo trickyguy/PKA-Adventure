@@ -126,6 +126,24 @@ public class ItemUtil {
 			return true;
 		return false;
 	}
+	
+	public static boolean isGold(ItemStack itemStack) {
+		Material material = itemStack.getType();
+		if (material == Material.GOLD_NUGGET || material == Material.GOLD_INGOT ||
+				material == Material.GOLD_BLOCK)
+			return true;
+		return false;
+	}
+	
+	public static int getGoldWorth(ItemStack itemStack) {
+		int amount = itemStack.getAmount();
+		int worth = 1;
+		if (itemStack.getType() == Material.GOLD_INGOT)
+			worth = 10;
+		else if (itemStack.getType() == Material.GOLD_BLOCK)
+			worth = 100;
+		return amount * worth;
+	}
 
 	public static boolean isWeapon(ItemStack itemStack) {
 		if (!isAttributeItem(itemStack))
@@ -245,9 +263,10 @@ public class ItemUtil {
 		}
 	}
 	
-	private static int getFirstLineWithValue(List<String> list) {
-		for (int i = 0; i < list.size(); i++) {
-			if (!list.get(i).endsWith("blank"))
+	private static int getFirstLineWithValue(List<String> itemLore) {
+		for (int i = 0; i < itemLore.size(); i++) {
+			String line = itemLore.get(i);
+			if (Character.isDigit(line.charAt(line.length() - 1)))
 				return i;
 		}
 		return 0;
@@ -269,7 +288,6 @@ public class ItemUtil {
 				valuesList.add(0);
 			}
 		}
-
 		for (int i = startLine; i < itemLore.size(); i++) {
 			String line = itemLore.get(i);
 			if (line.startsWith(ElementsUtil.getLoreElementMod("price")) || line.startsWith(ElementsUtil.getLoreElementMod("worth")))
@@ -654,7 +672,12 @@ public class ItemUtil {
 	 * @return
 	 */
 	public static ItemStack getInitialItem(String reference, int level, int rarity) {
-		ItemStack itemStack = ElementsUtil.getItemElement(reference);
+		ItemStack itemStack = null;
+		if (reference.equals("armor")) {
+			itemStack = getInitialArmorItemStack(level, random.nextInt(4));
+		} else {
+			itemStack = ElementsUtil.getItemElement(reference);
+		}
 		return getInitialItem(itemStack, reference, level, rarity);
 	}
 	
@@ -669,11 +692,11 @@ public class ItemUtil {
 	}
 	
 	public static ItemStack getInitialArmor(int level, int slot, int rarity) {
-		ItemStack itemStack = 	getInitialArmorItemStack(level, slot, rarity);
+		ItemStack itemStack = 	getInitialArmorItemStack(level, slot);
 		return getInitialItem(itemStack, "armor", level, rarity);
 	}
 	
-	private static ItemStack getInitialArmorItemStack(int level, int slot, int rareItemInt) {
+	private static ItemStack getInitialArmorItemStack(int level, int slot) {
 		String material = "LEATHER_";
 		String item = "HELMET";
 		if (level < 10) {
@@ -702,10 +725,10 @@ public class ItemUtil {
 	public static ItemStack[] getInitialContent(int level, int rareItemInt) {
 		//TODO rareItemInt implementation (-1 means there will be none)
 		ItemStack[] armorContent = new ItemStack[4];
-		armorContent[3] = getInitialArmorItemStack(level, 3, -1);
+		armorContent[3] = getInitialArmorItemStack(level, 3);
 		for (int i = 0; i < 3; i++) {
 			if (random.nextBoolean()) {
-				armorContent[i] = getInitialArmorItemStack(level, i, -1);
+				armorContent[i] = getInitialArmorItemStack(level, i);
 			} else {
 				armorContent[i] = new ItemStack(Material.AIR);
 			}

@@ -34,7 +34,9 @@ Lore:
   agility: "=7Agility: =f"
   restoration: "=7Restoration: =f"
   durability_divide: "=7Durability: =f"
-  ability_flame_thrower_1_blank: "=7Sup mah niggu"
+  ability_berzerk_line1_blank: "=7This shit is dank"
+  ability_berzerk_line2: "=7Attack speed increase: =f"
+  ability_berzerk_line3: "=7Length in seconds: =f"
 Math:
   max_mobdrop_amount: 3
   durability_divide_range: 1.2
@@ -109,4 +111,10 @@ Math:
   gold_mobdrop_amount_range: 1.5
   gold_mobdrop_amount_multiplier: 0.1
   gold_mobdrop_amount_yoffset: 1
+  ability_berzerk_line2_range: 1.0
+  ability_berzerk_line2_multiplier: 0.1
+  ability_berzerk_line2_yoffset: 2
+  ability_berzerk_line3_range: 1.0
+  ability_berzerk_line3_multiplier: 0.1
+  ability_berzerk_line3_yoffset: 4
    

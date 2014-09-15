@@ -21,6 +21,7 @@ import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class MobProcessor {
 	private static Main plugin = Main.instance;
@@ -49,6 +50,7 @@ public class MobProcessor {
 				ItemUtil.addDroppedItem(item, player);
 			}
 		}
+		mobMonster.setPKAMob(null);
 	}
 	
 	public static void updateHealth(LivingEntity livingEntity, PKALivingEntity pkaLivingEntity) {
@@ -61,7 +63,8 @@ public class MobProcessor {
 		for (String damagerName : pkaMob.getRewardPercentages().keySet()) {
 			if (damagerName == "")
 				continue;
-			PlayerProcessor.rewardExperience(damagerName, (int) (experience * pkaMob.getRewardPercentages().get(damagerName)));
+			int playerExperience = (int) (experience * pkaMob.getRewardPercentages().get(damagerName));
+			PlayerProcessor.rewardExperience(damagerName, playerExperience);
 		}
 	}
 	

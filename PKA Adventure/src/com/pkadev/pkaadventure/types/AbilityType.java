@@ -1,13 +1,11 @@
 package com.pkadev.pkaadventure.types;
 
 import com.pkadev.pkaadventure.interfaces.Ability;
-import com.pkadev.pkaadventure.objects.abilities.Flame_Thrower;
 import com.pkadev.pkaadventure.objects.abilities.Berzerk;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public enum AbilityType {
 
-	Flame_Thrower(Flame_Thrower.class),
 	Berzerk(Berzerk.class);
 	
 	private Class<? extends Ability> ability;

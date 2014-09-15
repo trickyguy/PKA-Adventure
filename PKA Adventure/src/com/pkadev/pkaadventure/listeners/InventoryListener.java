@@ -1,6 +1,5 @@
 package com.pkadev.pkaadventure.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,6 +47,10 @@ public class InventoryListener implements Listener {
 				ItemStack weapon = ItemUtil.getInitialItem(classTypeString.toLowerCase() + "_weapon", player.getLevel(), 1);
 				ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
 				InventoryUtil.moveItemIntoInventory(player, weapon);
+				event.setCancelled(true);
+			} else if (ItemUtil.isGold(itemStack)) {
+				pkaPlayer.addGoldAmount(ItemUtil.getGoldWorth(itemStack));
+				event.getItem().remove();
 				event.setCancelled(true);
 			}
 		} else {

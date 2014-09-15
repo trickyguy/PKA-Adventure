@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.listeners;
 
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -9,6 +10,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKALivingEntity;
@@ -16,7 +19,9 @@ import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.utils.DamageUtil;
+import com.pkadev.pkaadventure.utils.ItemUtil;
 
 public class CombatListener implements Listener {
 
@@ -54,14 +59,21 @@ public class CombatListener implements Listener {
 		
 		if (PlayerProcessor.isPlayer(damagee)) {
 			pkaDamagee = PlayerProcessor.getPKAPlayer((Player) damagee);
-			if (damagee == null) {
+			if (pkaDamagee == null) {
 				event.setCancelled(true);
 				return;
 			}
 			isDamageePlayer = true;
+			for (ItemStack armorPiece : damagee.getEquipment().getArmorContents())
+				armorPiece.setDurability((short) 0);
 		}
 		else if (MobProcessor.isMobMonster(damagee)) {
-			pkaDamagee = MobProcessor.getMobMonster(damagee).getPKAMob();
+			PKAMob pkaMob = MobProcessor.getMobMonster(damagee).getPKAMob();
+			if (pkaMob.getMobStance() == MobStance.GOOD || pkaMob.getMobStance() == MobStance.NPC) {
+				event.setCancelled(true);
+				return;
+			}
+			pkaDamagee = pkaMob;
 		} else {
 			event.setCancelled(true);
 			damagee.remove();
@@ -72,13 +84,16 @@ public class CombatListener implements Listener {
 			damager = projectile.getShooter();
 		
 		if (PlayerProcessor.isPlayer(damager)) {
-			pkaDamager = PlayerProcessor.getPKAPlayer((Player) damager);
+			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer((Player) damager);
+			pkaDamager = pkaPlayer;
 			if (pkaDamager == null) {
 				event.setCancelled(true);
 				return;
 			}
 			isDamagerPlayer = true;
 			damagerName = pkaDamager.getName();
+			if (pkaPlayer.getWeaponSlot() < 9)
+				((Player) damager).getInventory().getItem(pkaPlayer.getWeaponSlot()).setDurability((short) 0);
 		}
 		else if (MobProcessor.isMobMonster(damager)) {
 			pkaDamager = MobProcessor.getMobMonster(damager).getPKAMob();
@@ -113,8 +128,11 @@ public class CombatListener implements Listener {
 			event.setDamage(0d);
 		}
 		
-		if (!isDamageePlayer)
+		if (isDamageePlayer)
+			PlayerProcessor.updateHealth((Player) damagee);
+		else {
 			MobProcessor.updateHealth(damagee, pkaDamagee); //only changes name
+		}
 	}
 	
 	private int getNoDamageTicks(LivingEntity damagee, LivingEntity damager, boolean isDamageePlayer, boolean isDamagerPlayer) {
@@ -195,4 +213,12 @@ public class CombatListener implements Listener {
 			MobProcessor.mobDeath(MobProcessor.getMobMonster(livingEntity), livingEntity.getLocation());
 		}
 	}
+	
+	@EventHandler
+	public void onPlayerRegainHealth(EntityRegainHealthEvent event) {
+		if (!(event.getEntityType() == EntityType.PLAYER))
+			return;
+		event.setCancelled(true);
+	}
+	
 }

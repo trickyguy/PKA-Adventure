@@ -130,10 +130,16 @@ public class ElementsUtil {
 	 */
 	public static List<String> getMultipleExistingLoreElements(List<String> references, int[] values) {
 		List<String> elements = new ArrayList<String>();
-		if (references == null || values == null || references.size() > values.length || references.size() < values.length)
+		if (references == null || values == null)
 			return elements;
+		int valuesIndex = 0;
 		for (int i = 0 ; i < references.size(); i++) {
-			elements.add(getExistingLoreElement(references.get(i), values[i]));
+			if (!references.get(i).endsWith("blank")) {
+				elements.add(getExistingLoreElement(references.get(i), values[valuesIndex]));
+				valuesIndex += 1;
+			} else {
+				elements.add(ElementsUtil.getInitialLoreElement(references.get(i), -1));
+			}
 		}
 		return elements;
 	}
@@ -161,7 +167,7 @@ public class ElementsUtil {
 	 * @return
 	 */
 	public static ItemStack getItemElement(String reference) {
-		if (reference == "")
+		if (reference.equals(""))
 			return new ItemStack(Material.AIR);
 		if (itemElements.containsKey(reference))
 			return itemElements.get(reference);
@@ -315,7 +321,6 @@ public class ElementsUtil {
 	private static String selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
 	
 	public static Inventory getInventoryElement(String reference, int level) {
-		MessageUtil.d(reference);
 		if (reference.equals("ability"))
 			return Bukkit.createInventory(null, 9, abilityInventoryName);
 		if (inventoryElements.containsKey(reference))

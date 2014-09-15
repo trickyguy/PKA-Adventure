@@ -26,8 +26,9 @@ public class PKALivingEntity {
 	 * @param damage
 	 * @param health
 	 */
-	public PKALivingEntity(String name, double damage, double maxHealth, double health) {
+	public PKALivingEntity(String name, int level, double damage, double maxHealth, double health) {
 		isPlayer = true;
+		this.level = level;
 		this.name = name;
 		this.damage = damage;
 		this.maxHealth = maxHealth;
@@ -125,10 +126,16 @@ public class PKALivingEntity {
 		Ability ability = abilities.get(i);
 		if (ability == null)
 			return;
-		ability.trigger(livingEntity);
+		ability.trigger(livingEntity, abilityTriggerType);
 	}
 	public int getLevel() {
 		return level;
+	}
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	public void addLevel() {
+		level += 1;
 	}
 	public HashMap<String, Double> getDamageDoneBy() {
 		return damageDoneBy;

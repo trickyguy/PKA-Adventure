@@ -9,7 +9,8 @@ public enum MessageType {
 	SERVER(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.SERVER.prefix", 		"config.yml")),
 	SINGLE_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SINGLE_DEBUG.prefix", 	"config.yml")),
 	GROUP_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.GROUP_DEBUG.prefix", 	"config.yml")),
-	SERVER_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SERVER_DEBUG.prefix", 	"config.yml"));
+	SERVER_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SERVER_DEBUG.prefix", 	"config.yml")),
+	SIMPLE("");
 
 	private final String prefix;
 

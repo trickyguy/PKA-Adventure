@@ -7,8 +7,10 @@ import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
+import com.pkadev.pkaadventure.utils.MessageUtil;
 
 import net.minecraft.server.v1_7_R4.EntityInsentient;
+import net.minecraft.server.v1_7_R4.EntityItem;
 import net.minecraft.server.v1_7_R4.EntityVillager;
 import net.minecraft.server.v1_7_R4.EntityPlayer;
 import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;
@@ -26,6 +28,9 @@ public class CustomEntityVillagerNPC extends EntityVillager implements MobMonste
 
 	@Override
 	public void TEMPinitiate(SpawnNode spawnNode) {
+		this.setCustomName(spawnNode.getName());
+		this.setCustomNameVisible(true);
+		
 		try {
 			Field bField = PathfinderGoalSelector.class.getDeclaredField("b");
 			bField.setAccessible(true);
@@ -45,8 +50,6 @@ public class CustomEntityVillagerNPC extends EntityVillager implements MobMonste
 		this.goalSelector.a(8, new PathfinderGoalRandomLookaround(this));
 		this.goalSelector.a(2, new PathfinderGoalLookAtPlayer(this,
 				EntityPlayer.class, 12.0F, 1.0F));
-		this.setCustomName(spawnNode.getName());
-		this.setCustomNameVisible(true);
 	}
 
 	private SpawnNode node;

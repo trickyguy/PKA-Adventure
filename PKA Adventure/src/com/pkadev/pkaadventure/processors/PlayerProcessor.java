@@ -91,7 +91,9 @@ public class PlayerProcessor {
 		setAttributes(player, pkaPlayer);
 		addPKAPlayer(playerName, pkaPlayer);
 		
+		player.setLevel(pkaPlayer.getLevel());
 		updateHealth(Bukkit.getPlayer(playerName), pkaPlayer);
+		updateExperience(player, pkaPlayer);
 		
 		MessageUtil.log("player " + playerName + " has been loaded in.");
 	}
@@ -108,6 +110,7 @@ public class PlayerProcessor {
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
 		
 		int level = 					getLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
+		int experience = 				getExperienceFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int maxHealth = 				getMaxHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int health = 					getHealthFromPlayerConfig(playerName, playerConfig, classTypeString);
 		double damage = 				getDamageFromPlayerConfig(playerName, classTypeString, level);
@@ -119,9 +122,7 @@ public class PlayerProcessor {
 		int miningExp = 				getMiningExpFromPlayerConfig(playerName, playerConfig, classTypeString);
 		int miningLevel = 				getMiningLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		
-		player.setLevel(level);
-		
-		return new PKAPlayer(playerName, classType, maxHealth, 
+		return new PKAPlayer(player, classType, level, experience, maxHealth, 
 				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
 	}
 
@@ -137,10 +138,11 @@ public class PlayerProcessor {
 		List<String> emptyList = new ArrayList<String>();
 		emptyList.add("");
 		
+		playerConfig.set(classTypeString + ".level", 1);
+		playerConfig.set(classTypeString + ".experience", 0);
 		playerConfig.set(classTypeString + ".maxhealth", 100.0);
 		playerConfig.set(classTypeString + ".health", 100.0);
 		playerConfig.set(classTypeString + ".availableupgradepoints", 0);
-		playerConfig.set(classTypeString + ".level", 1);
 		
 		playerConfig.set(classTypeString + ".gold", 0);
 		
@@ -175,23 +177,13 @@ public class PlayerProcessor {
 		}
 		return level;
 	}
-
-	private static int getHealthFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
-		if (!playerConfig.contains(classTypeString + ".maxhealth")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return 100;
-		} else {
-			return playerConfig.getInt(classTypeString + ".maxhealth");
-		}
+	
+	private static int getExperienceFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
+		return playerConfig.getInt(classTypeString + ".experience");
 	}
 	
 	private static int getUpgradePointsFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
-		if (!playerConfig.contains(classTypeString + ".availableupgradepoints")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return 0;
-		} else {
-			return playerConfig.getInt(classTypeString + ".availableupgradepoints");
-		}
+		return playerConfig.getInt(classTypeString + ".availableupgradepoints");
 	}
 
 	private static double getDamageFromPlayerConfig(String playerName, String classTypeString, int level) {
@@ -199,40 +191,24 @@ public class PlayerProcessor {
 	}
 	
 	private static int getMaxHealthFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
-		if (!playerConfig.contains(classTypeString + ".maxhealth")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return 100;
-		} else {
-			return playerConfig.getInt(classTypeString + ".maxhealth");
-		}
+		return playerConfig.getInt(classTypeString + ".maxhealth");
+	}
+	
+	private static int getHealthFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
+		return playerConfig.getInt(classTypeString + ".health");
 	}
 	
 	// Marcus mining
 	private static int getMiningExpFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
-		if (!playerConfig.contains(classTypeString + ".mining.exp")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return 0;
-		} else {
-			return playerConfig.getInt(classTypeString + ".mining.exp");
-		}
+		return playerConfig.getInt(classTypeString + ".mining.exp");
 	}
 	
 	private static int getMiningLevelFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
-		if (!playerConfig.contains(classTypeString + ".mining.level")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return 1;
-		} else {
-			return playerConfig.getInt(classTypeString + ".mining.level");
-		}
+		return playerConfig.getInt(classTypeString + ".mining.level");
 	}
 	
 	private static int getGoldAmountFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
-		if (!playerConfig.contains(classTypeString + ".gold")) {
-			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
-			return 0;
-		} else {
-			return playerConfig.getInt(classTypeString + ".gold");
-		}
+		return playerConfig.getInt(classTypeString + ".gold");
 	}
 
 	/**
@@ -271,14 +247,11 @@ public class PlayerProcessor {
 
 		savePlayer(player);
 
-		if(hasLoadedClassBefore(playerName, classType)) {
-			loadPlayer(player, classType);
-		} else {
+		if(!hasLoadedClassBefore(playerName, classType)) {
 			writeNewClassToPlayerConfig(playerName, classTypeString);
 		}
 		
-		player.closeInventory();
-		//TODO Inventory
+		loadPlayer(player, classType);
 	}
 	
 	public static boolean isPlayer(LivingEntity livingEntity) {
@@ -298,10 +271,11 @@ public class PlayerProcessor {
 
 		String classTypeString = pkaPlayer.getClassType().toString();
 		playerConfig.set("current_class_type", classTypeString);
+		playerConfig.set(classTypeString + ".level", player.getLevel());
+		playerConfig.set(classTypeString + ".experience", pkaPlayer.getExperience());
 		playerConfig.set(classTypeString + ".maxhealth", pkaPlayer.getMaxHealth());
 		playerConfig.set(classTypeString + ".health", pkaPlayer.getHealth());
 		playerConfig.set(classTypeString + ".availableupgradepoints", pkaPlayer.getAvailableUpgradePoints());
-		playerConfig.set(classTypeString + ".level", player.getLevel());
 		
 		playerConfig.set(classTypeString + ".gold", pkaPlayer.getGoldAmount());
 		// Mining
@@ -378,24 +352,11 @@ public class PlayerProcessor {
 
 	private static void rewardExperience(Player player, int experience) {
 		PKAPlayer pkaPlayer = 		getPKAPlayer(player);
-
-		int experienceRequired = 	MathUtil.getValue(player.getLevel(), "experience_required");
-		int experienceCurrent = 	pkaPlayer.getExperience();
-		int experienceNew = 		experienceCurrent + experience;
-		if (experienceNew > experienceRequired) {
-			int experienceLeftover = experienceRequired - experienceCurrent;
-			levelUp(player, pkaPlayer, experienceLeftover);
-			pkaPlayer.setExperience(experienceLeftover);
-			updateExperienceBar(player, experienceLeftover, MathUtil.getValue(player.getLevel(), "experience_required"));
-		} else {
-			pkaPlayer.setExperience(experienceNew);
-			updateExperienceBar(player, experienceNew, experienceRequired);
-		}
+		pkaPlayer.addExperience(experience);
+		updateExperience(player, pkaPlayer);
 	}
 
-	private static void levelUp(Player player, PKAPlayer pkaPlayer, int experienceLeftover) {
-		int newLevel = player.getLevel() + 1;
-		player.setLevel(newLevel);
+	private static void levelUp(Player player, PKAPlayer pkaPlayer) {
 		ItemStack weapon = null;
 		String classTypeStringLowercase = pkaPlayer.getClassType().toString().toLowerCase();
 
@@ -409,20 +370,30 @@ public class PlayerProcessor {
 			return;
 
 		pkaPlayer.addAvailableUpgradePoint();
-		int newDamage = MathUtil.getValue(newLevel, classTypeStringLowercase + "_damage");
+		int newDamage = MathUtil.getValue(pkaPlayer.getLevel(), classTypeStringLowercase + "_damage");
 		pkaPlayer.setDamage(newDamage);
 
-		int level = 			player.getLevel();
 		ItemUtil.replaceValueInItemLore(weapon.getItemMeta().getLore(), pkaPlayer.getClassType().toString().toLowerCase() + "_damage", newDamage);
-		
 		ItemUtil.updateStatItemMeta(player, pkaPlayer);
 	}
 
-	private static void updateExperienceBar(Player player, int experienceNew, int experienceRequired) {
-		float experienceBar = (float) experienceRequired / (float) experienceNew;
-		if (experienceBar > 1f || experienceBar < 0f)
-			experienceBar = 0.5f;
-		player.setExp(experienceBar);
+	private static void updateExperience(Player player, PKAPlayer pkaPlayer) {
+		float experience = pkaPlayer.getExperience();
+		float experienceRequired = pkaPlayer.getExperienceRequired();
+		
+		if (experience > experienceRequired) {
+			experience = experienceRequired - experience;
+			pkaPlayer.addLevel();
+			pkaPlayer.setExperienceRequired(MathUtil.getValue(pkaPlayer.getLevel(), "experience_required"));
+			player.setLevel(pkaPlayer.getLevel());
+			levelUp(player, pkaPlayer);
+			updateExperience(player, pkaPlayer);
+		} else {
+			float experienceBar = (float) pkaPlayer.getExperienceRequired() / (float) pkaPlayer.getExperience();
+			if (experienceBar > 1f || experienceBar < 0f)
+				experienceBar = 0.5f;
+			player.setExp(experienceBar);
+		}
 	}
 
 	public static void damagePlayerLethal(Player player) {

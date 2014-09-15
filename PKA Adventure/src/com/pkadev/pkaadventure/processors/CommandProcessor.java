@@ -36,7 +36,7 @@ public class CommandProcessor implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("ability")) {
 					InventoryUtil.openInventory(player, -1, "ability");
 				} else if (args[0].equalsIgnoreCase("test")) {
-					SpawnNodeProcessor.spawn(new SpawnNode(player.getLocation(), "test_npc", 1, 1, 1, "villager", MobStrength.MINION, MobStance.NPC, MobType.NEUTRAL));
+					InventoryUtil.moveItemIntoInventory(player, ItemUtil.getInitialItem("ability_berzerk", player.getLevel(), 2));
 				} else if (args[0].equalsIgnoreCase("leave")) {
 					PlayerProcessor.removePKAPlayer(player);
 				} else {
