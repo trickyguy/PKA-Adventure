@@ -40,4 +40,5 @@ public class MessageUtil {
 	public static void d(String s, String d) {
 		sendMessage(null, (short) System.currentTimeMillis() + " " + s + " §cfrom " + d, MessageType.SERVER_DEBUG);
 	}
+
 }

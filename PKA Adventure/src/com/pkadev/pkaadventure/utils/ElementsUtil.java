@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.objects.InventoryWithType;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.types.InventoryType;
 
@@ -90,6 +92,16 @@ public class ElementsUtil {
 		}
 		return mod + value;
 	}
+	
+	public static String getExistingLoreElement(String reference, String value) {
+		String mod = getLoreElementMod(reference);
+		if (mod == "")
+			return "";
+		if (reference.endsWith("blank")) {
+			return mod;
+		}
+		return mod + value;
+	}
 
 	/**
 	 * only used if you need something like: Strength: 5/10
@@ -121,20 +133,14 @@ public class ElementsUtil {
 		return elements;
 	}
 
-	/**
-	 * used in the cases where you wanna join up a bunch of values with presets
-	 *  this is used in the StatItem and the AbilityItems
-	 * @param references: "stat_item_strength", "stat_item_agility", "ability_lightning_numberofbolts"
-	 * @param values: "1, 4, 6, 3"
-	 * @return
-	 */
 	public static List<String> getMultipleExistingLoreElements(List<String> references, int[] values) {
-		List<String> elements = new ArrayList<String>();
+		List<String> elements = 		new ArrayList<String>();
 		if (references == null || values == null)
 			return elements;
+		
 		int valuesIndex = 0;
 		for (int i = 0 ; i < references.size(); i++) {
-			if (!references.get(i).endsWith("blank")) {
+			if (!references.get(i).endsWith("blank") && !references.get(i).equals("")) {
 				elements.add(getExistingLoreElement(references.get(i), values[valuesIndex]));
 				valuesIndex += 1;
 			} else {
@@ -144,7 +150,33 @@ public class ElementsUtil {
 		return elements;
 	}
 	
-	
+	public static List<String> getMultipleExistingLoreElements(ItemType itemType, String[] values) {
+		List<String> elements = 		itemType.getElements();
+		List<String> endElements = 		itemType.getEndElements();
+		List<String> lore = 			new ArrayList<String>();
+		
+		if (elements == null || values == null)
+			return lore;
+		int valuesIndex = 0;
+		
+		for (String reference : elements) {
+			if (reference.endsWith("blank")) {
+				lore.add(getInitialLoreElement(reference, -1));
+			} else {
+				lore.add(getExistingLoreElement(reference, values[valuesIndex]));
+				valuesIndex += 1;
+			}
+		}
+		
+		if (valuesIndex != values.length) {
+			for (int i = valuesIndex - 1; i < values.length; i++) {
+				String[] splitValue = values[i].split(":");
+				lore.add(ElementsUtil.getExistingLoreElement(endElements.get(Integer.parseInt(splitValue[0])), splitValue[1]));
+			}
+		}
+		
+		return lore;
+	}
 	
 	
 	
@@ -315,38 +347,26 @@ public class ElementsUtil {
 	
 	
 	
-	private static HashMap<String, Inventory> inventoryElements = new HashMap<String, Inventory>();
-	private static HashMap<String, InventoryType> inventoryNameElements = new HashMap<String, InventoryType>();
+	private static HashMap<String, InventoryWithType> inventoryElements = new HashMap<String, InventoryWithType>();
 	private static String abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
 	private static String selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
 	
-	public static Inventory getInventoryElement(String reference, int level) {
+	public static InventoryWithType getInventoryElement(String reference, int level) {
 		if (reference.equals("ability"))
-			return Bukkit.createInventory(null, 9, abilityInventoryName);
+			return new InventoryWithType(Bukkit.createInventory(null, 9, abilityInventoryName), InventoryType.ABILITY);
 		if (inventoryElements.containsKey(reference))
 			return inventoryElements.get(reference);
 		else {
 			InventoryType inventoryType = 	InventoryType.valueOf(FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), reference + ".inventorytype", "inventories.yml").toUpperCase());
-			Inventory element = 			InventoryUtil.getInitialInventory(reference, inventoryType, level);
-			String nameReference = 			element.getName();
+			InventoryWithType element = 	new InventoryWithType(InventoryUtil.getInitialInventory(reference, inventoryType, level), inventoryType);
+			String nameReference = 			element.getInventory().getName();
 			setInventoryElement(reference, element);
-			setInventoryNameElement(nameReference, inventoryType);
 			return element;
 		}
 	}
 	
-	public static InventoryType getInventoryTypeElement(String nameReference) {
-		if (inventoryNameElements.containsKey(nameReference))
-			return inventoryNameElements.get(nameReference);
-		return InventoryType.NONE;
-	}
-	
-	private static void setInventoryElement(String reference, Inventory element) {
+	private static void setInventoryElement(String reference, InventoryWithType element) {
 		inventoryElements.put(reference, element);
-	}
-	
-	private static void setInventoryNameElement(String nameReference, InventoryType inventoryType) {
-		inventoryNameElements.put(nameReference, inventoryType);
 	}
 	
 	public static String getSelectionInventoryName() {
@@ -356,4 +376,10 @@ public class ElementsUtil {
 	public static String getAbilityInventoryName() {
 		return abilityInventoryName;
 	}
+	
+	public static void removeInventoryElement(String reference) {
+		if (inventoryElements.containsKey(reference))
+			inventoryElements.remove(reference);
+	}
+	
 }

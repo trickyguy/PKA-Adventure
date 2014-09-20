@@ -20,6 +20,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.Ability;
+import com.pkadev.pkaadventure.objects.InventoryWithType;
+import com.pkadev.pkaadventure.objects.ItemStackWithSlot;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.ClassType;
@@ -42,10 +44,6 @@ public class InventoryUtil {
 	}
 
 	public static void load() {
-
-	}
-
-	public static void compressAndSaveInventory(Player player) {
 
 	}
 
@@ -115,18 +113,15 @@ public class InventoryUtil {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null && !reference.equals("selection"))
 			return;
-		Inventory inventory = ElementsUtil.getInventoryElement(reference, level);
-		String playerName = player.getName();
+		InventoryWithType inventoryWithType = ElementsUtil.getInventoryElement(reference, level);
+		InventoryType inventoryType = inventoryWithType.getInventoryType();
+		Inventory inventory = inventoryWithType.getInventory();
 		if (reference.equals("ability")) {
-			if (pkaPlayer.getAbilityInventory() == null) {
-				//ability inventory has to be loaded
-				InventoryUtil.fillStaticInventory(inventory, level, 
-						FileUtil.getStringListFromConfig(
-								FileUtil.getPlayerConfig(playerName), 
-								pkaPlayer.getClassType().toString() + ".Inventories.Ability", 
-								"PKAAdventure/players/" + playerName));
-			} else {
-				inventory = pkaPlayer.getAbilityInventory();
+			inventory = pkaPlayer.getAbilityInventory();
+		} else if (inventoryType == InventoryType.SHOP_DYNAMIC || inventoryType == InventoryType.SHOP_STATIC || inventoryType == InventoryType.SHOP_MIXED) {
+			if ((inventoryWithType.getLastOpened() + (MathUtil.getInt("shop_refresh_interval") * 1000l )) < System.currentTimeMillis()) {
+				ElementsUtil.removeInventoryElement(reference);
+				inventory = ElementsUtil.getInventoryElement(reference, level).getInventory();
 			}
 		}
 		player.openInventory(inventory);
@@ -141,10 +136,6 @@ public class InventoryUtil {
 			}
 			
 		});
-	}
-
-	public static InventoryType getInventoryTypeFromName(String nameReference) {
-		return ElementsUtil.getInventoryTypeElement(nameReference);
 	}
 
 
@@ -183,8 +174,8 @@ public class InventoryUtil {
 		return element;
 	}
 
-	//element: 		reference$amount$rarity$slotnumber
-	//endElement: 	reference$amount$rarity$amount (second amount = how often will this be placed into inventory)
+	//element: 		reference/amount/rarity/slotnumber
+	//endElement: 	reference/amount/rarity/amount (second amount = how often will this be placed into inventory)
 
 	public static void fillStaticInventory(Inventory inventory, int level, List<String> elements) {
 		for (String element : elements) {
@@ -237,7 +228,7 @@ public class InventoryUtil {
 	}
 
 	public static Inventory fillInventory(String reference, HashMap<Integer, ItemStack> itemStacks) {
-		Inventory inventory = ElementsUtil.getInventoryElement(reference, -1);
+		Inventory inventory = ElementsUtil.getInventoryElement(reference, -1).getInventory();
 		for (Integer i : itemStacks.keySet()) {
 			inventory.setItem(i.intValue(), itemStacks.get(i));
 		}
@@ -361,6 +352,19 @@ public class InventoryUtil {
 		}
 		return false;
 	}
+	
+	public static int[] getAttributesFromArmorContent(Player player) {
+		int[] values = new int[]{0, 0, 0, 0};
+		for (ItemStack itemStack : player.getInventory().getArmorContents()) {
+			if (itemStack.getType() == Material.AIR)
+				continue;
+			int[] armorValues = ItemUtil.getArmorAttributesFromItem(itemStack);
+			for (int i = 0; i < 4; i++) {
+				values[i] += armorValues[i];
+			}
+		}
+		return values;
+	}
 
 	/**
 	 * IMPORTANT method. This method will be triggered after the pickupItemFromSlot(Player, ItemStack, SlotType, int) if both apply
@@ -375,7 +379,7 @@ public class InventoryUtil {
 				MessageUtil.sendMessage(player, "This armor piece is broken, go repair it.", MessageType.SINGLE);
 				return false;
 			}
-			pkaPlayer.addAttributes(ItemUtil.getArmorAttributesFromItemStack(itemStack));
+			pkaPlayer.addAttributes(ItemUtil.getArmorAttributesFromItem(itemStack));
 			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		} else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
@@ -386,16 +390,7 @@ public class InventoryUtil {
 			else if (inventoryName.equals(ElementsUtil.getSelectionInventoryName())) {
 				return false;
 			} else {
-				if (!ItemUtil.isAttributeItem(itemStack))
-					return false;
-				int worth = ItemUtil.getIntValueFromLore(itemStack.getItemMeta().getLore(), "Worth");
-				if (worth == -1) {
-					MessageUtil.sendMessage(player, "Not sellable.", MessageType.SINGLE);
-					return false;
-				}
-				worth = worth * itemStack.getAmount();
-				pkaPlayer.addGoldAmount(worth);
-				MessageUtil.sendMessage(player, "You've sold something for " + worth + ".", MessageType.SINGLE);
+				return ShopUtil.sell(player, pkaPlayer, itemStack);
 			}
 		}
 		return true;
@@ -410,7 +405,7 @@ public class InventoryUtil {
 	 */
 	public static boolean pickupItemFromSlot(final Player player, final PKAPlayer pkaPlayer, final ItemStack itemStack, SlotType slotType, int slot, String inventoryName, boolean isAlsoDropping) {
 		if (slotType == SlotType.ARMOR) {
-			pkaPlayer.removeAttributes(ItemUtil.getArmorAttributesFromItemStack(itemStack));
+			pkaPlayer.removeAttributes(ItemUtil.getArmorAttributesFromItem(itemStack));
 			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		} else if (slotType == SlotType.HOTBAR) {
 			if (ItemUtil.isWeapon(itemStack))
@@ -423,19 +418,7 @@ public class InventoryUtil {
 				PlayerProcessor.switchClass(player, ItemUtil.getClassTypeFromSelectionMenuItem(itemStack));
 				return false;
 			} else {
-				if (!ItemUtil.isAttributeItem(itemStack))
-					return false;
-				int price = ItemUtil.getIntValueFromLore(itemStack.getItemMeta().getLore(), "Price");
-				if (price == -1) {
-					MessageUtil.sendMessage(player, "Not up for sale.", MessageType.SINGLE);
-					return false;
-				}
-				price = price * itemStack.getAmount();
-				if (!pkaPlayer.removeGoldAmount(price)) {
-					MessageUtil.sendMessage(player, "Not enough money.", MessageType.SINGLE);
-					return false;
-				}
-				MessageUtil.sendMessage(player, "You've bought something for " + price + ".", MessageType.SINGLE);
+				return ShopUtil.buy(player, pkaPlayer, itemStack);
 			}
 		} else if (slotType == SlotType.NORMAL) {
 			if (slot == 17) {
@@ -444,6 +427,185 @@ public class InventoryUtil {
 			}
 		}
 		return true;
+	}
+	
+	public static boolean hasSavedInventories(String playerName, String classTypeString) {
+		YamlConfiguration config = FileUtil.getPlayerConfig(playerName);
+		return config.contains(classTypeString + ".Inventories.PlayerInventory");
+	}
+	
+	public static void loadInventory(Player player, String inventoryReference, String playerName) {
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		YamlConfiguration config = FileUtil.getPlayerConfig(playerName);
+		String compressedItems = config.getString(config.getString("current_class_type") + ".Inventories." + inventoryReference);
+		if (compressedItems == null || compressedItems.equals(""))
+			return;
+		String[] compressedItemArray = compressedItems.split("##");
+		List<ItemStackWithSlot> itemStackWithSlotList = new ArrayList<ItemStackWithSlot>();
+		
+		for (String s : compressedItemArray) {
+			itemStackWithSlotList.add(getUncompressedItem(s));
+		}
+		
+		
+		if (inventoryReference.equals("PlayerInventory")) {
+			for (ItemStackWithSlot itemStackWithSlot : itemStackWithSlotList) {
+				player.getInventory().setItem(itemStackWithSlot.getSlot(), itemStackWithSlot.getItemStack());
+			}
+		} else if (inventoryReference.equals("Ability")) {
+			for (ItemStackWithSlot itemStackWithSlot : itemStackWithSlotList) {
+				pkaPlayer.setAbility(itemStackWithSlot.getSlot(), ItemUtil.getAbilityFromItem(itemStackWithSlot.getItemStack(), pkaPlayer));
+			}
+		}
+	}
+	
+	public static void loadArmorContent(Player player, String playerName) {
+		ItemStack[] armorContent = new ItemStack[]{new ItemStack(Material.AIR),
+				new ItemStack(Material.AIR),
+				new ItemStack(Material.AIR),
+				new ItemStack(Material.AIR)};
+		YamlConfiguration config = FileUtil.getPlayerConfig(playerName);
+		if (!config.contains(config.getString("current_class_type") + ".Inventories.ArmorContent"))
+			return;
+		String compressedItems = config.getString(config.getString("current_class_type") + ".Inventories.ArmorContent");
+		if (compressedItems == null || compressedItems.equals(""))
+			return;
+		String[] compressedItemArray = compressedItems.split("##");
+		List<ItemStackWithSlot> itemStackWithSlots = new ArrayList<ItemStackWithSlot>();
+		for (int i = 0; i < compressedItemArray.length; i++) {
+			itemStackWithSlots.add(getUncompressedItem(compressedItemArray[i]));
+		}
+		for (ItemStackWithSlot itemStackWithSlot : itemStackWithSlots) {
+			armorContent[itemStackWithSlot.getSlot().intValue()] = itemStackWithSlot.getItemStack();
+		}
+		player.getInventory().setArmorContents(armorContent);
+	}
+	
+	private static ItemStackWithSlot getUncompressedItem(String compressedItem) {
+		ItemStack itemStack = 					null;
+		Integer 								slot = -1;
+		
+		String[] strings = 	compressedItem.split("#");
+		
+		String reference = 	strings[0];
+		String amount = 	strings[1];
+		String itemName = 	strings[2];
+		String slotNumber = strings[3];
+		String[] values = 	new String[strings.length - 4];
+		
+		int valuesIndex = 0;
+		for (int i = 4; i < strings.length; i++) {
+			values[valuesIndex] = strings[i];
+			valuesIndex += 1;
+		}
+		
+		itemStack = ItemUtil.getExistingItem(reference, values, itemName);
+		itemStack.setAmount(Integer.parseInt(amount));
+		slot = Integer.valueOf(slotNumber);
+		return new ItemStackWithSlot(itemStack, slot);
+	}
+	
+	public static void saveInventory(Inventory inventory, String inventoryReference, String playerName) {
+		YamlConfiguration config = FileUtil.getPlayerConfig(playerName);
+		String compressedItems = "";
+		String armorCompressedItems = "";
+		
+		for (int i = 0; i < inventory.getSize(); i++) {
+			if (i == 17)
+				continue;
+			
+			ItemStack itemStack = inventory.getItem(i);
+			if (itemStack == null)
+				continue;
+			if (itemStack.getType() == Material.AIR)
+				continue;
+			String compressedItem = getCompressedItem(itemStack, i);
+			if (compressedItem.equals(""))
+				continue;
+			else {
+				compressedItems += (compressedItem);
+			}
+		}
+		
+		if (inventory instanceof PlayerInventory) {
+			PlayerInventory playerInventory = (PlayerInventory) inventory;
+			for (int i = 0; i < 4; i++) {
+				ItemStack itemStack = playerInventory.getArmorContents()[i];
+				if (itemStack == null)
+					continue;
+				if (itemStack.getType() == Material.AIR)
+					continue;
+				String compressedItem = getCompressedItem(itemStack, i);
+				if (compressedItem.equals(""))
+					continue;
+				else {
+					armorCompressedItems += compressedItem;
+				}
+			}
+		}
+		
+		if (armorCompressedItems != "")
+			config.set(config.getString("current_class_type") + ".Inventories.ArmorContent", armorCompressedItems);
+		config.set(config.getString("current_class_type") + ".Inventories." + inventoryReference, compressedItems);
+		FileUtil.save(config, "plugins/PKAAdventure/players/" + playerName + ".yml");
+	}
+	
+	
+	// 		reference#amount#itemName#rarity#slotnumber#val#ues##
+	//													## marks the end
+	// armor references save the id so reference = armor:300
+	private static String getCompressedItem(ItemStack itemStack, int slotNumber) {
+		if (!ItemUtil.isAttributeItem(itemStack))
+			return "";
+		
+		String complexReference = 			ItemUtil.getReferenceFromItemId(itemStack.getTypeId());
+		String reference = 	"";
+		if (complexReference == "")
+			return "";
+		if (complexReference.contains(":")) {
+			int indexOfDivide = complexReference.indexOf(":");
+			reference = complexReference.substring(0, indexOfDivide);
+		} else {
+			reference = complexReference;
+		}
+		int amount = 				itemStack.getAmount();
+		String itemName = 			ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
+		String rarity = 			"" + ItemUtil.getRarityFromName(itemName);
+		itemName = 					ChatColor.stripColor(itemName);
+		String[] values = 			ItemUtil.getStringValuesFromItem(itemStack, ElementsUtil.getItemTypeElement(reference));
+		
+		String compressedItem = complexReference + "#" + amount + "#" + itemName + "#" + slotNumber + "#";
+		
+		for (String s : values) {
+			compressedItem += s + "#";
+		}
+		
+		compressedItem += "#";
+		
+		return compressedItem;
+	}
+	
+	public static void clearInventory(Player player) {
+		PlayerInventory inventory = player.getInventory();
+		ItemStack[] armorContent = new ItemStack[]{new ItemStack(Material.AIR),
+				new ItemStack(Material.AIR),
+				new ItemStack(Material.AIR),
+				new ItemStack(Material.AIR)};
+		inventory.clear();
+		for (int i = 0; i < 4; i++) {
+			inventory.setArmorContents(armorContent);
+		}
+		player.setItemOnCursor(new ItemStack(Material.AIR));
+		ItemUtil.removePlayersDroppedItems(player.getName());
+	}
+
+	public static boolean hasWeapon(Player player) {
+		int slot = getActualWeaponSlot(player);
+		if (ItemUtil.isWeapon(player.getInventory().getItem(slot)))
+			return true;
+		return false;
 	}
 	
 }

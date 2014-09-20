@@ -1,9 +1,12 @@
 package com.pkadev.pkaadventure.processors;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.MessageType;
@@ -36,7 +39,10 @@ public class CommandProcessor implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("ability")) {
 					InventoryUtil.openInventory(player, -1, "ability");
 				} else if (args[0].equalsIgnoreCase("test")) {
-					InventoryUtil.moveItemIntoInventory(player, ItemUtil.getInitialItem("ability_berzerk", player.getLevel(), 2));
+					TEST(player);
+				} else if (args[0].equalsIgnoreCase("compress")) {
+					InventoryUtil.saveInventory(player.getInventory(), "PlayerInventory", player.getName());
+					InventoryUtil.saveInventory(PlayerProcessor.getPKAPlayer(player).getAbilityInventory(), "Ability", player.getName());
 				} else if (args[0].equalsIgnoreCase("leave")) {
 					PlayerProcessor.removePKAPlayer(player);
 				} else {
@@ -50,6 +56,8 @@ public class CommandProcessor implements CommandExecutor {
 					} catch (IllegalArgumentException ex) {
 						MessageUtil.sendMessage(player, "usage: /pka ability triggerType", MessageType.SINGLE);
 					}
+				} else if (args[0].equalsIgnoreCase("item")) {
+					InventoryUtil.moveItemIntoInventory(player, ItemUtil.getInitialItem(args[1], player.getLevel(), 1));
 				} else {
 					invalidCommand(player);
 				}
@@ -81,6 +89,24 @@ public class CommandProcessor implements CommandExecutor {
 
 		return true;
 	}
+	
+	
+	private static void TEST(Player player) {
+		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+		BookMeta meta = (BookMeta) book.getItemMeta();
+		
+		String test = "Hello? This is a really long string";
+		String[] testIng = new String[] { test };
+		
+		meta.setAuthor("Me");
+		meta.setDisplayName("Mem");
+		meta.addPage(testIng);
+		
+		book.setItemMeta(meta);
+		
+		InventoryUtil.moveItemIntoInventory(player, book);
+	}
+	
 
 	private static void invalidCommand(Player player) {
 		MessageUtil.sendMessage(player, "Not a valid command", MessageType.SINGLE);

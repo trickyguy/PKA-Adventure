@@ -44,10 +44,15 @@ public class InventoryListener implements Listener {
 		if (player.getName().equals(ItemUtil.getDroppedItemOwner(event.getItem()))) {
 			ItemUtil.removeDroppedItem(event.getItem());
 			if (ItemUtil.isWeapon(itemStack)) {
-				ItemStack weapon = ItemUtil.getInitialItem(classTypeString.toLowerCase() + "_weapon", player.getLevel(), 1);
-				ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
-				InventoryUtil.moveItemIntoInventory(player, weapon);
-				event.setCancelled(true);
+				if (InventoryUtil.hasWeapon(player)) {
+					event.getItem().remove();
+					event.setCancelled(true);
+				} else {
+					ItemStack weapon = ItemUtil.getInitialItem(classTypeString.toLowerCase() + "_weapon", player.getLevel(), 1);
+					ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
+					InventoryUtil.moveItemIntoInventory(player, weapon);
+					event.setCancelled(true);
+				}
 			} else if (ItemUtil.isGold(itemStack)) {
 				pkaPlayer.addGoldAmount(ItemUtil.getGoldWorth(itemStack));
 				event.getItem().remove();

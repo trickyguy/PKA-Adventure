@@ -321,12 +321,67 @@ public class SpawnNodeProcessor {
 			saveSpawnNode(node, fileName);
 			return true;
 		} else if (args.length == 8) {
+			
+			String name = args[0].replace('_', ' ');
+			int radius = 1;
+			int level = 1;
+			int amount = 0;
+			String mob = args[4];
+			MobStrength mobStrength = MobStrength.ANIMAL;
+			MobStance mobStance = MobStance.PASSIVE;
+			MobType mobType = MobType.PASSIVE;
+			
 			try {
-				node = new SpawnNode(location, args[0].replace('_', ' '), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), args[4], MobStrength.valueOf(args[5].toUpperCase()), MobStance.valueOf(args[6].toUpperCase()), MobType.valueOf(args[7].toUpperCase()));
-			} catch (Exception ex) {
+				radius = Integer.parseInt(args[1]);
+			} catch (IllegalArgumentException ex) {
+				MessageUtil.severe("Radius must be integer.");
 				ex.printStackTrace();
 				return false;
 			}
+			
+			try {
+				level = Integer.parseInt(args[2]);
+			} catch (IllegalArgumentException ex) {
+				MessageUtil.severe("Level must be integer.");
+				ex.printStackTrace();
+				return false;
+			}
+			
+			try {
+				amount = Integer.parseInt(args[3]);
+			} catch (IllegalArgumentException ex) {
+				MessageUtil.severe("Amount must be integer.");
+				ex.printStackTrace();
+				return false;
+			}
+			
+			try {
+				mobStrength = MobStrength.valueOf(args[5].toUpperCase());
+			} catch (IllegalArgumentException ex) {
+				MessageUtil.severe("MobStrength " + args[5] + " does not exist.");
+				ex.printStackTrace();
+				return false;
+			}
+			
+			try {
+				mobStance = MobStance.valueOf(args[6].toUpperCase());
+			} catch (IllegalArgumentException ex) {
+				MessageUtil.severe("MobStance " + args[6] + " does not exist.");
+				ex.printStackTrace();
+				return false;
+			}
+			
+			try {
+				mobType = MobType.valueOf(args[7].toUpperCase());
+			} catch (IllegalArgumentException ex) {
+				MessageUtil.severe("MobType " + args[7] + " does not exist.");
+				ex.printStackTrace();
+				return false;
+			}
+			
+			
+			node = new SpawnNode(location, name, radius, level, amount, mob, mobStrength, mobStance, mobType);
+			
 			addNodeToList1(node);
 			saveSpawnNode(node, fileName);
 			return true;

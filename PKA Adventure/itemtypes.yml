@@ -1,3 +1,13 @@
+id_references:
+  3: "ability_berzerk"
+  319: "food_pork_raw"
+  320: "food_pork_cooked"
+  349: "food_fish_raw"
+  350: "food_fish_cooked"
+  363: "food_beef_raw"
+  364: "food_beef_cooked"
+  365: "food_chicken_raw"
+  366: "food_chicken_cooked"
 ability_id:
   elements:
   - ""
@@ -29,6 +39,70 @@ skill:
   - 1
   - 2
   - 3
+food_pork_raw:
+  elements:
+  - food_raw_price
+  - food_raw_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 319
+food_pork_cooked:
+  elements:
+  - food_cooked_price
+  - food_cooked_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 320
+food_fish_raw:
+  elements:
+  - food_raw_price
+  - food_raw_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 349
+food_fish_cooked:
+  elements:
+  - food_cooked_price
+  - food_cooked_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 350
+food_beef_raw:
+  elements:
+  - food_raw_price
+  - food_raw_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 363
+food_beef_cooked:
+  elements:
+  - food_cooked_price
+  - food_cooked_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 364
+food_chicken_raw:
+  elements:
+  - food_raw_price
+  - food_raw_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 365
+food_chicken_cooked:
+  elements:
+  - food_cooked_price
+  - food_cooked_worth
+  endelements:
+  - ""
+  maxendelements: 0
+  id: 366
 armor:
   elements:
   - armor_level_fixed

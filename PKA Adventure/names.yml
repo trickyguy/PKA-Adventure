@@ -1,5 +1,21 @@
 skill:
 - Default Skill Name
+food_pork_raw:
+- Raw Pork
+food_pork_cooked:
+- Cooked Pork
+food_fish_raw:
+- Raw Fish
+food_fish_cooked:
+- Cooked Fish
+food_chicken_raw:
+- Raw Chicken
+food_chicken_cooked:
+- Cooked Chicken
+food_beef_raw:
+- Raw Beef
+food_beef_cooked:
+- Cooked Beef
 armor:
 - Default Armor Name
 ability_berzerk:

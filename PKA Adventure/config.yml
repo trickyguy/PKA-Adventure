@@ -39,15 +39,36 @@ Lore:
   ability_berzerk_line3: "=7Length in seconds: =f"
 Math:
   max_mobdrop_amount: 3
+  shop_refresh_interval: 100
+  
   durability_divide_range: 1.2
   durability_divide_multiplier: 0.1
   durability_divide_yoffset: 15
+  
   armor_price_range: 1.0
   armor_price_multiplier: 1.0
   armor_price_yoffset: 2
+  
   armor_worth_range: 1.0
   armor_worth_multiplier: 1.0
   armor_worth_yoffset: 1
+  
+  food_raw_price_range: 1.0
+  food_raw_price_multiplier: 1.0
+  food_raw_price_yoffset: 2
+  
+  food_raw_worth_range: 1.0
+  food_raw_worth_multiplier: 1.0
+  food_raw_worth_yoffset: 1
+  
+  food_cooked_price_range: 1.0
+  food_cooked_price_multiplier: 1.0
+  food_cooked_price_yoffset: 2
+  
+  food_cooked_worth_range: 1.0
+  food_cooked_worth_multiplier: 1.0
+  food_cooked_worth_yoffset: 1
+  
   experience_required_range: 0.0
   experience_required_multiplier: 1.0
   experience_required_yoffset: 20

@@ -52,27 +52,27 @@ public class PlayerProcessor {
 			pkaPlayers.remove(playerName);
 	}
 
-	/**
-	 * used for when player joins (could be first time)
-	 * @param player
-	 */
-	public static void loadPlayer(Player player) {
-		String playerName = player.getName();
-		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
-		
-		ClassType classType = getClassTypeFromPlayerConfig(playerName, playerConfig);
-		if (classType == null) {
-			MessageUtil.severe("Had to load a players config a second time!");
-			playerConfig = FileUtil.getPlayerConfig(playerName);
-			classType = getClassTypeFromPlayerConfig(playerName, playerConfig);
-			if (classType == null) {
-				MessageUtil.severe("Failed to load a players config a second time, disabling plugin");
-				plugin.disable();
-				return;
-			}
-		} else {
-			loadPlayer(player, classType);
+	public static void loadAllPlayers() {
+		for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().length; i++) {
+			loadPlayer(Bukkit.getServer().getOnlinePlayers()[i]);
 		}
+	}
+	
+	/**
+	 * using when player leaves game
+	 * @param player Player specified to unload.
+	 */
+	public static void unloadPlayer(Player player) {
+		savePlayer(player);
+		removePKAPlayer(player.getName());
+	}
+
+	/**
+	 * used when reloading
+	 * @param player Player specified to reload.
+	 */
+	public static void reloadPlayer(Player player) {
+		savePlayer(player);
 	}
 	
 	/**
@@ -80,8 +80,13 @@ public class PlayerProcessor {
 	 * @param player
 	 * @param classTypeString
 	 */
-	private static void loadPlayer(Player player, ClassType classType) {	
+	public static void loadPlayer(Player player) {
 		String playerName = player.getName();
+		loadPlayer(player, getClassTypeFromPlayerConfig(player.getName(), FileUtil.getPlayerConfig(playerName)));
+	}
+	
+	private static void loadPlayer(final Player player, ClassType classType) {
+		final String playerName = player.getName();
 		if (classType == ClassType.NONE) {
 			MessageUtil.sendMessage(player, "Select a class before you can start playing.", MessageType.SINGLE);
 			return;
@@ -94,14 +99,10 @@ public class PlayerProcessor {
 		player.setLevel(pkaPlayer.getLevel());
 		updateHealth(Bukkit.getPlayer(playerName), pkaPlayer);
 		updateExperience(player, pkaPlayer);
+		ItemUtil.giveWeapon(player, classType);
+		InventoryUtil.loadInventory(player, "Ability", playerName);
 		
 		MessageUtil.log("player " + playerName + " has been loaded in.");
-	}
-
-	public static void loadAllPlayers() {
-		for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().length; i++) {
-			loadPlayer(Bukkit.getServer().getOnlinePlayers()[i]);
-		}
 	}
 	
 	private static PKAPlayer getInitialPKAPlayer(Player player, ClassType classType) {
@@ -145,8 +146,6 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".availableupgradepoints", 0);
 		
 		playerConfig.set(classTypeString + ".gold", 0);
-		
-		playerConfig.set(classTypeString + ".Inventories.Ability", emptyList);
 		
 		// Mining
 		playerConfig.set(classTypeString + ".mining.exp", 0);
@@ -211,47 +210,34 @@ public class PlayerProcessor {
 		return playerConfig.getInt(classTypeString + ".gold");
 	}
 
-	/**
-	 * using when player leaves game
-	 * @param player Player specified to unload.
-	 */
-	public static void unloadPlayer(Player player) {
-		savePlayer(player);
-		removePKAPlayer(player.getName());
-		//TODO
-	}
+	public static void switchClass(final Player player, final ClassType classType) {
+		Bukkit.getScheduler().runTask(plugin, new Runnable() {
 
-	/**
-	 * used when reloading
-	 * @param player Player specified to reload.
-	 */
-	public static void reloadPlayer(Player player) {
-		savePlayer(player);
-	}
+			@Override
+			public void run() {
+				savePlayer(player);
+				InventoryUtil.clearInventory(player);
+				
+				if (classType == ClassType.NONE)
+					return;
 
-	public static void switchClass(Player player, ClassType classType) {
-		if (classType == ClassType.NONE)
-			return;
+				String playerName = player.getName();
+				String classTypeString = classType.toString();
+				PlayerProcessor.addPKAPlayer(playerName, getInitialPKAPlayer(player, classType));
+				
+				ItemUtil.giveWeapon(player, classType);
 
-		String playerName = player.getName();
-		String classTypeString = classType.toString();
-		PlayerProcessor.addPKAPlayer(playerName, getInitialPKAPlayer(player, classType));
-		
-		//TODO REMOVE BELOW (will load inventory in the future)
-		ItemStack weapon = ItemUtil.getInitialItem(classTypeString.toLowerCase() + "_weapon", player.getLevel(), 1);
-		ItemUtil.updateWeaponLore(weapon, classType, player.getLevel());
-		int actualWeaponSlot = InventoryUtil.getActualWeaponSlot(player);
-		if (actualWeaponSlot != -1)
-			InventoryUtil.removeItem(player, actualWeaponSlot);
-		InventoryUtil.moveItemIntoInventory(player, weapon);
-
-		savePlayer(player);
-
-		if(!hasLoadedClassBefore(playerName, classType)) {
-			writeNewClassToPlayerConfig(playerName, classTypeString);
-		}
-		
-		loadPlayer(player, classType);
+				if(!hasLoadedClassBefore(playerName, classType)) {
+					writeNewClassToPlayerConfig(playerName, classTypeString);
+				}
+				
+				savePlayerClass(playerName, classTypeString);
+				loadPlayer(player, classType);
+				InventoryUtil.loadInventory(player, "PlayerInventory", playerName);
+				InventoryUtil.loadArmorContent(player, playerName);
+			}
+			
+		});
 	}
 	
 	public static boolean isPlayer(LivingEntity livingEntity) {
@@ -270,7 +256,6 @@ public class PlayerProcessor {
 		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
 
 		String classTypeString = pkaPlayer.getClassType().toString();
-		playerConfig.set("current_class_type", classTypeString);
 		playerConfig.set(classTypeString + ".level", player.getLevel());
 		playerConfig.set(classTypeString + ".experience", pkaPlayer.getExperience());
 		playerConfig.set(classTypeString + ".maxhealth", pkaPlayer.getMaxHealth());
@@ -283,16 +268,22 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".mining.level", pkaPlayer.getMiningLevel());
 
 		FileUtil.save(playerConfig, "plugins/PKAAdventure/players/" + playerName + ".yml");
+		
+		InventoryUtil.saveInventory(player.getInventory(), "PlayerInventory", playerName);
+		InventoryUtil.saveInventory(pkaPlayer.getAbilityInventory(), "Ability", playerName);
+	}
+	
+	private static void savePlayerClass(String playerName, String classTypeString) {
+		YamlConfiguration playerConfig = FileUtil.getPlayerConfig(playerName);
+		playerConfig.set("current_class_type", classTypeString);
+		
+		FileUtil.save(playerConfig, "plugins/PKAAdventure/players/" + playerName + ".yml");
 	}
 
 	public static void setAttributes(Player player, PKAPlayer pkaPlayer) {	
 		PlayerInventory playerInventory = player.getInventory();
 		pkaPlayer.clearAttributes();
-		for (int i = 0; i < 4; i++) {
-			ItemStack itemStack = playerInventory.getArmorContents()[i];
-			if (ItemUtil.isAttributeItem(itemStack))
-				pkaPlayer.addAttributes(ItemUtil.getArmorAttributesFromItemStack(itemStack));
-		}
+		pkaPlayer.addAttributes(InventoryUtil.getAttributesFromArmorContent(player));
 		ItemUtil.updateStatItemMeta(player, pkaPlayer);
 	}
 
