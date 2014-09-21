@@ -2,6 +2,7 @@ package com.pkadev.pkaadventure.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -79,9 +80,13 @@ public class ItemUtil {
 	}
 	
 	public static void removePlayersDroppedItems(String playerName) {
+		List<Item> toBeRemoved = new ArrayList<Item>();
 		for (Item item : droppedItems.keySet()) {
 			if (droppedItems.get(item).equals(playerName))
-				removeDroppedItem(item);
+				toBeRemoved.add(item);
+		}
+		for (Item item : toBeRemoved) {
+			removeDroppedItem(item);
 		}
 	}
 	
@@ -199,6 +204,10 @@ public class ItemUtil {
 			if (itemStack.getItemMeta().getDisplayName().endsWith("points!"))
 				return true;
 		return false;
+	}
+	
+	public static boolean isJournal(ItemStack itemStack) {
+		return (itemStack.getType() == Material.WRITTEN_BOOK);
 	}
 	
 	public static void giveWeapon(Player player, ClassType classType) {
@@ -341,37 +350,7 @@ public class ItemUtil {
 				isEndElement = true;
 				continue;
 			}
-			byte[] bytes = stripAndGetBytes(line);
-
-			String value = "";
-			boolean isLastSpace = false;
-			boolean isValue = false;
-
-			for (int j = 1; j < bytes.length; j++) {
-				Character c = (char) bytes[j];
-				if (c == ':') {
-					isLastSpace = true;
-					continue;
-				}
-				if (c == ' ') {
-					if (isLastSpace) {
-						if (isEndElement) {
-							for (int k = 0; k < itemType.getEndElements().size(); k++) {
-								String endElement = ChatColor.stripColor(ElementsUtil.getLoreElementMod(itemType.getEndElements().get(k)));
-								if (ChatColor.stripColor(line).startsWith(endElement)) {
-									value += k + ":";
-									break;
-								}
-							}
-						}
-						isValue = true;
-					}
-					continue;
-				}
-				if (isValue)
-					value += c;
-			}
-			valuesList.add(value);
+			valuesList.add(getStringValueFromLine(line, isEndElement, itemType));
 		}
 
 		String[] values = new String[valuesList.size()];
@@ -380,6 +359,41 @@ public class ItemUtil {
 		}
 		
 		return values;
+	}
+	
+	private static String getStringValueFromLine(String line, boolean isEndElement, ItemType itemType) {
+		byte[] bytes = stripAndGetBytes(line);
+
+		String value = "";
+		boolean isLastSpace = false;
+		boolean isValue = false;
+
+		for (int j = 1; j < bytes.length; j++) {
+			Character c = (char) bytes[j];
+			if (c == ':') {
+				isLastSpace = true;
+				continue;
+			}
+			if (c == ' ') {
+				if (isLastSpace) {
+					if (isEndElement) {
+						for (int k = 0; k < itemType.getEndElements().size(); k++) {
+							String endElement = ChatColor.stripColor(ElementsUtil.getLoreElementMod(itemType.getEndElements().get(k)));
+							if (ChatColor.stripColor(line).startsWith(endElement)) {
+								value += k + ":";
+								break;
+							}
+						}
+					}
+					isValue = true;
+				}
+				continue;
+			}
+			if (isValue)
+				value += c;
+		}
+		
+		return value;
 	}
 	
 	protected static int[] getArmorAttributesFromItem(ItemStack itemStack) {
@@ -635,31 +649,37 @@ public class ItemUtil {
 		return newValue;
 	}
 	
-	public static void damageArmor(Player player, PKAPlayer pkaPlayer) {
-		for (ItemStack itemStack : InventoryUtil.getArmorContent(player)) {
-			if (!ItemUtil.isArmorItem(itemStack))
-				continue;
-			ItemMeta itemMeta = itemStack.getItemMeta();
-			List<String> lore = itemMeta.getLore();
-			int newDurability = ItemUtil.addValueInItemLore(lore, "durability_divide", -5);
-			itemMeta.setLore(lore);
-			if (newDurability <= 5) {
-				if (InventoryUtil.moveItemIntoInventory(player, itemStack))
-					MessageUtil.sendMessage(player, "One or more of your items are broken, and had to be dropped on the ground", MessageType.SINGLE);
-				else {
-					MessageUtil.sendMessage(player, "One or more of your items are broken, and had to be moved to your inventory", MessageType.SINGLE);
-				}
-				PlayerProcessor.setAttributes(player, pkaPlayer);
+	/**
+	 * @param player
+	 * @param pkaPlayer
+	 * @param itemStack
+	 * @return true if broken
+	 */
+	public static boolean damageArmor(Player player, PKAPlayer pkaPlayer, ItemStack itemStack) {
+		if (!ItemUtil.isArmorItem(itemStack))
+			return false;
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		List<String> lore = itemMeta.getLore();
+		List<String> newLore = new ArrayList<String>();
+		int durability = 6;
+		
+		String modificationToBeReplaced = ElementsUtil.getLoreElementMod("durability_divide");
+		for (int i = 0; i < lore.size(); i++) {
+			String line = lore.get(i);
+			if (line.contains("/")) {
+				String values = getStringValueFromLine(line, false, null);
+				String[] dividedValues = values.split("/");
+				durability = Integer.parseInt(dividedValues[0]) - 5;
+				line = modificationToBeReplaced + durability + "/" + dividedValues[1];
 			}
+			newLore.add(line);
 		}
+		itemMeta.setLore(newLore);
+		itemStack.setItemMeta(itemMeta);
+		if (durability <= 5)
+			return true;
+		return false;
 	}
-	
-	
-	
-	
-	
-
-
 	
 	
 	

@@ -22,6 +22,7 @@ import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
+import com.pkadev.pkaadventure.utils.LocationUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
@@ -112,6 +113,7 @@ public class PlayerProcessor {
 		double damage = 				getDamageFromPlayerConfig(playerName, classTypeString, level);
 		int weaponSlot = 				InventoryUtil.getWeaponSlot(player);
 		int availableUpgradePoints = 	getUpgradePointsFromPlayerConfig(playerName, playerConfig, classTypeString);
+		List<String> discovLocations = 	getDiscoveredLocations(playerName, playerConfig, classTypeString);
 		
 		int goldValue = 				getGoldAmountFromPlayerConfig(playerName, playerConfig, classTypeString);
 		// Mining
@@ -119,7 +121,7 @@ public class PlayerProcessor {
 		int miningLevel = 				getMiningLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
 		
 		return new PKAPlayer(player, classType, level, experience, maxHealth, 
-				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue);	
+				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue, discovLocations);	
 	}
 
 	private static boolean hasLoadedClassBefore(String playerName, ClassType classType) {
@@ -132,13 +134,14 @@ public class PlayerProcessor {
 
 	private static void writeNewClassToPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {
 		List<String> emptyList = new ArrayList<String>();
-		emptyList.add("");
+		emptyList.add("default");
 		
 		playerConfig.set(classTypeString + ".level", 1);
 		playerConfig.set(classTypeString + ".experience", 0);
 		playerConfig.set(classTypeString + ".maxhealth", 100.0);
 		playerConfig.set(classTypeString + ".health", 100.0);
 		playerConfig.set(classTypeString + ".availableupgradepoints", 0);
+		playerConfig.set(classTypeString + ".discoveredlocations", emptyList);
 		
 		playerConfig.set(classTypeString + ".gold", 0);
 		
@@ -180,6 +183,10 @@ public class PlayerProcessor {
 		return playerConfig.getInt(classTypeString + ".availableupgradepoints");
 	}
 
+	private static List<String> getDiscoveredLocations(String playerName, YamlConfiguration playerConfig, String classTypeString) {
+		return playerConfig.getStringList(classTypeString + ".discoveredlocations");
+	}
+	
 	private static double getDamageFromPlayerConfig(String playerName, String classTypeString, int level) {
 		return MathUtil.getValue(level, classTypeString.toLowerCase() + "_damage");
 	}
@@ -318,12 +325,6 @@ public class PlayerProcessor {
 	public double getPlayerDamage(String playerName) {
 		return getPKAPlayer(playerName).getDamage();
 	}
-
-	private static void teleportToNearestBeacon(Player player) {
-		SpawnNode node = SpawnNodeProcessor.getNearestBeacon(player.getLocation());
-		player.teleport(node.getLocation());
-		MessageUtil.sendMessage(player, "You have spawned in " + node.getName(), MessageType.SINGLE);
-	}
 	
 	private static void applyDeathEffect(Player player) {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 2));
@@ -386,9 +387,9 @@ public class PlayerProcessor {
 		if (pkaPlayer == null)
 			return;
 		pkaPlayer.setHealth(pkaPlayer.getMaxHealth());
-		teleportToNearestBeacon(player);
+		LocationUtil.teleportToBeacon(player, true);
 		applyDeathEffect(player);
-		ItemUtil.damageArmor(player, pkaPlayer);
+		InventoryUtil.damageArmorContent(player, pkaPlayer);
 		MessageUtil.sendMessage(player, "You died, your armor has been damaged.", MessageType.SINGLE);
 	}
 

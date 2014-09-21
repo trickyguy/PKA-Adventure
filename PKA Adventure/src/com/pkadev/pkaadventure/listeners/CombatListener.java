@@ -24,7 +24,7 @@ import com.pkadev.pkaadventure.utils.DamageUtil;
 public class CombatListener implements Listener {
 
 	private static CombatListener i; private CombatListener(){} public static CombatListener i() {if (i == null)i = new CombatListener();return i;}
-
+	
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {

@@ -1,6 +1,8 @@
 package com.pkadev.pkaadventure.objects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,13 +20,15 @@ import com.pkadev.pkaadventure.utils.MessageUtil;
 public class PKAPlayer extends PKALivingEntity {
 
 	public PKAPlayer(Player player, ClassType classType, int level, int experience, int maxHealth, 
-			int health, double damage, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold) {
+			int health, double damage, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold,
+			List<String> discoveredLocations) {
 		super(player.getName(), level, damage, maxHealth, health);
 		setExperience(experience);
 		setPlayer(player);
 		setClassType(classType);
 		setWeaponSlot(weaponSlot);
 		setAvailableUpgradePoints(availableUpgradePoints);
+		setDiscoveredLocations(discoveredLocations);
 		
 		setMiningExp(miningExp);
 		setMiningLevel(miningLevel);
@@ -45,6 +49,7 @@ public class PKAPlayer extends PKALivingEntity {
 	private int availableUpgradePoints;
 	private int noDamageTicksTaken = -1;
 	private int noDamageTicksGiven = -1;
+	private List<String> discoveredLocations = new ArrayList<String>();
 	
 	private int goldAmount;
 	
@@ -161,6 +166,15 @@ public class PKAPlayer extends PKALivingEntity {
 	}
 	public void setNoDamageTicksGiven(int noDamageTicksGiven) {
 		this.noDamageTicksGiven = noDamageTicksGiven;
+	}
+	public List<String> getDiscoveredLocations() {
+		return discoveredLocations;
+	}
+	public void discoverLocation(String locationName) {
+		discoveredLocations.add(locationName);
+	}
+	public void setDiscoveredLocations(List<String> discoveredLocations) {
+		this.discoveredLocations = discoveredLocations;
 	}
 	public int getMiningExp() {
 		return miningExp;

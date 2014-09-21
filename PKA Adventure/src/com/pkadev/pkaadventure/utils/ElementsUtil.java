@@ -378,4 +378,51 @@ public class ElementsUtil {
 			inventoryElements.remove(reference);
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	private static HashMap<String, String> pageElements = new HashMap<String, String>();
+	private static HashMap<String, String> locationDescriptionElements = new HashMap<String, String>();
+
+	public static String getPageElement(String reference) {
+		if (pageElements.containsKey(reference))
+			return pageElements.get(reference);
+		else {
+			String element = FileUtil.getStringValueFromConfig(FileUtil.getPageConfig(), "Pages." + reference, "pages.yml");
+			element = element.replace('/', '\n');
+			setPageElement(reference, element);
+			return element;
+		}
+	}
+
+	private static void setPageElement(String reference, String element) {
+		pageElements.put(reference, element);
+	}
+	
+	public static String getLocationDescriptionElement(String reference) {
+		if (locationDescriptionElements.containsKey(reference))
+			return locationDescriptionElements.get(reference);
+		else {
+			String element = FileUtil.getStringFromConfigSAFE(FileUtil.getSpawnNodeConfig(), "Beacons." + reference + ".Description", "spawnnodes.yml");
+			setLocationDescriptionElement(reference, element);
+			return element;
+		}
+	}
+	
+	private static void setLocationDescriptionElement(String reference, String element) {
+		locationDescriptionElements.put(reference, element);
+	}
+	
 }

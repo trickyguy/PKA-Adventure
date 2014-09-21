@@ -1,0 +1,7 @@
+Beacons:
+  default:
+    Name: default
+    Location:
+      X: 173
+      Y: 72
+      Z: -39

@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.processors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,7 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.MessageType;
+import com.pkadev.pkaadventure.utils.BookUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
@@ -69,10 +72,10 @@ public class CommandProcessor implements CommandExecutor {
 					invalidCommand(player);
 				}
 			} else if (argsLength == 4) {
-				//pka create beacon name fileName
+				//pka create beacon filename name
 				if (args[1].equalsIgnoreCase("beacon")) {
-					String name = args[2].replace('_', ' ');
-					newSpawnNode(player, name, args[3]);
+					String name = args[3].replace('_', ' ');
+					newSpawnNode(player, name, args[2]);
 				} else {
 					invalidCommand(player);
 				}
@@ -88,19 +91,8 @@ public class CommandProcessor implements CommandExecutor {
 	
 	
 	private static void TEST(Player player) {
-		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-		BookMeta meta = (BookMeta) book.getItemMeta();
-		
-		String test = "Hello? This is a really long string";
-		String[] testIng = new String[] { test };
-		
-		meta.setAuthor("Me");
-		meta.setDisplayName("Mem");
-		meta.addPage(testIng);
-		
-		book.setItemMeta(meta);
-		
-		InventoryUtil.moveItemIntoInventory(player, book);
+		InventoryUtil.moveItemIntoInventory(player, 
+				BookUtil.getInitialPKABook(player, PlayerProcessor.getPKAPlayer(player)).getItemStack());
 	}
 	
 

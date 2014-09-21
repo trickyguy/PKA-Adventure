@@ -21,6 +21,7 @@ public class FileUtil {
 	private static YamlConfiguration itemTypeConfig = 	null;
 	private static YamlConfiguration nameConfig = 		null;
 	private static YamlConfiguration dropConfig =    	null;
+	private static YamlConfiguration pageConfig =		null;
 
 	/**
 	 * has to be run when plugin loads
@@ -33,6 +34,7 @@ public class FileUtil {
 		File itemTypeFile = 	new File("plugins/PKAAdventure/itemtypes.yml");
 		File nameFile = 		new File("plugins/PKAAdventure/names.yml");
 		File dropFile = 		new File("plugins/PKAAdventure/drops.yml");
+		File pageFile = 		new File("plugins/PKAAdventure/pages.yml");
 		
 		if (!playerFolder.exists()) {
 			MessageUtil.log("creating players folder");
@@ -62,6 +64,10 @@ public class FileUtil {
 		if (!dropFile.exists()) {
 			loadDefaultConfig(dropFile, 		"drops.yml");
 		}
+		
+		if (!pageFile.exists()) {
+			loadDefaultConfig(pageFile, 		"pages.yml");
+		}
 
 		MessageUtil.log("loaded all folders and config.yml");
 		config = 				YamlConfiguration.loadConfiguration(configFile);
@@ -70,6 +76,7 @@ public class FileUtil {
 		itemTypeConfig = 		YamlConfiguration.loadConfiguration(itemTypeFile);
 		nameConfig = 			YamlConfiguration.loadConfiguration(nameFile);
 		dropConfig =			YamlConfiguration.loadConfiguration(dropFile);
+		pageConfig =			YamlConfiguration.loadConfiguration(pageFile);
 	}
 
 	public static YamlConfiguration reloadFile(File configFile, String configFileReference) {
@@ -128,6 +135,10 @@ public class FileUtil {
 		return dropConfig;
 	}
 	
+	public static YamlConfiguration getPageConfig() {
+		return pageConfig;
+	}
+	
 	public static void saveConfig(YamlConfiguration config) {
 		try {
 			config.save(new File("plugins/PKAAdventure/config.yml"));
@@ -181,6 +192,20 @@ public class FileUtil {
 			return getFinalizedStringList(config.getStringList(path));
 		else {
 			return null;
+		}
+	}
+	
+	/**
+	 * @param config
+	 * @param path
+	 * @param configFileReference
+	 * @return "" if there isnt a value
+	 */
+	public static String getStringFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
+		if (config.contains(path) && config.isString(path))
+			return config.getString(path);
+		else {
+			return "";
 		}
 	}
 	

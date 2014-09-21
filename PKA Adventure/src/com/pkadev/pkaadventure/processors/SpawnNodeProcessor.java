@@ -43,20 +43,20 @@ public class SpawnNodeProcessor {
 	
 	//1 = mobs, 2 = beacons, 3 = lootcrate
 	private static HashMap<SpawnNode, Integer> 	list1 = new HashMap<SpawnNode, Integer>();
-	private static List<SpawnNode> 				list2 = new ArrayList<SpawnNode>();
+	private static HashMap<String, SpawnNode> 	list2 = new HashMap<String, SpawnNode>();
 	private static HashMap<SpawnNode, Integer> 	list3 = new HashMap<SpawnNode, Integer>();
 	
 	private static void addNodeToList1(SpawnNode node) {
 		list1.put(node, -1);
 	}
 	private static void addNodeToList2(SpawnNode node) {
-		list2.add(node);
+		list2.put(node.getName(), node);
 	}
 	private static void addNodeToList3(SpawnNode node) {
 		list3.put(node, 5);
 	}
 	
-	public static List<SpawnNode> getBeaconList() {
+	public static HashMap<String, SpawnNode> getBeaconList() {
 		return list2;
 	}
 	
@@ -83,11 +83,9 @@ public class SpawnNodeProcessor {
 			ConfigurationSection section = spawnNodeConfig.getConfigurationSection("Beacons");
 			int amount = load(section, 2);
 			MessageUtil.log("loaded " + amount + " beacons.");
-			if (amount == 0) {
-				addDefaultBeaconToList2();
-			}
 		} else {
-			addDefaultBeaconToList2();
+			MessageUtil.severe("Couldn't find any beacons, disabling plugin.");
+			plugin.disable();
 		}
 		
 		if (spawnNodeConfig.contains("Lootcrates")) {
@@ -206,13 +204,6 @@ public class SpawnNodeProcessor {
 		}
 	}
 	
-	private static void addDefaultBeaconToList2() {
-		addNodeToList2(new SpawnNode(
-				new Location(
-						Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml")), 
-						1, 64, 1), "Default"));
-	}
-	
 	private static boolean isAnyPlayerClose(Location location, List<Location> onlinePlayerLocations) {
 		for (Location playerLocation : onlinePlayerLocations) {
 			if (isPlayerClose(location, playerLocation))
@@ -240,25 +231,6 @@ public class SpawnNodeProcessor {
 	
 	public static void removeMobFromNode(SpawnNode node, MobMonster mobMonster) {
 		node.getLiveMobs().remove(mobMonster);
-	}
-	
-	public static SpawnNode getNearestBeacon(Location playerLocation) {
-		double shortestDistanceSquared = 0d;
-		SpawnNode nearestNode = null;
-		
-		for (SpawnNode node : getBeaconList()) {
-			double distanceSquared = node.getLocation().distanceSquared(playerLocation);
-			
-			if (distanceSquared < shortestDistanceSquared) {
-				shortestDistanceSquared = distanceSquared;
-				nearestNode = node;
-			} else if (shortestDistanceSquared == 0d) {
-				shortestDistanceSquared = distanceSquared;
-				nearestNode = node;
-			}
-		}
-		
-		return nearestNode;
 	}
 	
 	public static void spawn(SpawnNode node) {

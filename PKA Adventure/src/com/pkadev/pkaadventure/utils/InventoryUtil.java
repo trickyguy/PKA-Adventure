@@ -41,6 +41,13 @@ public class InventoryUtil {
 	public static void load() {
 
 	}
+	
+	public static boolean hasWeapon(Player player) {
+		int slot = getActualWeaponSlot(player);
+		if (ItemUtil.isWeapon(player.getInventory().getItem(slot)))
+			return true;
+		return false;
+	}
 
 	/**
 	 * checks only the first 8 slots
@@ -94,6 +101,20 @@ public class InventoryUtil {
 			player.getInventory().setItem(17, ItemUtil.getInitialStatItem(pkaPlayer));
 			return player.getInventory().getItem(17);
 		}
+	}
+	
+	/**
+	 * @param player
+	 * @return -1 if he doesn't have one
+	 */
+	public static int getJournalSlot(Player player) {
+		PlayerInventory inventory = player.getInventory();
+		for (int i = 0; i < inventory.getSize(); i++) {
+			ItemStack itemStack = inventory.getItem(i);
+			if (ItemUtil.isJournal(itemStack))
+				return i;
+		}
+		return -1;
 	}
 
 	public static void setItem(Player player, int slot, ItemStack itemStack) {
@@ -286,6 +307,10 @@ public class InventoryUtil {
 		return player.getInventory().getArmorContents();
 	}
 
+	public static void setArmorContent(Player player, ItemStack[] armorContent) {
+		player.getInventory().setArmorContents(armorContent);
+	}
+	
 	public static HashMap<Integer, ItemStack> getHotbarItems(Player player) {
 		HashMap<Integer, ItemStack> hotbarItems = new HashMap<Integer, ItemStack>();
 		PlayerInventory inventory = player.getInventory();
@@ -324,7 +349,7 @@ public class InventoryUtil {
 				pkaPlayer.setWeaponSlot(i);
 		}
 	}
-
+	
 	/**
 	 * 
 	 * @param player
@@ -594,13 +619,22 @@ public class InventoryUtil {
 		player.setItemOnCursor(new ItemStack(Material.AIR));
 		ItemUtil.removePlayersDroppedItems(player.getName());
 	}
-
-	public static boolean hasWeapon(Player player) {
-		int slot = getActualWeaponSlot(player);
-		if (ItemUtil.isWeapon(player.getInventory().getItem(slot)))
-			return true;
-		return false;
-	}
 	
+	public static void damageArmorContent(Player player, PKAPlayer pkaPlayer) {
+		ItemStack[] armorContent = getArmorContent(player);
+		for (int i = 0; i < 4; i++) {
+			ItemStack itemStack = armorContent[i];
+			if (ItemUtil.damageArmor(player, pkaPlayer, itemStack)) {
+				armorContent[i] = new ItemStack(Material.AIR);
+				if (moveItemIntoInventory(player, itemStack))
+					MessageUtil.sendMessage(player, "One or more of your items are broken, and had to be dropped on the ground", MessageType.SINGLE);
+				else {
+					MessageUtil.sendMessage(player, "One or more of your items are broken, and had to be moved to your inventory", MessageType.SINGLE);
+				}
+			}
+			setArmorContent(player, armorContent);
+			PlayerProcessor.setAttributes(player, pkaPlayer);
+		}
+	}
 }
 
