@@ -7,15 +7,10 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -24,7 +19,6 @@ import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MessageType;
-import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
@@ -52,9 +46,10 @@ public class PlayerProcessor {
 			pkaPlayers.remove(playerName);
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void loadAllPlayers() {
-		for (int i = 0; i < Bukkit.getServer().getOnlinePlayers().length; i++) {
-			loadPlayer(Bukkit.getServer().getOnlinePlayers()[i]);
+		for (int i = 0; i < Bukkit.getOnlinePlayers().length; i++) {
+			loadPlayer(Bukkit.getOnlinePlayers()[i]);
 		}
 	}
 	
@@ -280,8 +275,7 @@ public class PlayerProcessor {
 		FileUtil.save(playerConfig, "plugins/PKAAdventure/players/" + playerName + ".yml");
 	}
 
-	public static void setAttributes(Player player, PKAPlayer pkaPlayer) {	
-		PlayerInventory playerInventory = player.getInventory();
+	public static void setAttributes(Player player, PKAPlayer pkaPlayer) {
 		pkaPlayer.clearAttributes();
 		pkaPlayer.addAttributes(InventoryUtil.getAttributesFromArmorContent(player));
 		ItemUtil.updateStatItemMeta(player, pkaPlayer);

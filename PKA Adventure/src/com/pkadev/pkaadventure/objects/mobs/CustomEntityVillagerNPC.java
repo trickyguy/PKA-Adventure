@@ -7,10 +7,8 @@ import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 import net.minecraft.server.v1_7_R4.EntityInsentient;
-import net.minecraft.server.v1_7_R4.EntityItem;
 import net.minecraft.server.v1_7_R4.EntityVillager;
 import net.minecraft.server.v1_7_R4.EntityPlayer;
 import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;

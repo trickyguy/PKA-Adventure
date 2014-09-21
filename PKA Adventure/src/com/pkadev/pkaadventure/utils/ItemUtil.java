@@ -3,10 +3,7 @@ package com.pkadev.pkaadventure.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -19,7 +16,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.Main;
@@ -453,7 +449,6 @@ public class ItemUtil {
 			String value = "";
 			boolean isLastSpace = false;
 			boolean isValue = false;
-			int addTo = 1;
 
 			for (int j = 1; j < bytes.length; j++) {
 				Character c = (char) bytes[j];
@@ -885,6 +880,7 @@ public class ItemUtil {
 		return itemStack;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static ItemStack getExistingItem(String reference, String[] values, String itemName) {
 		String id = "-1";
 		int indexOfDivide = 0;

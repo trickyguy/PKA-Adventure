@@ -104,6 +104,7 @@ public enum CustomEntityType {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void unload() {
 		for (CustomEntityType entity : values()) {
 			// Remove our class references.
@@ -169,6 +170,7 @@ public enum CustomEntityType {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static Object getPrivateStatic(Class clazz, String f)
 			throws Exception {
 		Field field = clazz.getDeclaredField(f);
@@ -176,6 +178,7 @@ public enum CustomEntityType {
 		return field.get(null);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void a(Class paramClass, String paramString, int paramInt) {
 		try {
 			((Map) getPrivateStatic(EntityTypes.class, "d")).put(paramClass,

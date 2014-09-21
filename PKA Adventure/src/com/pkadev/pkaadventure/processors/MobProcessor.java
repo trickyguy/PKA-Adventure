@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.entity.Entity;
@@ -12,19 +11,15 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
-import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKALivingEntity;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.types.MobStrength;
-import com.pkadev.pkaadventure.utils.DamageUtil;
 import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class MobProcessor {
-	private static Main plugin = Main.instance;
 	
 	public static void removeAllLivingMobs() {
 		for (Entity entity : ElementsUtil.getWorld().getEntities()) {

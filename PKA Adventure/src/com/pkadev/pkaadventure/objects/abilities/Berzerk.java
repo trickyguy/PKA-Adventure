@@ -2,16 +2,13 @@ package com.pkadev.pkaadventure.objects.abilities;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.objects.AbilityWithTimers;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.AbilityTriggerType;
-import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.AbilityUtil;
-import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class Berzerk extends AbilityWithTimers implements Ability  {
 

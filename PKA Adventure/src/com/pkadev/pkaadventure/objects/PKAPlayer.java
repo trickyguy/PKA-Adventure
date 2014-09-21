@@ -3,14 +3,12 @@ package com.pkadev.pkaadventure.objects;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.Ability;
-import com.pkadev.pkaadventure.types.AbilityTriggerType;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.InventoryUtil;

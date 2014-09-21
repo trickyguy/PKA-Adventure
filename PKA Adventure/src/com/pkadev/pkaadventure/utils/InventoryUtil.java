@@ -5,26 +5,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.Main;
-import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.objects.InventoryWithType;
 import com.pkadev.pkaadventure.objects.ItemStackWithSlot;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
-import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.InventoryType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.types.SlotType;
@@ -35,9 +30,9 @@ public class InventoryUtil {
 	public static HashMap<String, Inventory> openInventories = new HashMap<String, Inventory>();
 	private static HashMap<InventoryType, Inventory> inventories = new HashMap<InventoryType, Inventory>();
 
-	private static Inventory getInventory(InventoryType inventoryType) {
+	/*private static Inventory getInventory(InventoryType inventoryType) {
 		return inventories.get(inventoryType);
-	}
+	}*/
 
 	public static void setInventory(InventoryType inventoryType, Inventory inventory) {
 		inventories.put(inventoryType, inventory);
@@ -204,7 +199,6 @@ public class InventoryUtil {
 			}
 		}
 		Collections.shuffle(itemList);
-		int slot = 0;
 		for (int i = 0; i < inventory.getSize(); i++) {
 			if (itemList.isEmpty())
 				return;
@@ -218,7 +212,6 @@ public class InventoryUtil {
 					}
 				}
 			}
-			slot++;
 		}
 	}
 
@@ -560,6 +553,7 @@ public class InventoryUtil {
 		if (!ItemUtil.isAttributeItem(itemStack))
 			return "";
 		
+		@SuppressWarnings("deprecation")
 		String complexReference = 			ItemUtil.getReferenceFromItemId(itemStack.getTypeId());
 		String reference = 	"";
 		if (complexReference == "")
@@ -572,7 +566,7 @@ public class InventoryUtil {
 		}
 		int amount = 				itemStack.getAmount();
 		String itemName = 			ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
-		String rarity = 			"" + ItemUtil.getRarityFromName(itemName);
+		//String rarity = 			"" + ItemUtil.getRarityFromName(itemName);
 		itemName = 					ChatColor.stripColor(itemName);
 		String[] values = 			ItemUtil.getStringValuesFromItem(itemStack, ElementsUtil.getItemTypeElement(reference));
 		

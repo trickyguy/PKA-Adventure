@@ -5,20 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.InventoryWithType;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.types.InventoryType;
 
 public class ElementsUtil {
-	private static Main plugin = Main.instance;
 	
 	private static World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
 	
@@ -216,6 +212,7 @@ public class ElementsUtil {
 			} else {
 				return new ItemStack(Material.STONE);
 			}
+			@SuppressWarnings("deprecation")
 			ItemStack element = new ItemStack(id);
 			setItemElement(reference, element);
 			return element;
@@ -359,7 +356,6 @@ public class ElementsUtil {
 		else {
 			InventoryType inventoryType = 	InventoryType.valueOf(FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), reference + ".inventorytype", "inventories.yml").toUpperCase());
 			InventoryWithType element = 	new InventoryWithType(InventoryUtil.getInitialInventory(reference, inventoryType, level), inventoryType);
-			String nameReference = 			element.getInventory().getName();
 			setInventoryElement(reference, element);
 			return element;
 		}

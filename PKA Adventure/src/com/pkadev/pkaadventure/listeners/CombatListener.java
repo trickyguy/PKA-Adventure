@@ -13,7 +13,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKALivingEntity;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
@@ -21,7 +20,6 @@ import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.utils.DamageUtil;
-import com.pkadev.pkaadventure.utils.ItemUtil;
 
 public class CombatListener implements Listener {
 

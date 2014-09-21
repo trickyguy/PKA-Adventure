@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import net.minecraft.server.v1_7_R4.WorldServer;
 
@@ -147,7 +146,8 @@ public class SpawnNodeProcessor {
 	
 	//tick for list1 (mobs)
 	private static void tickList1() {
-		Player[] onlinePlayers = Bukkit.getServer().getOnlinePlayers();
+		@SuppressWarnings("deprecation")
+		Player[] onlinePlayers = Bukkit.getOnlinePlayers();
 		World defaultWorld = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
 		List<Location> onlinePlayerLocations = new ArrayList<Location>();
 		
