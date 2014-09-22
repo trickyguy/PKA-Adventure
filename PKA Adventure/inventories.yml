@@ -5,10 +5,10 @@ selection:
   name: Select a class!
   inventorytype: select
   elements:
-  - woody_selection$1$1$3
-  - wings_selection$1$1$4
-  - lefty_selection$1$1$5
-  - kyle_selection$1$1$6
+  - woody_selection$1$1$2
+  - wings_selection$1$1$3
+  - lefty_selection$1$1$4
+  - kyle_selection$1$1$5
 test npc:
   size: 18
   name: Go buy some stuff

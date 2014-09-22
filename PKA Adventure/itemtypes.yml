@@ -35,10 +35,7 @@ skill:
   endelements:
   - skill_doubledrop
   maxendelements: 1
-  id:
-  - 1
-  - 2
-  - 3
+  id: 3
 food_pork_raw:
   elements:
   - food_raw_price

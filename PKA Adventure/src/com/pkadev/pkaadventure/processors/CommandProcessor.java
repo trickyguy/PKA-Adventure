@@ -1,20 +1,15 @@
 package com.pkadev.pkaadventure.processors;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
-
-import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.BookUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.utils.SkillsUtil;
 
 public class CommandProcessor implements CommandExecutor {
 
@@ -32,6 +27,7 @@ public class CommandProcessor implements CommandExecutor {
 		if (cmd.getName().equalsIgnoreCase("pka")) {
 			if (argsLength == 0) {
 				InventoryUtil.openInventory(player, -1, "selection");
+				SkillsUtil.updateSkillItemWithStats(player, PlayerProcessor.getPKAPlayer(player), player.getItemInHand());
 			} else if (argsLength == 1) {
 				if (args[0].equalsIgnoreCase("create")) {
 					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
