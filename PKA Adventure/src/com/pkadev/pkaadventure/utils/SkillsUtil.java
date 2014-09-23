@@ -10,18 +10,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.objects.ItemType;
-import com.pkadev.pkaadventure.objects.PKAPlayer;
 
 public class SkillsUtil {
 
-	public static void updateSkillItemWithStats(Player player, PKAPlayer pkaPlayer, ItemStack itemStack) {
+	//TODO When specifying level and exp, need to make a check for which skill information should be used.
+	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
 		if(isSkillItem(itemStack)) {
-			int level = 1; // pkaPlayer.getMiningLevel();
-			int exp = 20; // pkaPlayer.getMiningExp();
-			
+
 			ItemType itemType = ElementsUtil.getItemTypeElement("skill");
 			ItemMeta itemMeta = itemStack.getItemMeta();
-			
+
 			List<String> lore = itemMeta.getLore();
 			List<String> newLore = new ArrayList<String>();
 
@@ -36,26 +34,99 @@ public class SkillsUtil {
 					String replacement = ElementsUtil.getLoreElementMod(itemType.getElements().get(i));
 					line = replacement + exp + "/" + getMaxExpFromLevel(level);
 				}
-				
+
 				newLore.add(line);
 			}
 			
+			itemStack.setType(getSkillMaterial(itemStack, level));
+			
 			itemMeta.setLore(newLore);
+			itemMeta.setDisplayName(getSkillName(itemStack.getType()));
 			itemStack.setItemMeta(itemMeta);
 		}
 	}
 
+	public static int getMaxExpFromLevel(int level) {
+		int maxExp = (level + 3) * 8 * 4 * level + 128;
+		return maxExp;
+	}
+
 	public static boolean isSkillItem(ItemStack itemStack) {
 		Material type = itemStack.getType();
-		if (type.equals(Material.WOOD_PICKAXE) || type.equals(Material.WOOD_AXE))
+		if (type.equals(Material.WOOD_PICKAXE) || type.equals(Material.STONE_PICKAXE) || type.equals(Material.IRON_PICKAXE) ||
+				type.equals(Material.DIAMOND_PICKAXE) || type.equals(Material.WOOD_AXE) || type.equals(Material.STONE_AXE) ||
+				type.equals(Material.IRON_AXE) || type.equals(Material.DIAMOND_AXE))
 			return true;
 		else
 			return false;
 	}
 	
-	public static int getMaxExpFromLevel(int level) {
-		int maxExp = (level + 3) * 8 * 4 * level + 128;
-		return maxExp;
+	//TODO Improve this shit, make it more dynamic. Works for now though.
+	
+	public static Material getSkillMaterial(ItemStack itemStack, int level) {
+		String materialName = itemStack.getType().toString();
+		if(materialName.endsWith("PICKAXE")) {
+			if(level >= 0 && level < 25) {
+				return Material.WOOD_PICKAXE;
+			} else if(level >= 25 && level < 50) {
+				return Material.STONE_PICKAXE;
+			} else if(level >= 50 && level < 75) {
+				return Material.IRON_PICKAXE;
+			} else if(level >= 75 && level < 100) {
+				return Material.DIAMOND_PICKAXE;
+			} else if(level == 100) {
+				return Material.DIAMOND_PICKAXE;
+			}
+		}
+
+		if(materialName.endsWith("AXE")) {
+			if(level >= 0 && level < 25) {
+				return Material.WOOD_AXE;
+			} else if(level >= 25 && level < 50) {
+				return Material.STONE_AXE;
+			} else if(level >= 50 && level < 75) {
+				return Material.IRON_AXE;
+			} else if(level >= 75 && level < 100) {
+				return Material.DIAMOND_AXE;
+			} else if(level == 100) {
+				return Material.DIAMOND_AXE;
+			}
+		}
+		return null;
+	}
+
+	public static String getSkillName(Material material) {
+		String materialName = material.toString();
+		if(materialName.endsWith("PICKAXE")) {
+			switch(material) {
+			default: return null;
+			case WOOD_PICKAXE:{
+				return "§eBeginner Pickaxe";
+			} case STONE_PICKAXE:{
+				return "§aAmateur Pickaxe";
+			} case IRON_PICKAXE:{
+				return "§dElite Pickaxe";
+			} case DIAMOND_PICKAXE:{
+				return "§bMaster Pickaxe";
+			}
+			}
+		}
+		if(materialName.endsWith("AXE")) {
+			switch(material) {
+			default: return null;
+			case WOOD_AXE:{
+				return "§eBeginner Axe";
+			} case STONE_AXE:{
+				return "§aAmateur Axe";
+			} case IRON_AXE:{
+				return "§dElite Axe";
+			} case DIAMOND_AXE:{
+				return "§bMaster Axe";
+			}
+			}
+		}
+		
+		return "Error";
 	}
 
 	/* public static void getSkillItem(ItemStack item) {

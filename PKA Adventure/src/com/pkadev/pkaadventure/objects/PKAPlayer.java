@@ -30,8 +30,8 @@ public class PKAPlayer extends PKALivingEntity {
 		setAvailableUpgradePoints(availableUpgradePoints);
 		setDiscoveredLocations(discoveredLocations);
 		
-		setMiningExp(20); // miningExp
-		setMiningLevel(7); // miningLevel
+		setMiningExp(miningExp); // miningExp
+		setMiningLevel(miningLevel); // miningLevel
 		setGoldAmount(gold);
 	}
 	
@@ -180,13 +180,13 @@ public class PKAPlayer extends PKALivingEntity {
 		return miningExp;
 	}
 	public void setMiningExp(int experience) {
-		miningExp = experience;
+		this.miningExp = experience;
 	}
 	public int getMiningLevel() {
 		return miningLevel;
 	}
 	public void setMiningLevel(int level) {
-		miningLevel = level;
+		this.miningLevel = level;
 	}
 	public int getGoldAmount() {
 		return goldAmount;

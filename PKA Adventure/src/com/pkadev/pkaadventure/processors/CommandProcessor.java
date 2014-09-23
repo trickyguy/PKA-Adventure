@@ -1,9 +1,12 @@
 package com.pkadev.pkaadventure.processors;
 
+import java.util.Random;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.BookUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
@@ -27,7 +30,8 @@ public class CommandProcessor implements CommandExecutor {
 		if (cmd.getName().equalsIgnoreCase("pka")) {
 			if (argsLength == 0) {
 				InventoryUtil.openInventory(player, -1, "selection");
-				SkillsUtil.updateSkillItemWithStats(player, PlayerProcessor.getPKAPlayer(player), player.getItemInHand());
+				Random random = new Random();
+				SkillsUtil.updateSkillItemWithStats(player, player.getItemInHand(), random.nextInt(100) + 1, 20);
 			} else if (argsLength == 1) {
 				if (args[0].equalsIgnoreCase("create")) {
 					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);

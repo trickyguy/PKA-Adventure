@@ -16,7 +16,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
-import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.FileUtil;
@@ -46,11 +45,11 @@ public class PlayerProcessor {
 		if (pkaPlayers.containsKey(playerName))
 			pkaPlayers.remove(playerName);
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	public static void loadAllPlayers() {
-		for (int i = 0; i < Bukkit.getOnlinePlayers().length; i++) {
-			loadPlayer(Bukkit.getOnlinePlayers()[i]);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			loadPlayer(player);
 		}
 	}
 	
@@ -98,7 +97,7 @@ public class PlayerProcessor {
 		ItemUtil.giveWeapon(player, classType);
 		InventoryUtil.loadInventory(player, "Ability", playerName);
 		
-		MessageUtil.log("player " + playerName + " has been loaded in.");
+		MessageUtil.log("Player " + playerName + " has been loaded in.");
 	}
 	
 	private static PKAPlayer getInitialPKAPlayer(Player player, ClassType classType) {
@@ -115,10 +114,10 @@ public class PlayerProcessor {
 		int availableUpgradePoints = 	getUpgradePointsFromPlayerConfig(playerName, playerConfig, classTypeString);
 		List<String> discovLocations = 	getDiscoveredLocations(playerName, playerConfig, classTypeString);
 		
-		int goldValue = 				getGoldAmountFromPlayerConfig(playerName, playerConfig, classTypeString);
+		int goldValue = 				getIntFromPlayerConfig(playerName, playerConfig, classTypeString, ".gold");
 		// Mining
-		int miningExp = 				getMiningExpFromPlayerConfig(playerName, playerConfig, classTypeString);
-		int miningLevel = 				getMiningLevelFromPlayerConfig(playerName, playerConfig, classTypeString);
+		int miningExp = 				getIntFromPlayerConfig(playerName, playerConfig, classTypeString, ".mining.exp");
+		int miningLevel = 				getIntFromPlayerConfig(playerName, playerConfig, classTypeString, ".mining.level");
 		
 		return new PKAPlayer(player, classType, level, experience, maxHealth, 
 				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue, discovLocations);	
@@ -146,8 +145,8 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".gold", 0);
 		
 		// Mining
-		playerConfig.set(classTypeString + ".mining.exp", 0);
-		playerConfig.set(classTypeString + ".mining.level", 1);
+		playerConfig.set(classTypeString + ".mining.exp", 20); // TODO fix shit, just for testing
+		playerConfig.set(classTypeString + ".mining.level", 27);
 
 		FileUtil.save(playerConfig, "plugins/PKAAdventure/players/" + playerName + ".yml");
 	}
@@ -199,17 +198,15 @@ public class PlayerProcessor {
 		return playerConfig.getInt(classTypeString + ".health");
 	}
 	
-	// Marcus mining
-	private static int getMiningExpFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
-		return playerConfig.getInt(classTypeString + ".mining.exp");
-	}
-	
-	private static int getMiningLevelFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
-		return playerConfig.getInt(classTypeString + ".mining.level");
-	}
-	
-	private static int getGoldAmountFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString) {	
-		return playerConfig.getInt(classTypeString + ".gold");
+	// Just a suggestion. You could specify the path instead of having 10 different methods.
+	private static int getIntFromPlayerConfig(String playerName, YamlConfiguration playerConfig, String classTypeString, String path) {
+		int x = 0;
+		if (!playerConfig.contains(classTypeString + path)) {
+			writeNewClassToPlayerConfig(playerName, playerConfig, classTypeString);
+		} else {
+			x = playerConfig.getInt(classTypeString + path);
+		}
+		return x;
 	}
 
 	public static void switchClass(final Player player, final ClassType classType) {

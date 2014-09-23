@@ -21,13 +21,13 @@ armor:
 ability_berzerk:
 - =r=cBerzerk
 woody_selection:
-- =r=6Woody
+- =r=6'Woody' the Barbarian =7(Warrior)
 wings_selection:
-- =r=6Wings
+- =r=6'Wings' the Dwarf =7(Tank)
 lefty_selection:
-- =r=6Lefty
+- =r=6'Lefty' the Wizard =7(Mage)
 kyle_selection:
-- =r=6Kyle
+- =r=6'Kyle' the Elf =7(Ranger)
 woody_weapon:
 - =r=6Woody's Punisher
 wings_weapon:
