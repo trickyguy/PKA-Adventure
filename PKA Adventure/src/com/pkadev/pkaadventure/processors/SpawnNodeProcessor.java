@@ -73,7 +73,11 @@ public class SpawnNodeProcessor {
 	public static void load(Main instance) {
 		plugin = instance;
 		random = new Random();
-		world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
+		world = Bukkit.
+				getWorld(
+						FileUtil.
+						getStringValueFromConfig(FileUtil.
+								getConfig(), "homeworld", "config.yml"));
 		worldServer = ((CraftWorld) world).getHandle();
 		
 		

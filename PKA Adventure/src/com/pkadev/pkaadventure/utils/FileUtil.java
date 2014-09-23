@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.pkadev.pkaadventure.Main;
@@ -321,10 +322,14 @@ public class FileUtil {
 	}
 	
 	public static void writeDefaultFile(File configFile, String defaultFileReference) {
+		if (plugin == null) {
+			Bukkit.getLogger().severe("plugin is null when loading FileUtil, disabling plugin.");
+			return;
+		}
 		InputStream inputStream = plugin.getInputStream("PKA Adventure/" + defaultFileReference);
 
 		if(inputStream == null){
-			MessageUtil.severe("could not write defaultFileReference to file");
+			MessageUtil.severe("could not write " + defaultFileReference + " to file");
 			return;
 		}
 		try{
