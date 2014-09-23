@@ -36,7 +36,7 @@ public class Main extends JavaPlugin {
 		
 		FileUtil.load();
 		CustomEntityType.load();
-		SpawnNodeProcessor.load();
+		SpawnNodeProcessor.load(instance);
 		InventoryUtil.load();
 		ItemUtil.load();
 		ElementsUtil.load();

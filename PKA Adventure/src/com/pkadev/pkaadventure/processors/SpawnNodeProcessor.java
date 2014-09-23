@@ -36,10 +36,10 @@ import com.pkadev.pkaadventure.utils.MathUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 
 public class SpawnNodeProcessor {
-	private static Main plugin = Main.instance;
+	private static Main plugin = null;
 	private static Random random = new Random();
-	private static WorldServer worldServer = ((CraftWorld) Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"))).getHandle();
-	private static World world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
+	private static WorldServer worldServer = null;
+	private static World world = null;
 	
 	//1 = mobs, 2 = beacons, 3 = lootcrate
 	private static HashMap<SpawnNode, Integer> 	list1 = new HashMap<SpawnNode, Integer>();
@@ -70,7 +70,13 @@ public class SpawnNodeProcessor {
 		}
 	}
 	
-	public static void load() {
+	public static void load(Main instance) {
+		plugin = instance;
+		random = new Random();
+		world = Bukkit.getWorld(FileUtil.getStringValueFromConfig(FileUtil.getConfig(), "homeworld", "config.yml"));
+		worldServer = ((CraftWorld) world).getHandle();
+		
+		
 		YamlConfiguration spawnNodeConfig = FileUtil.getSpawnNodeConfig();
 		
 		if (spawnNodeConfig.contains("Mobs")) {
