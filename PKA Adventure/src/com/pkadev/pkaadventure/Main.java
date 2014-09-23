@@ -1,7 +1,11 @@
 package com.pkadev.pkaadventure;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
+
+import javax.persistence.PersistenceException;
 
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,8 +14,10 @@ import com.pkadev.pkaadventure.listeners.CombatListener;
 import com.pkadev.pkaadventure.listeners.DefaultListener;
 import com.pkadev.pkaadventure.listeners.InventoryListener;
 import com.pkadev.pkaadventure.listeners.JobListener;
+import com.pkadev.pkaadventure.objects.PKAQuest;
 import com.pkadev.pkaadventure.processors.CommandProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.processors.QuestProcessor;
 import com.pkadev.pkaadventure.processors.SpawnNodeProcessor;
 import com.pkadev.pkaadventure.types.CustomEntityType;
 import com.pkadev.pkaadventure.utils.ElementsUtil;
@@ -22,7 +28,6 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 public class Main extends JavaPlugin {
 	
 	public static Main instance;
-	public int derp;
 	
 	@Override
 	public void onEnable() {
@@ -35,6 +40,8 @@ public class Main extends JavaPlugin {
 		InventoryUtil.load();
 		ItemUtil.load();
 		ElementsUtil.load();
+		QuestProcessor.load();
+		//setupDatabase();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());
 		
@@ -44,6 +51,8 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		CustomEntityType.unload();
+		
+		instance = null;
 	}
 	
 	public void registerListeners() {
@@ -81,4 +90,21 @@ public class Main extends JavaPlugin {
 	public InputStream getInputStream(String s){
 		return this.getResource(s);
 	}
+	
+	private void setupDatabase() {
+    	try {
+    		getDatabase().find(PKAQuest.class).findRowCount();
+    	}
+    	catch (PersistenceException ex) {
+    		System.out.println("Installing database for " + getDescription().getName() + " due to first time usage");
+    		installDDL();
+    	}
+    }
+	
+	@Override
+    public List<Class<?>> getDatabaseClasses() {
+    	List<Class<?>> list = new ArrayList<Class<?>>();
+    	list.add(PKAQuest.class);
+    	return list;
+    }
 }
