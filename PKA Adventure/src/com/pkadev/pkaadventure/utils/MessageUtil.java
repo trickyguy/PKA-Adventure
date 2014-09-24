@@ -1,5 +1,15 @@
 package com.pkadev.pkaadventure.utils;
 
+import net.minecraft.server.v1_7_R4.ChatClickable;
+import net.minecraft.server.v1_7_R4.ChatHoverable;
+import net.minecraft.server.v1_7_R4.ChatMessage;
+import net.minecraft.server.v1_7_R4.ChatModifier;
+import net.minecraft.server.v1_7_R4.EnumClickAction;
+import net.minecraft.server.v1_7_R4.EnumHoverAction;
+import net.minecraft.server.v1_7_R4.IChatBaseComponent;
+import net.minecraft.server.v1_7_R4.MinecraftServer;
+import net.minecraft.server.v1_7_R4.PlayerList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -41,4 +51,23 @@ public class MessageUtil {
 		sendMessage(null, (short) System.currentTimeMillis() + " " + s + " §cfrom " + d, MessageType.SERVER_DEBUG);
 	}
 
+	/**
+	 * This method is used to display hoverable text in chat to a player.
+	 * Use \n to have multiple lines in the hover message.
+	 * @param player The player that you want to send the message to
+	 * @param chatMessage The message that will be shown in chat
+	 * @param clickableMessage What will be put in their text box upon clicking (can leave as null)
+	 * @param hoverMessage Message that you want to display upon hovering
+	 */
+	public static void printHoverable(String playerName, String chatMessage, String clickableMessage, String hoverMessage) {
+		IChatBaseComponent chatBase = new ChatMessage(chatMessage);
+		
+		chatBase.setChatModifier(new ChatModifier());
+		chatBase.getChatModifier().setChatClickable(new ChatClickable(EnumClickAction.SUGGEST_COMMAND, clickableMessage));
+		chatBase.getChatModifier().a(new ChatHoverable(EnumHoverAction.SHOW_TEXT, new ChatMessage(hoverMessage)));
+		
+		PlayerList list = MinecraftServer.getServer().getPlayerList();
+        list.getPlayer(playerName).sendMessage(chatBase);
+	}
+	
 }

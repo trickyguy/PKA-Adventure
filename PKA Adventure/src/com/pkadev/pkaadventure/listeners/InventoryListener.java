@@ -184,6 +184,10 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
+		
+		if (event.getItemDrop() == null || event.getItemDrop().getItemStack() == null)
+			return;
+		
 		if (ItemUtil.isWeapon(event.getItemDrop().getItemStack()))
 			MessageUtil.sendMessage(player, "You've just dropped your weapon!", MessageType.SINGLE);
 		ItemUtil.addDroppedItem(event.getItemDrop(), player.getName());
