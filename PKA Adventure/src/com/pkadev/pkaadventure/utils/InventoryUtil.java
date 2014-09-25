@@ -42,6 +42,11 @@ public class InventoryUtil {
 
 	}
 	
+	public static boolean hasItemByReference(String requiredItemReference) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	public static boolean hasWeapon(Player player) {
 		int slot = getActualWeaponSlot(player);
 		if (ItemUtil.isWeapon(player.getInventory().getItem(slot)))
@@ -636,5 +641,12 @@ public class InventoryUtil {
 			PlayerProcessor.setAttributes(player, pkaPlayer);
 		}
 	}
+	
+	public static void giveItem(String playerName, String reference, int level) {
+		Player player = Bukkit.getPlayer(playerName);
+		if (player.isOnline())
+			InventoryUtil.moveItemIntoInventory(player, ItemUtil.getInitialItem(reference, level, 1));
+	}
+
 }
 

@@ -7,12 +7,17 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.InventoryWithType;
 import com.pkadev.pkaadventure.objects.ItemType;
+import com.pkadev.pkaadventure.objects.PKAQuest;
+import com.pkadev.pkaadventure.processors.QuestProcessor;
 import com.pkadev.pkaadventure.types.InventoryType;
+import com.pkadev.pkaadventure.types.QuestCompletionType;
 
 public class ElementsUtil {
 	
@@ -23,6 +28,19 @@ public class ElementsUtil {
 	}
 	
 	public static void load() {
+		loreElements = new HashMap<String, String>();
+		itemElements = new HashMap<String, ItemStack>();
+		itemTypeElements = new HashMap<String, ItemType>();
+		nameElements = new HashMap<String, List<String>>();
+		dropElements = new HashMap<String, List<String>>();
+		inventoryElements = new HashMap<String, InventoryWithType>();
+		pageElements = new HashMap<String, String>();
+		locationDescriptionElements = new HashMap<String, String>();
+		questNamesInBook = new HashMap<String, String>();
+		
+		abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
+		selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
+		
 		loreElements.put("", "");
 		itemTypeElements.put("", new ItemType(null, null, 0));
 		dropElements.put("default_drop", FileUtil.getStringListFromConfig(FileUtil.getDropConfig(), "default_drop", 
@@ -35,7 +53,7 @@ public class ElementsUtil {
 	 *  level - §7Level: §l
 	 *  strength - §7Strength: §f
 	 */
-	private static HashMap<String, String> loreElements = new HashMap<String, String>();
+	private static HashMap<String, String> loreElements = null;
 	
 	public static String getLoreElementMod(String reference) {
 		if (loreElements.containsKey(reference))
@@ -187,7 +205,7 @@ public class ElementsUtil {
 	
 	
 	
-	private static HashMap<String, ItemStack> itemElements = new HashMap<String, ItemStack>();
+	private static HashMap<String, ItemStack> itemElements = null;
 	
 	/**
 	 * only returns the itemStack, not with itemMeta
@@ -239,7 +257,7 @@ public class ElementsUtil {
 	/**
 	 * itemType stores things like elements and endElements, this all is used when putting things into an items lore
 	 */
-	private static HashMap<String, ItemType> itemTypeElements = new HashMap<String, ItemType>();
+	private static HashMap<String, ItemType> itemTypeElements = null;
 	
 	public static ItemType getItemTypeElement(String reference) {
 		if (itemTypeElements.containsKey(reference))
@@ -274,7 +292,7 @@ public class ElementsUtil {
 	
 	
 	
-	private static HashMap<String, List<String>> nameElements = new HashMap<String, List<String>>();
+	private static HashMap<String, List<String>> nameElements = null;
 	
 	public static List<String> getNameElement(String reference) {
 		if (nameElements.containsKey(reference))
@@ -307,7 +325,7 @@ public class ElementsUtil {
 	 * you can add in drops that drop for mobs with certain names
 	 *  if it cant find a certain value, it will try fetching it, if it cant find it, it will just return the element with default_drop as reference
 	 */
-	private static HashMap<String, List<String>> dropElements = new HashMap<String, List<String>>();
+	private static HashMap<String, List<String>> dropElements = null;
 	
 	public static List<String> getDropElement(String reference) {
 		if (dropElements.containsKey(reference))
@@ -343,10 +361,9 @@ public class ElementsUtil {
 	
 	
 	
-	
-	private static HashMap<String, InventoryWithType> inventoryElements = new HashMap<String, InventoryWithType>();
-	private static String abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
-	private static String selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
+	private static HashMap<String, InventoryWithType> inventoryElements = null;
+	private static String abilityInventoryName = null;
+	private static String selectionInventoryName = null;
 	
 	public static InventoryWithType getInventoryElement(String reference, int level) {
 		if (reference.equals("ability"))
@@ -392,9 +409,8 @@ public class ElementsUtil {
 	
 	
 	
-	
-	private static HashMap<String, String> pageElements = new HashMap<String, String>();
-	private static HashMap<String, String> locationDescriptionElements = new HashMap<String, String>();
+	private static HashMap<String, String> pageElements = null;
+	private static HashMap<String, String> locationDescriptionElements = null;
 
 	public static String getPageElement(String reference) {
 		if (pageElements.containsKey(reference))
@@ -423,6 +439,52 @@ public class ElementsUtil {
 	
 	private static void setLocationDescriptionElement(String reference, String element) {
 		locationDescriptionElements.put(reference, element);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	private static HashMap<String, String> questNamesInBook = null;
+	
+	public static String getQuestNameInBookElement(String questReference) {
+		if (questNamesInBook.containsKey(questReference))
+			return questNamesInBook.get(questReference);
+		else {
+			String element = QuestProcessor.getQuestSection(questReference).getString("name_in_book");
+			if (element == null) {
+				MessageUtil.log("quest " + questReference + " is missing name_in_book.");
+				return "QUEST IS BROKEN: " + questReference;
+			}
+			questNamesInBook.put(questReference, element);
+			return element;
+		}
+	}
+	
+	public static PKAQuest getQuestElement(String questReference, String playerName) {
+		PKAQuest pkaQuest = Main.instance.getDatabase().find(PKAQuest.class).where().ieq("playerName", playerName).eq("questReference", questReference).findUnique();
+		if (pkaQuest == null) {
+			ConfigurationSection questSection = QuestProcessor.getQuestSection(questReference);
+			int level = questSection.getInt("level");
+			String questCompletionTypeString = questSection.getString("completion-type");
+			if (questCompletionTypeString == null) {
+				MessageUtil.log("quest " + questReference + " is missing the initial completion-type.");
+				return null;
+			}
+			QuestCompletionType questCompletionType = QuestCompletionType.valueOf(questCompletionTypeString);
+			pkaQuest = new PKAQuest(questReference, playerName, level, questCompletionType);
+			Main.instance.getDatabase().save(pkaQuest);
+			pkaQuest = Main.instance.getDatabase().find(PKAQuest.class).where().ieq("playerName", playerName).eq("questReference", questReference).findUnique();
+		}
+		return pkaQuest;
 	}
 	
 }

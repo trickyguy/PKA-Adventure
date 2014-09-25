@@ -1,10 +1,13 @@
 package com.pkadev.pkaadventure.objects;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.pkadev.pkaadventure.types.QuestFailCompletionType;
+import com.pkadev.pkaadventure.types.QuestCompletionType;
 import com.pkadev.pkaadventure.types.QuestState;
 
 @Entity()
@@ -14,16 +17,22 @@ public class PKAQuest {
 	@Id
 	private int id;
 	private String playerName;
-	private String questName;
-	private String questNameForBook;
+	private String questReference;
 	private QuestState questState;
-	private QuestFailCompletionType questCompletionType;
-	private int stage = -1;
+	private QuestCompletionType questCompletionType;
+	//used to count all kinds of things (kills of things etc, per stage)
+	private Map<Integer, Object> completionCounter = new HashMap<Integer, Object>();
+	private Integer stage;
+	private int level;
 	
 	public PKAQuest() {}
 	
-	public PKAQuest(String questName, String playerName) {
-		
+	public PKAQuest(String questReference, String playerName, int level, QuestCompletionType questCompletionType) {
+		setQuestReference(questReference);
+		setPlayerName(playerName);
+		setLevel(level);
+		setStage(1);
+		setQuestCompletionType(questCompletionType);
 	}
 
 	public int getId() {
@@ -42,20 +51,12 @@ public class PKAQuest {
 		this.playerName = playerName;
 	}
 
-	public String getQuestName() {
-		return questName;
+	public String getQuestReference() {
+		return questReference;
 	}
 
-	public void setQuestName(String questName) {
-		this.questName = questName;
-	}
-
-	public String getQuestNameForBook() {
-		return questNameForBook;
-	}
-
-	public void setQuestNameForBook(String questNameForBook) {
-		this.questNameForBook = questNameForBook;
+	public void setQuestReference(String questReference) {
+		this.questReference = questReference;
 	}
 
 	public QuestState getQuestState() {
@@ -66,19 +67,43 @@ public class PKAQuest {
 		this.questState = questState;
 	}
 
-	public int getStage() {
+	public Map<Integer, Object> getCompletionCounter() {
+		return completionCounter;
+	}
+	
+	public Object getCurrentCompletionCounter() {
+		return completionCounter.get(stage);
+	}
+
+	public void setCompletionCounter(Map<Integer, Object> completionCounter) {
+		this.completionCounter = completionCounter;
+	}
+	
+	public void setCurrentCompletionCounter(Object obj) {
+		completionCounter.put(stage, obj);
+	}
+
+	public Integer getStage() {
 		return stage;
 	}
 
-	public void setStage(int stage) {
+	public void setStage(Integer stage) {
 		this.stage = stage;
 	}
 
-	public QuestFailCompletionType getQuestCompletionType() {
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public QuestCompletionType getQuestCompletionType() {
 		return questCompletionType;
 	}
 
-	public void setQuestCompletionType(QuestFailCompletionType questCompletionType) {
+	public void setQuestCompletionType(QuestCompletionType questCompletionType) {
 		this.questCompletionType = questCompletionType;
 	}
 	
