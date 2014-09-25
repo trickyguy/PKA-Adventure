@@ -67,4 +67,6 @@ public class LocationUtil {
 		return bestBeacon;
 	}
 	
+	
+	
 }
