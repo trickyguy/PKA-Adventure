@@ -15,7 +15,7 @@ import com.pkadev.pkaadventure.processors.SpawnNodeProcessor;
 import com.pkadev.pkaadventure.types.MessageType;
 
 public class LocationUtil {
-
+	
 	public static void teleportToBeacon(Player player, boolean instant) {
 		SpawnNode beacon = getBestAvailableBeacon(player);
 		if (instant) {
@@ -24,12 +24,12 @@ public class LocationUtil {
 			teleportDelayed(player, beacon, (long) MathUtil.getInt("tp_tick_delay"));
 		}
 	}
-
+	
 	public static void teleport(Player player, SpawnNode beacon) {
 		player.teleport(beacon.getLocation());
 		MessageUtil.sendMessage(player, "You have teleported to " + beacon.getName(), MessageType.SINGLE);
 	}
-
+	
 	public static void teleportDelayed(final Player player, final SpawnNode beacon, long delay) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.instance, new Runnable() {
 
@@ -37,15 +37,15 @@ public class LocationUtil {
 			public void run() {
 				teleport(player, beacon);
 			}
-
+			
 		}, delay);
 	}
-
+	
 	private static SpawnNode getBestAvailableBeacon(Player player) {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return null;
-
+		
 		HashMap<String, SpawnNode> beaconList = SpawnNodeProcessor.getBeaconList();
 		Location location = player.getLocation();
 		SpawnNode bestBeacon = beaconList.get("default");
@@ -54,9 +54,9 @@ public class LocationUtil {
 			if (beaconList.containsKey(locationName)) {
 				SpawnNode beacon = beaconList.get(locationName);
 				if (pkaPlayer.getLevel() >= beacon.getLevel()) {
-
+					
 					double distanceSquared = beacon.getLocation().distanceSquared(location);
-
+					
 					if ((distanceSquared < shortestDistanceSquared) ||
 							shortestDistanceSquared == 0d) {
 						shortestDistanceSquared = distanceSquared;
@@ -77,5 +77,5 @@ public class LocationUtil {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 }
