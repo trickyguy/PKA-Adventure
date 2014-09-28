@@ -33,6 +33,7 @@ Lore:
   ability_berzerk_line1_blank: "=7This shit is dank"
   ability_berzerk_line2: "=7Attack speed increase: =f"
   ability_berzerk_line3: "=7Length in seconds: =f"
+  relics_next_page_line1_blank: "=7Next Page"
 Math:
   max_mobdrop_amount: 3
   shop_refresh_interval: 100

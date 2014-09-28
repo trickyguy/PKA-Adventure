@@ -40,6 +40,7 @@ public class ElementsUtil {
 		
 		abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
 		selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
+		playerGUIInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "playergui_inventory_name", "inventories.yml");
 		
 		loreElements.put("", "");
 		itemTypeElements.put("", new ItemType(null, null, 0));
@@ -364,6 +365,7 @@ public class ElementsUtil {
 	private static HashMap<String, InventoryWithType> inventoryElements = null;
 	private static String abilityInventoryName = null;
 	private static String selectionInventoryName = null;
+	private static String playerGUIInventoryName = null;
 	
 	public static InventoryWithType getInventoryElement(String reference, int level) {
 		if (reference.equals("ability"))
@@ -388,6 +390,10 @@ public class ElementsUtil {
 	
 	public static String getAbilityInventoryName() {
 		return abilityInventoryName;
+	}
+	
+	public static String getPlayerGUIInventoryName() {
+		return playerGUIInventoryName;
 	}
 	
 	public static void removeInventoryElement(String reference) {

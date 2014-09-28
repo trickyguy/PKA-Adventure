@@ -97,14 +97,14 @@ public class InventoryUtil {
 
 	public static ItemStack getStatItem(Player player) {
 		//TODO improve upon
-		if (ItemUtil.isStatItem(player.getInventory().getItem(17)))
-			return player.getInventory().getItem(17);
+		if (ItemUtil.isStatItem(player.getInventory().getItem(8)))
+			return player.getInventory().getItem(8);
 		else {
 			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 			if (pkaPlayer == null)
 				return new ItemStack(Material.AIR);
-			player.getInventory().setItem(17, ItemUtil.getInitialStatItem(pkaPlayer));
-			return player.getInventory().getItem(17);
+			player.getInventory().setItem(8, ItemUtil.getInitialStatItem(pkaPlayer));
+			return player.getInventory().getItem(8);
 		}
 	}
 	
@@ -190,6 +190,8 @@ public class InventoryUtil {
 		} else if (inventoryType == InventoryType.SHOP_MIXED) {
 			List<String> endElements = 	FileUtil.getStringListFromConfig(inventoriesConfig, reference + ".endelements", configFileReference);
 			InventoryUtil.fillMixedInventory(element, level, elements, endElements);
+		} else if (inventoryType == InventoryType.EMPTY) {
+			return element;
 		}
 
 		return element;
@@ -440,11 +442,13 @@ public class InventoryUtil {
 			} else if (inventoryName.equals(ElementsUtil.getSelectionInventoryName())) {
 				PlayerProcessor.switchClass(player, ItemUtil.getClassTypeFromSelectionMenuItem(itemStack));
 				return false;
+			} else if (inventoryName.equals(ElementsUtil.getPlayerGUIInventoryName())) {
+				return false;
 			} else {
 				return ShopUtil.buy(player, pkaPlayer, itemStack);
 			}
 		} else if (slotType == SlotType.NORMAL) {
-			if (slot == 17) {
+			if (slot == 8) {
 				openInventory(player, -1, "selection");
 				return false;
 			}

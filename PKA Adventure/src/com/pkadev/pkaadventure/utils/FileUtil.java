@@ -24,7 +24,8 @@ public class FileUtil {
 	private static YamlConfiguration dropConfig =    	null;
 	private static YamlConfiguration pageConfig =		null;
 	private static YamlConfiguration questConfig = 		null;
-
+	private static YamlConfiguration relicConfig = 		null;
+	
 	/**
 	 * has to be run when plugin loads
 	 */
@@ -38,6 +39,7 @@ public class FileUtil {
 		File dropFile = 		new File("plugins/PKAAdventure/drops.yml");
 		File pageFile = 		new File("plugins/PKAAdventure/pages.yml");
 		File questFile = 		new File("plugins/PKAAdventure/quests.yml");
+		File relicFile = 		new File("plugins/PKAAdventure/relics.yml");
 		
 		if (!playerFolder.exists()) {
 			MessageUtil.log("creating players folder");
@@ -75,6 +77,10 @@ public class FileUtil {
 		if (!questFile.exists()) {
 			loadDefaultConfig(pageFile, 		"quests.yml");
 		}
+		
+		if (!relicFile.exists()) {
+			loadDefaultConfig(pageFile, 		"quests.yml");
+		}
 
 		MessageUtil.log("loaded all folders and config.yml");
 		config = 				YamlConfiguration.loadConfiguration(configFile);
@@ -85,6 +91,7 @@ public class FileUtil {
 		dropConfig =			YamlConfiguration.loadConfiguration(dropFile);
 		pageConfig =			YamlConfiguration.loadConfiguration(pageFile);
 		questConfig = 			YamlConfiguration.loadConfiguration(questFile);
+		relicConfig = 			YamlConfiguration.loadConfiguration(relicFile);
 	}
 
 	public static YamlConfiguration reloadFile(File configFile, String configFileReference) {
@@ -149,6 +156,10 @@ public class FileUtil {
 	
 	public static YamlConfiguration getQuestConfig() {
 		return questConfig;
+	}
+	
+	public static YamlConfiguration getRelicConfig() {
+		return relicConfig;
 	}
 	
 	public static void saveConfig(YamlConfiguration config) {

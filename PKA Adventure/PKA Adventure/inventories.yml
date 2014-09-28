@@ -15,3 +15,15 @@ test npc:
   inventorytype: shop_static
   elements:
   - armor$1$1$5
+playergui:
+  size: 9
+  name: Player GUI
+  inventorytype: empty
+relics:
+  size: 9
+  name: Relics
+  inventorytype: empty
+trading:
+  size: 27
+  name: Trading!
+  inventorytype: empty

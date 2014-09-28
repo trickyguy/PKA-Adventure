@@ -203,11 +203,10 @@ public class ItemUtil {
 	}
 
 	public static boolean isStatItem(ItemStack itemStack) {
+		if (itemStack.getType() == Material.WATCH)
+			return true;
 		if (!isAttributeItem(itemStack))
 			return false;
-		if (itemStack.getType() == Material.ENDER_PEARL || itemStack.getType() == Material.EYE_OF_ENDER)
-			if (itemStack.getItemMeta().getDisplayName().endsWith("points!"))
-				return true;
 		return false;
 	}
 
@@ -883,12 +882,7 @@ public class ItemUtil {
 	}
 
 	public static ItemStack getInitialStatItem(PKAPlayer pkaPlayer) {
-		ItemStack statItem = null;
-		if (pkaPlayer.getAvailableUpgradePoints() == 0) {
-			statItem = new ItemStack(Material.ENDER_PEARL);
-		} else {
-			statItem = new ItemStack(Material.EYE_OF_ENDER);
-		}
+		ItemStack statItem = new ItemStack(Material.ENDER_PEARL);
 		ItemMeta itemMeta = statItem.getItemMeta();
 		updateStatItemMetaLore(itemMeta, pkaPlayer);
 		updateStatItemMetaName(itemMeta, pkaPlayer);
