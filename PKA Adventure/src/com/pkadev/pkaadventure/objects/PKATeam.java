@@ -2,28 +2,28 @@ package com.pkadev.pkaadventure.objects;
 
 import java.util.List;
 
-import org.bukkit.entity.Player;
-
 public class PKATeam {
 
-	private List<Player> players = null;
+	private List<PKAPlayer> players = null;
 	private String name = "default_team_name"; //the _ are so you know its serious #money
 	
-	public PKATeam(List<Player> players, String name) {
-		
+	public PKATeam(List<PKAPlayer> players, String name) {
+		setPlayers(players);
+		setName(name);
+		PKAPlayer pkaPlayer = null;
 	}
 	
 	
 	
-	private List<Player> getPlayers() {
+	public List<PKAPlayer> getPlayers() {
 		return players;
 	}
 
-	private void setPlayers(List<Player> players) {
+	private void setPlayers(List<PKAPlayer> players) {
 		this.players = players;
 	}
 
-	private String getName() {
+	public String getName() {
 		return name;
 	}
 

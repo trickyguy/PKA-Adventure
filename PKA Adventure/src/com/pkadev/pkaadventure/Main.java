@@ -44,7 +44,7 @@ public class Main extends JavaPlugin {
 		ElementsUtil.load();
 		QuestProcessor.load();
 		LocationUtil.load(instance);
-		SidebarUtil.load();
+		SidebarUtil.load(instance);
 		//setupDatabase();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());

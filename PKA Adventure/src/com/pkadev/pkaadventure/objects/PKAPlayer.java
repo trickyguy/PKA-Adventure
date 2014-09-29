@@ -22,7 +22,7 @@ public class PKAPlayer extends PKALivingEntity {
 
 	public PKAPlayer(Player player, ClassType classType, int level, int experience, int maxHealth, 
 			int health, double damage, int weaponSlot, int availableUpgradePoints, int miningExp, int miningLevel, int gold,
-			List<String> discoveredLocations) {
+			List<String> discoveredLocations, PKATeam pkaTeam) {
 		super(player.getName(), level, damage, maxHealth, health);
 		setExperience(experience);
 		setPlayer(player);
@@ -30,6 +30,7 @@ public class PKAPlayer extends PKALivingEntity {
 		setWeaponSlot(weaponSlot);
 		setAvailableUpgradePoints(availableUpgradePoints);
 		setDiscoveredLocations(discoveredLocations);
+		setPKATeam(pkaTeam);
 		
 		setMiningExp(miningExp); // miningExp
 		setMiningLevel(miningLevel); // miningLevel
@@ -53,6 +54,7 @@ public class PKAPlayer extends PKALivingEntity {
 	private List<String> discoveredLocations = new ArrayList<String>();
 	private HashMap<String, PKAQuest> activeQuests = new HashMap<String, PKAQuest>();
 	private List<String> finishedQuests = new ArrayList<String>();
+	private PKATeam pkaTeam = null;
 	
 	private int goldAmount;
 	
@@ -248,6 +250,14 @@ public class PKAPlayer extends PKALivingEntity {
 	
 	public void setFinishedQuests(List<String> finishedQuests) {
 		this.finishedQuests = finishedQuests;
+	}
+	
+	public void setPKATeam(PKATeam pkaTeam) {
+		this.pkaTeam = pkaTeam;
+	}
+	
+	public PKATeam getPKATeam() {
+		return pkaTeam;
 	}
 	
 }
