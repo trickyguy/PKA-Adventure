@@ -1,18 +1,28 @@
 package com.pkadev.pkaadventure.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
+import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.objects.BrokenOreBlock;
 import com.pkadev.pkaadventure.objects.ItemType;
+import com.pkadev.pkaadventure.threads.OreTimer;
 
 public class SkillsUtil {
 
+	private static Main plugin = Main.instance;
+	
 	//TODO When specifying level and exp, need to make a check for which skill information should be used.
 	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
 		if(isSkillItem(itemStack)) {
@@ -38,8 +48,8 @@ public class SkillsUtil {
 				newLore.add(line);
 			}
 			
-			itemStack.setType(getSkillMaterial(itemStack, level));
-			
+			itemStack.setType(getSkillMaterial(itemStack, level, getMaterialSuffix(itemStack.getType())));
+
 			itemMeta.setLore(newLore);
 			itemMeta.setDisplayName(getSkillName(itemStack.getType()));
 			itemStack.setItemMeta(itemMeta);
@@ -60,44 +70,35 @@ public class SkillsUtil {
 		else
 			return false;
 	}
+
+	public static String getMaterialSuffix(Material material) {
+		if(material.toString().endsWith("_PICKAXE"))
+			return "_PICKAXE";
+		else if(material.toString().endsWith("_AXE"))
+			return "_AXE";
+		return null;
+	}
 	
 	//TODO Improve this shit, make it more dynamic. Works for now though.
-	
-	public static Material getSkillMaterial(ItemStack itemStack, int level) {
-		String materialName = itemStack.getType().toString();
-		if(materialName.endsWith("PICKAXE")) {
-			if(level >= 0 && level < 25) {
-				return Material.WOOD_PICKAXE;
-			} else if(level >= 25 && level < 50) {
-				return Material.STONE_PICKAXE;
-			} else if(level >= 50 && level < 75) {
-				return Material.IRON_PICKAXE;
-			} else if(level >= 75 && level < 100) {
-				return Material.DIAMOND_PICKAXE;
-			} else if(level == 100) {
-				return Material.DIAMOND_PICKAXE;
-			}
-		}
 
-		if(materialName.endsWith("AXE")) {
-			if(level >= 0 && level < 25) {
-				return Material.WOOD_AXE;
-			} else if(level >= 25 && level < 50) {
-				return Material.STONE_AXE;
-			} else if(level >= 50 && level < 75) {
-				return Material.IRON_AXE;
-			} else if(level >= 75 && level < 100) {
-				return Material.DIAMOND_AXE;
-			} else if(level == 100) {
-				return Material.DIAMOND_AXE;
-			}
+	public static Material getSkillMaterial(ItemStack itemStack, int level, String suffix) {
+		if(level >= 0 && level < 25) {
+			return Material.getMaterial("WOOD" + suffix);
+		} else if(level >= 25 && level < 50) {
+			return Material.getMaterial("STONE" + suffix);
+		} else if(level >= 50 && level < 75) {
+			return Material.getMaterial("IRON" + suffix);
+		} else if(level >= 75 && level < 100) {
+			return Material.getMaterial("DIAMOND" + suffix);
+		} else if(level == 100) {
+			return Material.getMaterial("DIAMOND" + suffix);
 		}
 		return null;
 	}
 
 	public static String getSkillName(Material material) {
 		String materialName = material.toString();
-		if(materialName.endsWith("PICKAXE")) {
+		if(materialName.endsWith("_PICKAXE")) {
 			switch(material) {
 			default: return null;
 			case WOOD_PICKAXE:{
@@ -111,7 +112,7 @@ public class SkillsUtil {
 			}
 			}
 		}
-		if(materialName.endsWith("AXE")) {
+		if(materialName.endsWith("_AXE")) {
 			switch(material) {
 			default: return null;
 			case WOOD_AXE:{
@@ -125,24 +126,25 @@ public class SkillsUtil {
 			}
 			}
 		}
-		
+
 		return "Error";
 	}
 
-	/* public static void getSkillItem(ItemStack item) {
-		Material type = item.getType();
-		switch(type) {
-		case WOOD_PICKAXE: {
-			itemMeta.setDisplayName("§6Woody's Sword");
-			itemLore.add(ElementsUtil.getInitialLoreElement("woody_damage", level));
-			break;
-		}
-		case WOOD_AXE: {
-			itemMeta.setDisplayName("§6Wings's Sword");
-			itemLore.add(ElementsUtil.getInitialLoreElement("wings_damage", level));
-			break;
-		}
-		default:return;
-		}
-	} */
+	public static void createBrokenOre(Block block, Material material, int time) {
+		new BrokenOreBlock(block, material, time);
+		block.setType(Material.STONE);
+		
+		if(!OreTimer.isRunning())
+			OreTimer.start();
+	}
+
+	public static void removeBrokenOreBlock(BrokenOreBlock oreBlock) {
+		Block block = oreBlock.getOreBlock();
+		block.setType(oreBlock.getMaterial());
+		
+		BrokenOreBlock.getAllBlocks().remove(oreBlock);
+		
+		if(BrokenOreBlock.getAllBlocks().size() == 0)
+			OreTimer.stop();
+	}
 }
