@@ -42,6 +42,11 @@ public class SidebarUtil {
 		loadScoreBoards(pkaPlayer.getPlayer(), pkaPlayer);
 	}
 	
+	/**
+	 * Used when players join and when they leave a team therefore having no team
+	 * @param player
+	 * @param pkaPlayer
+	 */
 	private static void loadScoreBoards(Player player, PKAPlayer pkaPlayer) {
 		player.setScoreboard(getDefaultScoreBoard(player, pkaPlayer));
 	}
@@ -56,7 +61,7 @@ public class SidebarUtil {
 	}
 
 	private static void updateScoreBoards(Player player, PKAPlayer pkaPlayer) {
-		if (isScoreBoardDefault)
+		if (isScoreBoardDefault || pkaPlayer.getPKATeam() == null)
 			updateDefaultScoreBoard(player, pkaPlayer);
 	}	
 	
@@ -82,7 +87,8 @@ public class SidebarUtil {
 		if (isScoreBoardDefault) {
 			player.setScoreboard(getDefaultScoreBoard(player, pkaPlayer));
 		} else {
-			player.setScoreboard(getTeamScoreBoard(player, pkaPlayer));
+			if (pkaPlayer.getPKATeam() != null)
+				player.setScoreboard(getTeamScoreBoard(player, pkaPlayer));
 		}
 	}
 	
@@ -99,7 +105,6 @@ public class SidebarUtil {
 	
 	private static Scoreboard getTeamScoreBoard(Player player, PKAPlayer pkaPlayer) {
 		Scoreboard scoreBoard = manager.getNewScoreboard();
-		
 		Objective objective = scoreBoard.registerNewObjective("test", "dummy");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		objective.setDisplayName(pkaPlayer.getPKATeam().getName());

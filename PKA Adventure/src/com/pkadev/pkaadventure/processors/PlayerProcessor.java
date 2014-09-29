@@ -120,7 +120,7 @@ public class PlayerProcessor {
 		int miningLevel = 				getIntFromPlayerConfig(playerName, playerConfig, classTypeString, ".mining.level");
 		
 		return new PKAPlayer(player, classType, level, experience, maxHealth, 
-				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue, discovLocations);	
+				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue, discovLocations, null);	
 	}
 
 	private static boolean hasLoadedClassBefore(String playerName, ClassType classType) {

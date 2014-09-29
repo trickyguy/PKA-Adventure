@@ -7,6 +7,9 @@ public class PKATeam {
 	private List<PKAPlayer> players = null;
 	private String name = "default_team_name"; //the _ are so you know its serious #money
 	
+	private List<PKAPlayer> admins = null;
+	private List<PKAPlayer> invitees = null;
+	
 	public PKATeam(List<PKAPlayer> players, String name) {
 		setPlayers(players);
 		setName(name);

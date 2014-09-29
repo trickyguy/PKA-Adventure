@@ -92,7 +92,7 @@ public class CommandProcessor implements CommandExecutor {
 	
 	
 	private static void TEST(Player player) {
-		SidebarUtil.loadSidebar(player, PlayerProcessor.getPKAPlayer(player));
+		SidebarUtil.loadScoreBoards(PlayerProcessor.getPKAPlayer(player));
 	}
 	
 
