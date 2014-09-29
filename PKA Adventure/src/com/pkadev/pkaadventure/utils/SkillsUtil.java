@@ -3,25 +3,24 @@ package com.pkadev.pkaadventure.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitTask;
 
-import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.BrokenOreBlock;
 import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.threads.OreTimer;
 
 public class SkillsUtil {
 
-	private static Main plugin = Main.instance;
+	public static void load() {
+		setMiningValues();
+	}
 	
 	//TODO When specifying level and exp, need to make a check for which skill information should be used.
 	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
@@ -146,5 +145,24 @@ public class SkillsUtil {
 		
 		if(BrokenOreBlock.getAllBlocks().size() == 0)
 			OreTimer.stop();
+	}
+	
+	//TODO fix this hardcoded shit
+	
+	public static Map<String, Integer> ore_values = new HashMap<>();
+	public static Map<String, Integer> pickaxe_values = new HashMap<>();
+
+	public static void setMiningValues() {
+		ore_values.put("COAL_ORE", Integer.valueOf(1));
+		ore_values.put("LAPIS_ORE", Integer.valueOf(2));
+		ore_values.put("IRON_ORE", Integer.valueOf(3));
+		ore_values.put("GOLD_ORE", Integer.valueOf(4));
+		ore_values.put("DIAMOND_ORE", Integer.valueOf(5));
+		ore_values.put("EMERALD_ORE", Integer.valueOf(6));
+		
+		pickaxe_values.put("WOODEN_PICKAXE", Integer.valueOf(1));
+		pickaxe_values.put("STONE_PICKAXE", Integer.valueOf(2));
+		pickaxe_values.put("IRON_PICKAXE", Integer.valueOf(4));
+		pickaxe_values.put("DIAMOND_ORE", Integer.valueOf(6));
 	}
 }

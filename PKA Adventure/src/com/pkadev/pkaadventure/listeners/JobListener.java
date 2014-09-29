@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
@@ -51,7 +52,10 @@ public class JobListener implements Listener {
 	@EventHandler
 	public void oreBreak(BlockBreakEvent event) {
 		Block block = event.getBlock();
-		if(block.getType().equals(Material.EMERALD_ORE))
+		if(block.getType().toString().endsWith("_ORE")) {
+			event.setCancelled(true);
 			SkillsUtil.createBrokenOre(block, block.getType(), 5);
+			
+		}
 	}
 }
