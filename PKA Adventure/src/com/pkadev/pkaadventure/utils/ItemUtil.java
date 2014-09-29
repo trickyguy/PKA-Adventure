@@ -141,6 +141,17 @@ public class ItemUtil {
 			return 3;
 		return 1;
 	}
+	
+	public static boolean isReferencedItem(ItemStack itemStack, String itemReference) {
+		if (!itemStack.hasItemMeta() || !itemStack.getItemMeta().hasDisplayName())
+			return false;
+		
+		for (String possibleName : ElementsUtil.getNameElement(itemReference)) {
+			if (possibleName.equals(itemStack.getItemMeta().getDisplayName()))
+				return true;
+		}
+		return false;
+	}
 
 	/**
 	 * To skip all the annoying if statements

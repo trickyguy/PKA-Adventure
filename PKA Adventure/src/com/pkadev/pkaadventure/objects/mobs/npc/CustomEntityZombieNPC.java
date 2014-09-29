@@ -1,43 +1,34 @@
-package com.pkadev.pkaadventure.objects.mobs;
+package com.pkadev.pkaadventure.objects.mobs.npc;
 
 import java.lang.reflect.Field;
 
 import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
 
-import net.minecraft.server.v1_7_R4.EntityInsentient;
-import net.minecraft.server.v1_7_R4.EntityZombie;
-import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;
-import net.minecraft.server.v1_7_R4.PathfinderGoalMoveTowardsRestriction;
-import net.minecraft.server.v1_7_R4.PathfinderGoalRandomLookaround;
-import net.minecraft.server.v1_7_R4.PathfinderGoalRandomStroll;
-import net.minecraft.server.v1_7_R4.PathfinderGoalSelector;
-import net.minecraft.server.v1_7_R4.World;
-
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
 
-public class CustomEntityZombiePassive extends EntityZombie implements MobMonster {
+import net.minecraft.server.v1_7_R4.EntityInsentient;
+import net.minecraft.server.v1_7_R4.EntityVillager;
+import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;
+import net.minecraft.server.v1_7_R4.PathfinderGoalLookAtPlayer;
+import net.minecraft.server.v1_7_R4.PathfinderGoalMoveTowardsRestriction;
+import net.minecraft.server.v1_7_R4.PathfinderGoalRandomLookaround;
+import net.minecraft.server.v1_7_R4.PathfinderGoalSelector;
+import net.minecraft.server.v1_7_R4.World;
 
-	private SpawnNode node;
-	private PKAMob pkaMob;
-	
-	@Override
-	public SpawnNode getSpawnNode() {
-		return node;
-	}
-	
-	@Override
-	public void setSpawnNode(SpawnNode node) {
-		this.node = node;
-	}
-	
-	public CustomEntityZombiePassive(World world) {
+public class CustomEntityZombieNPC extends EntityVillager implements MobMonster {
+
+	public CustomEntityZombieNPC(World world) {
 		super(world);
 	}
-	
+
 	@Override
-	public void TEMPinitiate(SpawnNode spawnNode) {
+	public void initiate(SpawnNode spawnNode) {
+		this.setCustomName(spawnNode.getName());
+		this.setCustomNameVisible(true);
+		
 		try {
 			Field bField = PathfinderGoalSelector.class.getDeclaredField("b");
 			bField.setAccessible(true);
@@ -54,10 +45,22 @@ public class CustomEntityZombiePassive extends EntityZombie implements MobMonste
 		this.goalSelector.a(0, new PathfinderGoalFloat(this));
 		this.goalSelector.a(2, new PathfinderGoalMoveTowardsRestriction(this,
 				1.0D));
-		this.setCustomName(spawnNode.getName());
-		this.setCustomNameVisible(true);
 		this.goalSelector.a(8, new PathfinderGoalRandomLookaround(this));
-		this.goalSelector.a(7, new PathfinderGoalRandomStroll(this, 1.0D));
+		this.goalSelector.a(2, new PathfinderGoalLookAtPlayer(this,
+				EntityPlayer.class, 12.0F, 1.0F));
+	}
+
+	private SpawnNode node;
+	private PKAMob pkaMob;
+	
+	@Override
+	public SpawnNode getSpawnNode() {
+		return node;
+	}
+	
+	@Override
+	public void setSpawnNode(SpawnNode node) {
+		this.node = node;
 	}
 	
 	@Override
@@ -76,4 +79,3 @@ public class CustomEntityZombiePassive extends EntityZombie implements MobMonste
 	}
 
 }
-

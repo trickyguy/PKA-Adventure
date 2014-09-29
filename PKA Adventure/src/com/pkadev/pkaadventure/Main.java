@@ -24,6 +24,7 @@ import com.pkadev.pkaadventure.utils.ElementsUtil;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
+import com.pkadev.pkaadventure.utils.LocationUtil;
 
 public class Main extends JavaPlugin {
 	
@@ -41,6 +42,7 @@ public class Main extends JavaPlugin {
 		ItemUtil.load();
 		ElementsUtil.load();
 		QuestProcessor.load();
+		LocationUtil.load(instance);
 		//setupDatabase();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());

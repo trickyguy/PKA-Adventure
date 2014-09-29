@@ -21,14 +21,34 @@ import com.pkadev.pkaadventure.interfaces.Ability;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
-import com.pkadev.pkaadventure.objects.mobs.CustomEntityVillagerNPC;
-import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieEvil;
-import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieGood;
-import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombieNeutral;
-import com.pkadev.pkaadventure.objects.mobs.CustomEntityZombiePassive;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityCaveSpiderEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityEndermanEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityGolemEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityPigmanEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntitySilverfishEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntitySkeletonEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntitySpiderEvil;
+import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityZombieEvil;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntityCaveSpiderGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntityEndermanGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntityGolemGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntityPigmanGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntitySilverfishGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntitySkeletonGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntitySpiderGood;
+import com.pkadev.pkaadventure.objects.mobs.good.CustomEntityZombieGood;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntityCaveSpiderNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntityEndermanNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntityGolemNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntityPigmanNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntitySilverfishNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntitySkeletonNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntitySpiderNeutral;
+import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntityZombieNeutral;
+import com.pkadev.pkaadventure.objects.mobs.npc.CustomEntityVillagerNPC;
+import com.pkadev.pkaadventure.objects.mobs.npc.CustomEntityZombieNPC;
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.types.MobStrength;
-import com.pkadev.pkaadventure.types.MobType;
 import com.pkadev.pkaadventure.types.SpawnNodeType;
 import com.pkadev.pkaadventure.utils.FileUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
@@ -115,7 +135,7 @@ public class SpawnNodeProcessor {
 				try {
 					node = new SpawnNode(getLocation(section, nodeName), section.getString(nodeName + ".Name"), section.getInt(nodeName + ".Radius"), section.getInt(nodeName + ".Level")
 							, section.getInt(nodeName + ".Amount"), section.getString(nodeName + ".Mob"), MobStrength.valueOf(section.getString(nodeName + ".MobStrength").toUpperCase())
-							, MobStance.valueOf(section.getString(nodeName + ".MobStance").toUpperCase()), MobType.valueOf(section.getString(nodeName + ".MobType").toUpperCase()));
+							, MobStance.valueOf(section.getString(nodeName + ".MobStance").toUpperCase()));
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					MessageUtil.severe("critical loading error for spawnNode by fileName " + nodeName + ". It cannot be loaded!");
@@ -310,8 +330,7 @@ public class SpawnNodeProcessor {
 			int amount = 0;
 			String mob = args[4];
 			MobStrength mobStrength = MobStrength.ANIMAL;
-			MobStance mobStance = MobStance.PASSIVE;
-			MobType mobType = MobType.PASSIVE;
+			MobStance mobStance = MobStance.NEUTRAL;
 			
 			try {
 				radius = Integer.parseInt(args[1]);
@@ -353,16 +372,8 @@ public class SpawnNodeProcessor {
 				return false;
 			}
 			
-			try {
-				mobType = MobType.valueOf(args[7].toUpperCase());
-			} catch (IllegalArgumentException ex) {
-				MessageUtil.severe("MobType " + args[7] + " does not exist.");
-				ex.printStackTrace();
-				return false;
-			}
 			
-			
-			node = new SpawnNode(location, name, radius, level, amount, mob, mobStrength, mobStance, mobType);
+			node = new SpawnNode(location, name, radius, level, amount, mob, mobStrength, mobStance);
 			
 			addNodeToList1(node);
 			saveSpawnNode(node, fileName);
@@ -387,7 +398,6 @@ public class SpawnNodeProcessor {
 			spawnNodeConfig.set(prefix + ".Mob", 			node.getMob());
 			spawnNodeConfig.set(prefix + ".MobStrength", 	node.getMobStrength().toString());
 			spawnNodeConfig.set(prefix + ".MobStance", 		node.getMobStance().toString());
-			spawnNodeConfig.set(prefix + ".MobType", 		node.getMobType().toString());
 		}
 		Location location = node.getLocation();
 		spawnNodeConfig.set(prefix + ".Location.X", 		(int) location.getX());
@@ -421,57 +431,135 @@ public class SpawnNodeProcessor {
 		switch(node.getMobStance()) {
 		case EVIL:{
 			switch(node.getMob()) {
-			case "zombie":{
-				mobMonster = new CustomEntityZombieEvil(worldServer);
-				break;
-			}
+				case "cavespider": {
+					mobMonster = new CustomEntityCaveSpiderEvil(worldServer);
+					break;
+				}
+				case "enderman": {
+					mobMonster = new CustomEntityEndermanEvil(worldServer);
+					break;
+				}
+				case "golem": {
+					mobMonster = new CustomEntityGolemEvil(worldServer);
+					break;
+				}
+				case "pigman": {
+					mobMonster = new CustomEntityPigmanEvil(worldServer);
+					break;
+				}
+				case "silverfish": {
+					mobMonster = new CustomEntitySilverfishEvil(worldServer);
+					break;
+				}
+				case "skeleton": {
+					mobMonster = new CustomEntitySkeletonEvil(worldServer);
+					break;
+				}
+				case "spider": {
+					mobMonster = new CustomEntitySpiderEvil(worldServer);
+					break;
+				}
+				case "zombie": {
+					mobMonster = new CustomEntityZombieEvil(worldServer);
+					break;
+				}
 			default:return null;
 			}
 			break;
 		}
 		case GOOD: {
 			switch(node.getMob()) {
-			case "zombie": { 
+			case "cavespider": {
+				mobMonster = new CustomEntityCaveSpiderGood(worldServer);
+				break;
+			}
+			case "enderman": {
+				mobMonster = new CustomEntityEndermanGood(worldServer);
+				break;
+			}
+			case "golem": {
+				mobMonster = new CustomEntityGolemGood(worldServer);
+				break;
+			}
+			case "pigman": {
+				mobMonster = new CustomEntityPigmanGood(worldServer);
+				break;
+			}
+			case "silverfish": {
+				mobMonster = new CustomEntitySilverfishGood(worldServer);
+				break;
+			}
+			case "skeleton": {
+				mobMonster = new CustomEntitySkeletonGood(worldServer);
+				break;
+			}
+			case "spider": {
+				mobMonster = new CustomEntitySpiderGood(worldServer);
+				break;
+			}
+			case "zombie": {
 				mobMonster = new CustomEntityZombieGood(worldServer);
 				break;
 			}
-			default:return null;
-			}
-			break;
+		default:return null;
+		}
+		break;
 		}
 		case NEUTRAL: {
 			switch(node.getMob()) {
+			case "cavespider": {
+				mobMonster = new CustomEntityCaveSpiderNeutral(worldServer);
+				break;
+			}
+			case "enderman": {
+				mobMonster = new CustomEntityEndermanNeutral(worldServer);
+				break;
+			}
+			case "golem": {
+				mobMonster = new CustomEntityGolemNeutral(worldServer);
+				break;
+			}
+			case "pigman": {
+				mobMonster = new CustomEntityPigmanNeutral(worldServer);
+				break;
+			}
+			case "silverfish": {
+				mobMonster = new CustomEntitySilverfishNeutral(worldServer);
+				break;
+			}
+			case "skeleton": {
+				mobMonster = new CustomEntitySkeletonNeutral(worldServer);
+				break;
+			}
+			case "spider": {
+				mobMonster = new CustomEntitySpiderNeutral(worldServer);
+				break;
+			}
 			case "zombie": {
 				mobMonster = new CustomEntityZombieNeutral(worldServer);
 				break;
 			}
-			default:return null;
-			}
-			break;
+		default:return null;
 		}
-		case PASSIVE: {
-			switch(node.getMob()) {
-			case "zombie": {
-				mobMonster = new CustomEntityZombiePassive(worldServer);
-				break;
-			}
-			default:return null;
-			}
-			break;
+		break;
 		}
 		case NPC: {
 			switch(node.getMob()) {
-			case "villager": {
-				mobMonster = new CustomEntityVillagerNPC(worldServer);
-				break;
-			}
+				case "villager": {
+					mobMonster = new CustomEntityVillagerNPC(worldServer);
+					break;
+				}
+				case "zombie": {
+					mobMonster = new CustomEntityZombieNPC(worldServer);
+					break;
+				}
 			default:return null;
 			}
 			break;
 		}
 		default:return null;
 		}
-		mobMonster.TEMPinitiate(node);
+		mobMonster.initiate(node);
 		return mobMonster;
 	}
 	
@@ -485,11 +573,10 @@ public class SpawnNodeProcessor {
 		int level = 				node.getLevel();
 		MobStrength mobStrength = 	node.getMobStrength();
 		MobStance mobStance = 		node.getMobStance();
-		MobType mobType = 			node.getMobType();
 		int rareItemInt = 			setInitialArmorContent(mobMonster, node);
 		HashMap<Integer, Ability> abilities = new HashMap<Integer, Ability>();
 		
-		PKAMob pkaMob = new PKAMob(mobName, attributes, maxHealth, damage, level, mobStrength, mobStance, mobType, rareItemInt, abilities);
+		PKAMob pkaMob = new PKAMob(mobName, attributes, maxHealth, damage, level, mobStrength, mobStance, rareItemInt, abilities);
 		
 		mobMonster.setPKAMob(pkaMob);
 		mobMonster.setSpawnNode(node);

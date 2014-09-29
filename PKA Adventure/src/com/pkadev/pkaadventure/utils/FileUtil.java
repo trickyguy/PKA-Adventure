@@ -224,7 +224,7 @@ public class FileUtil {
 	 * @param configFileReference
 	 * @return "" if there isnt a value
 	 */
-	public static String getStringFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
+	public static String getStringValueFromConfigSAFE(YamlConfiguration config, String path, String configFileReference) {
 		if (config.contains(path) && config.isString(path))
 			return config.getString(path);
 		else {

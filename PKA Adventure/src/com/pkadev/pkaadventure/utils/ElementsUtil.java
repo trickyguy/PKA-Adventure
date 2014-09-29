@@ -437,7 +437,7 @@ public class ElementsUtil {
 		if (locationDescriptionElements.containsKey(reference))
 			return locationDescriptionElements.get(reference);
 		else {
-			String element = FileUtil.getStringFromConfigSAFE(FileUtil.getSpawnNodeConfig(), "Beacons." + reference + ".Description", "spawnnodes.yml");
+			String element = FileUtil.getStringValueFromConfigSAFE(FileUtil.getSpawnNodeConfig(), "Beacons." + reference + ".Description", "spawnnodes.yml");
 			setLocationDescriptionElement(reference, element);
 			return element;
 		}

@@ -1,11 +1,15 @@
 package com.pkadev.pkaadventure.processors;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import net.minecraft.server.v1_7_R4.PathfinderGoalSelector;
+
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;

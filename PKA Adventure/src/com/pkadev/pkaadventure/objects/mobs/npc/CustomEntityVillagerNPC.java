@@ -1,4 +1,4 @@
-package com.pkadev.pkaadventure.objects.mobs;
+package com.pkadev.pkaadventure.objects.mobs.npc;
 
 import java.lang.reflect.Field;
 
@@ -25,7 +25,7 @@ public class CustomEntityVillagerNPC extends EntityVillager implements MobMonste
 	}
 
 	@Override
-	public void TEMPinitiate(SpawnNode spawnNode) {
+	public void initiate(SpawnNode spawnNode) {
 		this.setCustomName(spawnNode.getName());
 		this.setCustomNameVisible(true);
 		

@@ -7,7 +7,7 @@ import com.pkadev.pkaadventure.objects.SpawnNode;
 
 public interface MobMonster {
 
-	public void TEMPinitiate(SpawnNode spawnNode);
+	public void initiate(SpawnNode spawnNode);
 	public SpawnNode getSpawnNode();
 	public void setSpawnNode(SpawnNode node);
 	public PKAMob getPKAMob();

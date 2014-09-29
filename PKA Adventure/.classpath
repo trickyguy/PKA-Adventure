@@ -4,6 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/ECLIPSE/spigot.jar"/>
 	<classpathentry kind="lib" path="C:/ECLIPSE/minecraft_server.1.7.2.jar"/>
-	<classpathentry kind="lib" path="C:/ECLIPSE/PermissionsEx.jar"/>
+	<classpathentry kind="lib" path="C:/ECLIPSE/WorldEdit.jar"/>
+	<classpathentry kind="lib" path="C:/ECLIPSE/WorldGuard.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -79,7 +79,7 @@ public class CommandProcessor implements CommandExecutor {
 				} else {
 					invalidCommand(player);
 				}
-			} else if (argsLength == 10) {
+			} else if (argsLength == 9) {
 				newSpawnNode(player, args);
 			} else {
 				invalidCommand(player);
@@ -115,12 +115,12 @@ public class CommandProcessor implements CommandExecutor {
 			}
 		}
 	}
-	// 0      1      2       3 4 5  6      7       8      9
-	//create testMob testMob 1 1 1 zombie minion hostile bad
+	// 0      1      2       3 4 5  6      7       8
+	//create testMob testMob 1 1 1 zombie minion hostile
 	public void newSpawnNode(Player player, String[] args) {
-		String[] newArgs = new String[8];
+		String[] newArgs = new String[7];
 		int j = 0;
-		for (int i = 2; i < 10; i++) {
+		for (int i = 2; i < 9; i++) {
 			newArgs[j] = args[i];
 			j++;
 		}

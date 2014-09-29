@@ -10,6 +10,7 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
@@ -193,12 +194,21 @@ public class QuestProcessor {
 			if (pkaQuest.getCurrentCompletionCounter() != null)
 				return (boolean) pkaQuest.getCurrentCompletionCounter();
 		} else if (questCompletionType == QuestCompletionType.COLLECT_ITEM) {
-			String requiredItemReference = checkSection.getString("required");
-			return InventoryUtil.hasItemByReference(requiredItemReference);
+			Player player = Bukkit.getPlayer(pkaQuest.getPlayerName());
+			if (!player.isOnline())
+				return false;
+			String requiredItemReference = checkSection.getString("required_item_reference");
+			int requiredItemAmount = checkSection.getInt("required_item_amount");
+			if (requiredItemReference == null || requiredItemAmount == 0) {
+				
+			}
+			boolean hasItems = InventoryUtil.hasItemsByReference(Bukkit.getPlayer(pkaQuest.getPlayerName()), requiredItemReference, requiredItemAmount);
+			if (hasItems)
+				InventoryUtil.removeItemsByReference(null, null); //TODO
+			return hasItems;
 		} else if (questCompletionType == QuestCompletionType.VISIT_LOCATION) {
-			String requiredLocation = checkSection.getString("required");
-			List<String> currentLocations = LocationUtil.getCurrentLocations(pkaQuest.getPlayerName());
-			return currentLocations.contains(requiredLocation);
+			String requiredLocation = checkSection.getString("required_location_name");
+			return LocationUtil.isWithinRegion(Bukkit.getPlayer(pkaQuest.getPlayerName()), requiredLocation);
 		}
 		return false;
 	}

@@ -42,9 +42,49 @@ public class InventoryUtil {
 
 	}
 	
-	public static boolean hasItemByReference(String requiredItemReference) {
-		// TODO Auto-generated method stub
-		return false;
+	public static void removeItemsByReference(Player player, String itemReference) {
+		removeItemsByReference(player, itemReference, 10000);
+	}
+	
+	public static void removeItemsByReference(Player player, String itemReference, int amount) {
+		Inventory inventory = player.getInventory();
+		
+		for (int i = 0; i < inventory.getSize(); i++) {
+			if (amount <= 0)
+				return;
+			ItemStack itemStack = inventory.getItem(i);
+			if (ItemUtil.isReferencedItem(itemStack, itemReference)) {
+				int itemAmount = itemStack.getAmount();
+				if (amount >= itemAmount) {
+					inventory.setItem(i, new ItemStack(Material.AIR));
+					amount += itemAmount;
+				} else {
+					itemStack.setAmount(itemAmount - amount);
+					inventory.setItem(i, itemStack);
+					return;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * @param player
+	 * @param requiredItemReference
+	 * @param requiredAmount
+	 * @return
+	 */
+	public static boolean hasItemsByReference(Player player, String requiredItemReference, int requiredAmount) {
+		int amount = 0;
+		Inventory inventory = player.getInventory();
+		
+		for (ItemStack itemStack : inventory) {
+			if (ItemUtil.isReferencedItem(itemStack, requiredItemReference))
+				amount += itemStack.getAmount();
+		}
+		
+		if (amount < requiredAmount)
+			return false;
+		return true;
 	}
 	
 	public static boolean hasWeapon(Player player) {

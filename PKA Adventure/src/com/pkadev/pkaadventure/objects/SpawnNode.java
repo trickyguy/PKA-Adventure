@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.types.MobStrength;
-import com.pkadev.pkaadventure.types.MobType;
 import com.pkadev.pkaadventure.types.SpawnNodeType;
 
 public class SpawnNode {
@@ -24,7 +23,7 @@ public class SpawnNode {
 	 */
 	public SpawnNode(Location location, String name, int radius, int level, 
 			int amount, String mob, 
-			MobStrength mobStrength, MobStance mobStance, MobType mobType) {
+			MobStrength mobStrength, MobStance mobStance) {
 		setSpawnNodeType(SpawnNodeType.MOB);
 		setName(name);
 		setLocation(location);
@@ -35,7 +34,6 @@ public class SpawnNode {
 		setMob(mob);
 		setMobStrength(mobStrength);
 		setMobStance(mobStance);
-		setMobType(mobType);
 	}
 	
 	/**
@@ -69,7 +67,6 @@ public class SpawnNode {
 	private String mob;
 	private MobStrength mobStrength;
 	private MobStance mobStance;
-	private MobType mobType;
 	
 	private List<MobMonster> liveMobs = new ArrayList<MobMonster>(); //TODO
 	
@@ -142,11 +139,5 @@ public class SpawnNode {
 	}
 	private void setMobStance(MobStance mobStance) {
 		this.mobStance = mobStance;
-	}
-	public MobType getMobType() {
-		return mobType;
-	}
-	public void setMobType(MobType mobType) {
-		this.mobType = mobType;
 	}
 }
