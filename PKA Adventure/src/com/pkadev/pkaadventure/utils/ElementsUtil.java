@@ -266,10 +266,24 @@ public class ElementsUtil {
 		else {
 			String configFileReference = "itemtypes.yml";
 			YamlConfiguration config = FileUtil.getItemTypeConfig();
-
-			ItemType element = new ItemType(FileUtil.getStringListFromConfig(config, reference + ".elements", configFileReference), 
-					FileUtil.getStringListFromConfig(config, reference + ".endelements", configFileReference), 
-					FileUtil.getIntValueFromConfig(config, reference + ".maxendelements", configFileReference));
+			
+			if (!config.contains(reference)) {
+				MessageUtil.log("ItemType " + reference + " does not exist in itemtypes.yml");
+				return null;
+			}
+			
+			List<String> elements = null;
+			List<String> endElements = null;
+			int maxEndElements = 0;
+			
+			if (config.contains(reference + ".elements"))
+				elements = FileUtil.getStringListFromConfig(config, reference + ".elements", configFileReference);
+			if (config.contains(reference + ".endelements"))
+				endElements = FileUtil.getStringListFromConfig(config, reference + ".endelements", configFileReference);
+			if (config.contains(reference + ".maxendelements"))
+				maxEndElements = FileUtil.getIntValueFromConfig(config, reference + ".maxendelements", configFileReference);
+					
+			ItemType element = new ItemType(elements, endElements, maxEndElements);
 			
 			setItemTypeElement(reference, element);
 			return element;

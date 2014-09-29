@@ -214,11 +214,11 @@ public class ItemUtil {
 	}
 
 	public static boolean isStatItem(ItemStack itemStack) {
-		if (itemStack.getType() == Material.WATCH)
-			return true;
+		if (itemStack == null || itemStack.getType() != Material.WATCH)
+			return false;
 		if (!isAttributeItem(itemStack))
 			return false;
-		return false;
+		return true;
 	}
 
 	public static boolean isJournal(ItemStack itemStack) {
@@ -893,7 +893,7 @@ public class ItemUtil {
 	}
 
 	public static ItemStack getInitialStatItem(PKAPlayer pkaPlayer) {
-		ItemStack statItem = new ItemStack(Material.ENDER_PEARL);
+		ItemStack statItem = new ItemStack(Material.WATCH);
 		ItemMeta itemMeta = statItem.getItemMeta();
 		updateStatItemMetaLore(itemMeta, pkaPlayer);
 		updateStatItemMetaName(itemMeta, pkaPlayer);
@@ -958,25 +958,31 @@ public class ItemUtil {
 	private static List<String> getInitialItemLore(String reference, int level) {
 		List<String> itemLore = new ArrayList<String>();
 		ItemType itemType = ElementsUtil.getItemTypeElement(reference);
-		int maxEndElements = itemType.getMaxEndElements();
+		
+		if (itemType.getElements() != null)
+			itemLore.addAll(ElementsUtil.getMultipleInitialLoreElements(itemType.getElements(), level));
+		
+		if (itemType.getMaxEndElements() != 0 && itemType.getEndElements() != null) {
+			int maxEndElements = itemType.getMaxEndElements();
 
-		itemLore.addAll(ElementsUtil.getMultipleInitialLoreElements(itemType.getElements(), level));
-		if (maxEndElements > 0) {
-			List<String> endElements = itemType.getEndElements();
-			List<String> finalEndElements = new ArrayList<String>();
-			Collections.shuffle(endElements);
+			if (maxEndElements > 0) {
+				List<String> endElements = itemType.getEndElements();
+				List<String> finalEndElements = new ArrayList<String>();
+				Collections.shuffle(endElements);
 
-			maxEndElements = 1 + random.nextInt(maxEndElements);
-			for (int i = 0; i < maxEndElements; i++) {
-				String element = endElements.get(i);
-				if (finalEndElements.contains(element))
-					maxEndElements++;
-				else {
-					finalEndElements.add(element);
+				maxEndElements = 1 + random.nextInt(maxEndElements);
+				for (int i = 0; i < maxEndElements; i++) {
+					String element = endElements.get(i);
+					if (finalEndElements.contains(element))
+						maxEndElements++;
+					else {
+						finalEndElements.add(element);
+					}
 				}
+				itemLore.addAll(ElementsUtil.getMultipleInitialLoreElements(finalEndElements, level));
 			}
-			itemLore.addAll(ElementsUtil.getMultipleInitialLoreElements(finalEndElements, level));
 		}
+		
 		return itemLore;
 	}
 

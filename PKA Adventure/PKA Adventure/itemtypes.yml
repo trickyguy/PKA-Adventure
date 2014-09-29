@@ -146,6 +146,11 @@ kyle_weapon:
   - kyle_damage
   - ""
   id: 261
-relics_next_page
+relics_next_page:
   elements:
   - relics_next_page_line1_blank
+gold_nugget:
+  elements:
+  - ""
+  id: 371
+  

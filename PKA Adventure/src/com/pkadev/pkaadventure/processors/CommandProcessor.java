@@ -12,6 +12,7 @@ import com.pkadev.pkaadventure.utils.BookUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.utils.SidebarUtil;
 import com.pkadev.pkaadventure.utils.SkillsUtil;
 
 public class CommandProcessor implements CommandExecutor {
@@ -91,8 +92,7 @@ public class CommandProcessor implements CommandExecutor {
 	
 	
 	private static void TEST(Player player) {
-		InventoryUtil.moveItemIntoInventory(player, 
-				BookUtil.getInitialPKABook(player, PlayerProcessor.getPKAPlayer(player)).getItemStack());
+		SidebarUtil.loadSidebar(player, PlayerProcessor.getPKAPlayer(player));
 	}
 	
 

@@ -1,5 +1,6 @@
 ability_inventory_name: Abilities
 selection_inventory_name: Select a class!
+playergui_inventory_name: Player GUI
 selection:
   size: 9
   name: Select a class!

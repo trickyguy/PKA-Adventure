@@ -89,6 +89,8 @@ public class InventoryUtil {
 	
 	public static boolean hasWeapon(Player player) {
 		int slot = getActualWeaponSlot(player);
+		if (slot == -1)
+			return false;
 		if (ItemUtil.isWeapon(player.getInventory().getItem(slot)))
 			return true;
 		return false;
