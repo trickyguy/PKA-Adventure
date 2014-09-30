@@ -27,6 +27,7 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.LocationUtil;
 import com.pkadev.pkaadventure.utils.SidebarUtil;
 import com.pkadev.pkaadventure.utils.SkillsUtil;
+import com.pkadev.pkaadventure.utils.TeamUtil;
 
 public class Main extends JavaPlugin {
 	
@@ -46,6 +47,7 @@ public class Main extends JavaPlugin {
 		QuestProcessor.load();
 		LocationUtil.load(instance);
 		SidebarUtil.load(instance);
+		TeamUtil.load();
 		SkillsUtil.load(); // sets mining values
 		//setupDatabase();
 		
