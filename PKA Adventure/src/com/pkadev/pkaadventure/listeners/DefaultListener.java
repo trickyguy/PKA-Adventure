@@ -90,7 +90,7 @@ public class DefaultListener implements Listener {
 			event.setCancelled(true);
 	}
 
-	@EventHandler
+	/* @EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
@@ -110,7 +110,7 @@ public class DefaultListener implements Listener {
 		event.setCancelled(true);
 		MessageUtil.sendMessage(player, "You are not allowed to place blocks!", MessageType.SINGLE);
 		MessageUtil.sendMessage(player, "TEMP: To be able to build type /pka leave", MessageType.SINGLE);
-	}
+	} */
 
 	@EventHandler
 	public void onMobInteract(PlayerInteractEntityEvent event) {

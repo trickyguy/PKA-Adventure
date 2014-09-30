@@ -1,5 +1,6 @@
 package com.pkadev.pkaadventure.threads;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bukkit.scheduler.BukkitRunnable;
@@ -17,20 +18,23 @@ public class OreTimer extends BukkitRunnable {
 	private static boolean running = false;
 	
 	public void run() {
-		
+		ArrayList<BrokenOreBlock> temp = new ArrayList<BrokenOreBlock>();
 		for(BrokenOreBlock oreBlock : BrokenOreBlock.getAllBlocks()) {
 			int timeLeft = oreBlock.getTimeLeft();
 			
 			if(timeLeft == 0)
-				SkillsUtil.removeBrokenOreBlock(oreBlock);
+				temp.add(oreBlock);
 			else {
 				oreBlock.setTimeLeft(timeLeft -= 1);
 			}
 		}
+		
+		for(BrokenOreBlock broken : temp)
+			SkillsUtil.removeBrokenOreBlock(broken);
 	}
 	
 	public static void start() {
-		BukkitTask ores = new OreTimer().runTaskTimerAsynchronously(plugin, 20L, 20L);
+		BukkitTask ores = new OreTimer().runTaskTimer(plugin, 20L, 20L);
 		thread.put(id, ores);
 		running = true;
 	}
