@@ -17,6 +17,7 @@ public class OreTimer extends BukkitRunnable {
 	private static String id = "ores";
 	private static boolean running = false;
 	
+	//
 	public void run() {
 		ArrayList<BrokenOreBlock> temp = new ArrayList<BrokenOreBlock>();
 		for(BrokenOreBlock oreBlock : BrokenOreBlock.getAllBlocks()) {

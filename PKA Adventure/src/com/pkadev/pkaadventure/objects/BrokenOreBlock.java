@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 
 public class BrokenOreBlock {
 	
+	//
 	private static List<BrokenOreBlock> allBlocks = new ArrayList<BrokenOreBlock>();
 	
 	private Block oreBlock;

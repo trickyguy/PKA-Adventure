@@ -75,7 +75,7 @@ public class JobListener implements Listener {
 					SkillsUtil.createBrokenOre(block, material, 5);
 					PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 					
-					int level = pkaPlayer.getMiningLevel(); // NULL IF A CLASS ISNT SELECTED
+					int level = pkaPlayer.getMiningLevel(); // NULL IF A CLASS ISNT SELECTED.
 					int exp = pkaPlayer.getMiningExp();
 					
 					if(SkillsUtil.checkOreChance(SkillsUtil.defaultOreChance(material, level)) == true) {

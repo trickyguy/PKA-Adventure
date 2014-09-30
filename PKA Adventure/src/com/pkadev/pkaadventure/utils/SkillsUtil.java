@@ -167,7 +167,7 @@ public class SkillsUtil {
 			OreTimer.stop();
 	}
 
-	//TODO fix this hardcoded shit
+	//TODO fix this hardcoded shit.
 
 	public static Map<String, Integer> ore_values = new HashMap<>();
 	public static Map<String, Integer> pickaxe_values = new HashMap<>();

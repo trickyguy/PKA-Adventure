@@ -46,7 +46,7 @@ public class Main extends JavaPlugin {
 		QuestProcessor.load();
 		LocationUtil.load(instance);
 		SidebarUtil.load(instance);
-		SkillsUtil.load();
+		SkillsUtil.load(); // sets mining values
 		//setupDatabase();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());
