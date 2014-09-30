@@ -25,6 +25,7 @@ public class FileUtil {
 	private static YamlConfiguration pageConfig =		null;
 	private static YamlConfiguration questConfig = 		null;
 	private static YamlConfiguration relicConfig = 		null;
+	private static YamlConfiguration teamConfig = 		null;
 	
 	/**
 	 * has to be run when plugin loads
@@ -40,6 +41,7 @@ public class FileUtil {
 		File pageFile = 		new File("plugins/PKAAdventure/pages.yml");
 		File questFile = 		new File("plugins/PKAAdventure/quests.yml");
 		File relicFile = 		new File("plugins/PKAAdventure/relics.yml");
+		File teamFile = 		new File("plugins/PKAAdventure/relics.yml");
 		
 		if (!playerFolder.exists()) {
 			MessageUtil.log("creating players folder");
@@ -75,11 +77,15 @@ public class FileUtil {
 		}
 		
 		if (!questFile.exists()) {
-			loadDefaultConfig(pageFile, 		"quests.yml");
+			loadDefaultConfig(questFile, 		"quests.yml");
 		}
 		
 		if (!relicFile.exists()) {
-			loadDefaultConfig(pageFile, 		"quests.yml");
+			loadDefaultConfig(relicFile, 		"quests.yml");
+		}
+		
+		if (!teamFile.exists()) {
+			loadDefaultConfig(teamFile, 		"teams.yml");
 		}
 
 		MessageUtil.log("loaded all folders and config.yml");
@@ -92,6 +98,7 @@ public class FileUtil {
 		pageConfig =			YamlConfiguration.loadConfiguration(pageFile);
 		questConfig = 			YamlConfiguration.loadConfiguration(questFile);
 		relicConfig = 			YamlConfiguration.loadConfiguration(relicFile);
+		teamConfig = 			YamlConfiguration.loadConfiguration(teamFile);
 	}
 
 	public static YamlConfiguration reloadFile(File configFile, String configFileReference) {
@@ -160,6 +167,10 @@ public class FileUtil {
 	
 	public static YamlConfiguration getRelicConfig() {
 		return relicConfig;
+	}
+	
+	public static YamlConfiguration getTeamConfig() {
+		return teamConfig;
 	}
 	
 	public static void saveConfig(YamlConfiguration config) {
@@ -359,6 +370,10 @@ public class FileUtil {
 		}
 	}
 
+	public static boolean playerFileExists(String playerName) {
+		return new File("plugins/PKAAdventure/players/" + playerName + ".yml").exists();
+	}
+	
 	public static YamlConfiguration getPlayerConfig(String playerName) {
 		File playerFile = new File("plugins/PKAAdventure/players/" + playerName + ".yml");
 		if (!playerFile.exists()) {
