@@ -14,6 +14,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.objects.PKATeam;
 import com.pkadev.pkaadventure.types.MessageType;
 
 public class MessageUtil {
@@ -26,6 +28,17 @@ public class MessageUtil {
 		else if (messageType == MessageType.SINGLE || messageType == MessageType.SINGLE_DEBUG || messageType == MessageType.SIMPLE)
 			if (player.isOnline())
 				player.sendMessage(finalizedMessage);
+	}
+	
+	public static void sendMessage(PKATeam pkaTeam, String message, MessageType messageType) {
+		String finalizedMessage = messageType.getFinalizedMessage(message);
+		if (messageType == MessageType.TEAM || messageType == MessageType.TEAM_DEBUG) {
+			if (pkaTeam.getOnlinePlayers() != null) {
+				for (PKAPlayer pkaPlayer : pkaTeam.getOnlinePlayers()) {
+					pkaPlayer.getPlayer().sendMessage(finalizedMessage);
+				}
+			}
+		}
 	}
 	
 	public static void log(String message) {
@@ -44,11 +57,11 @@ public class MessageUtil {
 		d(s, obj.getClass().getName());
 	}
 	public static void d(int i, String s) {
-		sendMessage(null, (short) System.currentTimeMillis() + " " + i + " §cfrom " + s, MessageType.SERVER_DEBUG);
+		sendMessage(Bukkit.getPlayer(""), (short) System.currentTimeMillis() + " " + i + " §cfrom " + s, MessageType.SERVER_DEBUG);
 	}
 	
 	public static void d(String s, String d) {
-		sendMessage(null, (short) System.currentTimeMillis() + " " + s + " §cfrom " + d, MessageType.SERVER_DEBUG);
+		sendMessage(Bukkit.getPlayer(""), (short) System.currentTimeMillis() + " " + s + " §cfrom " + d, MessageType.SERVER_DEBUG);
 	}
 
 	/**

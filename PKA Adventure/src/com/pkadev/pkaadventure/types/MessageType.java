@@ -5,10 +5,10 @@ import com.pkadev.pkaadventure.utils.FileUtil;
 public enum MessageType {
 
 	SINGLE(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.SINGLE.prefix", 		"config.yml")),
-	GROUP(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.GROUP.prefix", 		"config.yml")),
+	TEAM(FileUtil.getStringValueFromConfig(			FileUtil.getConfig(), 	"MessageType.TEAM.prefix", 		"config.yml")),
 	SERVER(FileUtil.getStringValueFromConfig(		FileUtil.getConfig(), 	"MessageType.SERVER.prefix", 		"config.yml")),
 	SINGLE_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SINGLE_DEBUG.prefix", 	"config.yml")),
-	GROUP_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.GROUP_DEBUG.prefix", 	"config.yml")),
+	TEAM_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.TEAM_DEBUG.prefix", 	"config.yml")),
 	SERVER_DEBUG(FileUtil.getStringValueFromConfig(	FileUtil.getConfig(), 	"MessageType.SERVER_DEBUG.prefix", 	"config.yml")),
 	SIMPLE("");
 

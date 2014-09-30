@@ -148,7 +148,7 @@ public class SidebarUtil {
 	}
 	
 	private static void updateTeamObjective(Objective objective, PKATeam pkaTeam) {
-		for (PKAPlayer pkaPlayer : pkaTeam.getPlayers()) {
+		for (PKAPlayer pkaPlayer : pkaTeam.getOnlinePlayers()) {
 			Score playerScore = objective.getScore(pkaPlayer.getName());
 			playerScore.setScore((int) pkaPlayer.getHealth());
 		}
