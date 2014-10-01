@@ -17,11 +17,17 @@ import com.pkadev.pkaadventure.types.MessageType;
 public class TeamUtil {
 	private static HashMap<String, PKATeam> teams = null;
 	
+	public static PKATeam getTeam(String teamName) {
+		return teams.get(teamName);
+	}
+	
 	/**
 	 * Loads teams and puts all online players into their teams in online state.
 	 * Used only on loadup
 	 */
 	public static void load() {
+		/*
+		
 		YamlConfiguration config = FileUtil.getTeamConfig();
 		teams = new HashMap<String, PKATeam>();
 		
@@ -50,6 +56,7 @@ public class TeamUtil {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			changePlayerState(player, true);
 		}
+		*/
 	}
 	
 	public static void saveTeams() {
@@ -57,7 +64,7 @@ public class TeamUtil {
 		ConfigurationSection section = config.getConfigurationSection("Teams");
 		
 		for (String name : teams.keySet()) {
-			PKATeam pkaTeam = teams.get(name);
+			PKATeam pkaTeam = getTeam(name);
 			section.set(name + "members", 	pkaTeam.getOfflinePlayers());
 			section.set(name + "owner", 	pkaTeam.getOwner());
 			section.set(name + "admins", 	pkaTeam.getAdmins());
@@ -190,7 +197,7 @@ public class TeamUtil {
 		if (pkaPlayer == null)
 			return;
 		
-		PKATeam pkaTeam = teams.get(teamName);
+		PKATeam pkaTeam = getTeam(teamName);
 		if (pkaTeam == null) {
 			MessageUtil.sendMessage(pkaPlayer.getPlayer(), "That team doesn't exist, and maybe never has...", MessageType.SINGLE);
 			return;

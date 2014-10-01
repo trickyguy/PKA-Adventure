@@ -2,6 +2,6 @@ package com.pkadev.pkaadventure.types;
 
 public enum MobStance {
 
-	GOOD, EVIL, NEUTRAL, NPC;
+	GOOD, EVIL, NEUTRAL, PASSIVE, NPC;
 	
 }

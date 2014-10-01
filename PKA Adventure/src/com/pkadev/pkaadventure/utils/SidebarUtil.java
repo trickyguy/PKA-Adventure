@@ -10,6 +10,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.pkadev.pkaadventure.Main;
+import com.pkadev.pkaadventure.objects.OfflinePlayerNoLookup;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.objects.PKATeam;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
@@ -17,20 +18,29 @@ import com.pkadev.pkaadventure.processors.PlayerProcessor;
 public class SidebarUtil {
 	private static Main plugin;
 	private static ScoreboardManager manager = null;
-	private static boolean isScoreBoardDefault = true;
+	//private static boolean isScoreBoardDefault = true;
 	
 	public static void load(Main instance) {
 		plugin = instance;
 		manager = Bukkit.getScoreboardManager();
 		
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
+		/*Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
 
 			@Override
 			public void run() {
 				toggleScoreBoards();
 			}
 				
-		}, 80L, 1L);
+		}, 80L, 1L);*/
+		
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
+
+			@Override
+			public void run() {
+				updateScoreBoards();
+			}
+				
+		}, 40L, 41L);
 	}
 
 	/**
@@ -51,21 +61,76 @@ public class SidebarUtil {
 		player.setScoreboard(getDefaultScoreBoard(player, pkaPlayer));
 	}
 	
-	/**
-	 * used for reasons: class change, gold pickup (will do nothing if isScoreBoardDefault == false)
-	 * @param player
-	 * @param pkaPlayer
-	 */
-	public static void updateScoreBoards(PKAPlayer pkaPlayer) {
-		updateScoreBoards(pkaPlayer.getPlayer(), pkaPlayer);
+	private static Scoreboard getDefaultScoreBoard(Player player, PKAPlayer pkaPlayer) {
+		Scoreboard scoreBoard = manager.getNewScoreboard();
+		Objective objective = scoreBoard.registerNewObjective("test", "dummy");
+		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		objective.setDisplayName("Duck loves you");
+	
+		updateDefaultObjective(objective, pkaPlayer);
+		updateTeamObjective(objective, pkaPlayer);
+		
+		return scoreBoard;
+	}
+	
+	private static void updateScoreBoards() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			updateScoreBoards(player);
+		}
+	}
+	
+	private static void updateScoreBoards(Player player) {
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		
+		updateScoreBoards(player, pkaPlayer);
 	}
 
 	private static void updateScoreBoards(Player player, PKAPlayer pkaPlayer) {
-		if (isScoreBoardDefault || pkaPlayer.getPKATeam() == null)
-			updateDefaultScoreBoard(player, pkaPlayer);
-	}	
+		/*if (isScoreBoardDefault || pkaPlayer.getPKATeam() == null)
+			updateDefaultScoreBoard(player, pkaPlayer);*/
+		updateDefaultScoreBoard(player, pkaPlayer);
+	}
 	
-	private static void toggleScoreBoards() {
+	private static void updateDefaultScoreBoard(Player player, PKAPlayer pkaPlayer) {
+		Objective objective = player.getScoreboard().getObjective(DisplaySlot.SIDEBAR);
+		updateDefaultObjective(objective, pkaPlayer);
+	}
+	
+	private static void updateDefaultObjective(Objective objective, PKAPlayer pkaPlayer) {
+		Score goldAmount = objective.getScore("§6Gold:");
+		goldAmount.setScore(pkaPlayer.getGoldAmount());
+		Score playerAmount = objective.getScore("§7Players:");
+		playerAmount.setScore(Bukkit.getOnlinePlayers().length);
+	}
+	
+	private static void updateTeamObjective(Objective objective, PKAPlayer pkaPlayer) {
+		PKATeam pkaTeam = pkaPlayer.getPKATeam();
+		if (pkaTeam == null)
+			return;
+		if (pkaTeam.getOnlinePlayers().size() > 1) {
+			for (PKAPlayer teamMember : pkaTeam.getOnlinePlayers()) {
+				String healthPrefix = "§4";
+				double healthPercentage = teamMember.getHealth() / teamMember.getMaxHealth();
+				if (healthPercentage > 0.3) {
+					if (healthPercentage > 0.5) {
+						if (healthPercentage > 0.8) {
+							healthPrefix = "§a";
+						} else {
+							healthPrefix = "§e";
+						}
+					} else {
+						healthPrefix = "§c";
+					}
+				}
+				Score score = objective.getScore(new OfflinePlayerNoLookup(teamMember.getName()));
+				score.setScore((int) teamMember.getHealth());
+			}
+		}
+	}
+	
+	/*private static void toggleScoreBoards() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			toggleScoreBoard(player);
 		}
@@ -90,20 +155,9 @@ public class SidebarUtil {
 			if (pkaPlayer.getPKATeam() != null)
 				player.setScoreboard(getTeamScoreBoard(player, pkaPlayer));
 		}
-	}
+	}*/
 	
-	private static Scoreboard getDefaultScoreBoard(Player player, PKAPlayer pkaPlayer) {
-		Scoreboard scoreBoard = manager.getNewScoreboard();
-		Objective objective = scoreBoard.registerNewObjective("test", "dummy");
-		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-		objective.setDisplayName("Duck loves you");
-		
-		updateDefaultObjective(objective, pkaPlayer);
-		
-		return scoreBoard;
-	}
-	
-	private static Scoreboard getTeamScoreBoard(Player player, PKAPlayer pkaPlayer) {
+	/*private static Scoreboard getTeamScoreBoard(Player player, PKAPlayer pkaPlayer) {
 		Scoreboard scoreBoard = manager.getNewScoreboard();
 		Objective objective = scoreBoard.registerNewObjective("test", "dummy");
 		objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -124,21 +178,9 @@ public class SidebarUtil {
 			Score playerScore = objective.getScore("§a" + pkaPlayer.getName());
 			playerScore.setScore((int) pkaPlayer.getHealth());
 		}
-	}
+	}*/
 	
-	private static void updateDefaultScoreBoard(Player player, PKAPlayer pkaPlayer) {
-		Objective objective = player.getScoreboard().getObjective(DisplaySlot.SIDEBAR);
-		updateDefaultObjective(objective, pkaPlayer);
-	}
-	
-	private static void updateDefaultObjective(Objective objective, PKAPlayer pkaPlayer) {
-		Score goldAmount = objective.getScore("§6Gold:");
-		goldAmount.setScore(pkaPlayer.getGoldAmount());
-		Score playerAmount = objective.getScore("§7Players:");
-		playerAmount.setScore(Bukkit.getOnlinePlayers().length);
-	}
-	
-	private static void updateTeamScoreBoard(Player player, PKAPlayer pkaPlayer) {
+	/*private static void updateTeamScoreBoard(Player player, PKAPlayer pkaPlayer) {
 		PKATeam pkaTeam = pkaPlayer.getPKATeam();
 		if (pkaTeam == null)
 			return;
@@ -152,6 +194,6 @@ public class SidebarUtil {
 			Score playerScore = objective.getScore(pkaPlayer.getName());
 			playerScore.setScore((int) pkaPlayer.getHealth());
 		}
-	}
+	}*/
 	
 }

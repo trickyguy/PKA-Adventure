@@ -1,10 +1,13 @@
 package com.pkadev.pkaadventure.processors;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.server.v1_7_R4.AttributeInstance;
+import net.minecraft.server.v1_7_R4.Navigation;
 import net.minecraft.server.v1_7_R4.WorldServer;
 
 import org.bukkit.Bukkit;
@@ -279,10 +282,16 @@ public class SpawnNodeProcessor {
 	private static void spawnMobs(SpawnNode node, int amount) {
 		for (int i = 0; i < node.getAmount(); i++) {
 			MobMonster mobMonster = getMobMonster(node);
-			if (mobMonster == null) {
+			if (mobMonster == null)
 				return;
-			}
 			initiateMobMonster(mobMonster, node);
+			try {
+				Field field = Navigation.class.getDeclaredField("e");
+				field.setAccessible(true);
+				AttributeInstance e = (AttributeInstance) field.get(mobMonster.getNavigation());
+				e.setValue(32); // Navigation distance in block lengths goes here
+				} catch (Exception ex) {
+				}
 			addMobToNode(node, mobMonster);
 			setSpawnLocation(node.getLocation(), mobMonster, node.getRadius());
 			worldServer.addEntity(mobMonster.getEntity());
@@ -607,6 +616,10 @@ public class SpawnNodeProcessor {
 		if (random.nextInt(4) > 2) {
 			rareItemInt = random.nextInt(4);
 		}
+		
+		if (!node.getMob().equals("zombie") && !node.getMob().equals("skeleton"))
+			return rareItemInt;
+		
 		((LivingEntity) mobMonster.getEntity().getBukkitEntity()).getEquipment().setArmorContents(ItemUtil.getInitialContent(node.getLevel(), rareItemInt));
 		return rareItemInt;
 	}

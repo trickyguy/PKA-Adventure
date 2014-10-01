@@ -4,9 +4,11 @@ import java.lang.reflect.Field;
 
 import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
 
+import net.minecraft.server.v1_7_R4.AttributeInstance;
 import net.minecraft.server.v1_7_R4.EntityInsentient;
 import net.minecraft.server.v1_7_R4.EntityPlayer;
 import net.minecraft.server.v1_7_R4.EntityZombie;
+import net.minecraft.server.v1_7_R4.Navigation;
 import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;
 import net.minecraft.server.v1_7_R4.PathfinderGoalHurtByTarget;
 import net.minecraft.server.v1_7_R4.PathfinderGoalMeleeAttack;
@@ -39,6 +41,10 @@ import com.pkadev.pkaadventure.objects.mobs.neutral.CustomEntityZombieNeutral;
 
 public class CustomEntityCaveSpiderEvil extends EntityZombie implements MobMonster {
 
+	public CustomEntityCaveSpiderEvil(World world) {
+		super(world);
+	}
+	
 	private SpawnNode node;
 	private PKAMob pkaMob;
 	
@@ -52,10 +58,6 @@ public class CustomEntityCaveSpiderEvil extends EntityZombie implements MobMonst
 		this.node = node;
 	}
 	
-	public CustomEntityCaveSpiderEvil(World world) {
-		super(world);
-	}
-
 	@Override
 	public void initiate(SpawnNode spawnNode) {
 		try {

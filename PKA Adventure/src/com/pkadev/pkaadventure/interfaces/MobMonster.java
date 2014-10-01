@@ -13,4 +13,5 @@ public interface MobMonster {
 	public PKAMob getPKAMob();
 	public void setPKAMob(PKAMob pkaMob);
 	public EntityInsentient getEntity();
+	public Object getNavigation();
 }

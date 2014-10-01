@@ -3,6 +3,8 @@ package com.pkadev.pkaadventure.objects;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.scoreboard.Team;
+
 public class PKATeam {
 
 	private List<PKAPlayer> onlinePlayers = null;
@@ -12,6 +14,8 @@ public class PKATeam {
 	private String owner = null;
 	private List<String> admins = null;
 	private List<String> invitees = null;
+	
+	private Team scoreBoardTeam = null;
 	
 	/**
 	 * @param offlinePlayers
@@ -135,6 +139,14 @@ public class PKATeam {
 		onlinePlayers.remove(pkaPlayer);
 	}
 	
+	public Team getScoreBoardTeam() {
+		return scoreBoardTeam;
+	}
+
+	public void setScoreBoardTeam(Team scoreBoardTeam) {
+		this.scoreBoardTeam = scoreBoardTeam;
+	}
+
 	public void clear() {
 		onlinePlayers = null;
 		offlinePlayers = null;
