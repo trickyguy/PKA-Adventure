@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,10 +19,6 @@ import com.pkadev.pkaadventure.objects.ItemType;
 import com.pkadev.pkaadventure.threads.OreTimer;
 
 public class SkillsUtil {
-
-	public static void load() {
-		setMiningValues();
-	}
 
 	//TODO When specifying level and exp, need to make a check for which skill information should be used.
 	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
@@ -173,17 +170,18 @@ public class SkillsUtil {
 	public static Map<String, Integer> pickaxe_values = new HashMap<>();
 
 	public static void setMiningValues() {
-		ore_values.put("COAL_ORE", Integer.valueOf(1));
-		ore_values.put("LAPIS_ORE", Integer.valueOf(2));
-		ore_values.put("IRON_ORE", Integer.valueOf(3));
-		ore_values.put("GOLD_ORE", Integer.valueOf(4));
-		ore_values.put("DIAMOND_ORE", Integer.valueOf(5));
-		ore_values.put("EMERALD_ORE", Integer.valueOf(6));
+		ore_values.put("COAL_ORE", 0);
+		ore_values.put("LAPIS_ORE", 1);
+		ore_values.put("IRON_ORE", 2);
+		ore_values.put("GOLD_ORE", 3);
+		ore_values.put("DIAMOND_ORE", 4);
+		ore_values.put("EMERALD_ORE", 5);
 
-		pickaxe_values.put("WOODEN_PICKAXE", Integer.valueOf(1));
-		pickaxe_values.put("STONE_PICKAXE", Integer.valueOf(2));
-		pickaxe_values.put("IRON_PICKAXE", Integer.valueOf(4));
-		pickaxe_values.put("DIAMOND_ORE", Integer.valueOf(6));
+		pickaxe_values.put("WOOD_PICKAXE", 1);
+		pickaxe_values.put("STONE_PICKAXE", 2);
+		pickaxe_values.put("IRON_PICKAXE", 4);
+		pickaxe_values.put("DIAMOND_PICKAXE", 6);
+		Bukkit.broadcastMessage("setting values");
 	}
 
 	public static boolean checkOreChance(double original) {
