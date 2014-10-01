@@ -33,14 +33,14 @@ public class SidebarUtil {
 				
 		}, 80L, 1L);*/
 		
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
+		/*Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
 
 			@Override
 			public void run() {
 				updateScoreBoards();
 			}
 				
-		}, 40L, 41L);
+		}, 40L, 41L);*/
 	}
 
 	/**
