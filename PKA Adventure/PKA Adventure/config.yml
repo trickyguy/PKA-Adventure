@@ -2,14 +2,14 @@ homeworld: world
 MessageType:
   SINGLE:
     prefix: "=eSINGLE: "
-  GROUP:
-    prefix: "=eGROUP: "
+  TEAM:
+    prefix: "=eTEAM: "
   SERVER:
     prefix: "=eSERVER: "
   SINGLE_DEBUG:
     prefix: "=eSINGLE_DEBUG: "
-  GROUP_DEBUG:
-    prefix: "=eGROUP_DEBUG: "
+  TEAM_DEBUG:
+    prefix: "=eTEAM_DEBUG: "
   SERVER_DEBUG:
     prefix: "=eSERVER_DEBUG: "
 Lore:
