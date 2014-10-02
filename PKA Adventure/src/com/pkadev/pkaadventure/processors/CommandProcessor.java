@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.BookUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
@@ -31,8 +32,12 @@ public class CommandProcessor implements CommandExecutor {
 		if (cmd.getName().equalsIgnoreCase("pka")) {
 			if (argsLength == 0) {
 				InventoryUtil.openInventory(player, -1, "selection");
-				Random random = new Random();
-				SkillsUtil.updateSkillItemWithStats(player, player.getItemInHand(), random.nextInt(100) + 1, 20);
+				
+				// Marcus testing
+				PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+				pkaPlayer.setMiningLevel(24);
+				pkaPlayer.setMiningExp(SkillsUtil.getMaxExpFromLevel(24) - 500);
+				
 			} else if (argsLength == 1) {
 				if (args[0].equalsIgnoreCase("create")) {
 					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
@@ -44,6 +49,7 @@ public class CommandProcessor implements CommandExecutor {
 					InventoryUtil.saveInventory(player.getInventory(), "PlayerInventory", player.getName());
 					InventoryUtil.saveInventory(PlayerProcessor.getPKAPlayer(player).getAbilityInventory(), "Ability", player.getName());
 				} else if (args[0].equalsIgnoreCase("leave")) {
+					MessageUtil.sendMessage(player, "You have been removed from gameplay.", MessageType.SINGLE);
 					PlayerProcessor.removePKAPlayer(player);
 				} else {
 					invalidCommand(player);

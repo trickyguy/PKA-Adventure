@@ -1,4 +1,4 @@
-package com.pkadev.pkaadventure.objects;
+package com.pkadev.pkaadventure.objects.particles;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

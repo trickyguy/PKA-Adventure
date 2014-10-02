@@ -28,8 +28,11 @@ skill:
   - ""
   endelements:
   - skill_doubledrop
-  maxendelements: 1
-  id: 3
+  - skill_goldfind
+  maxendelements: 2
+  id:
+  - 270
+  - 271
 food_pork_raw:
   elements:
   - food_raw_price

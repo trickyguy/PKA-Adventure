@@ -8,22 +8,31 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.pkadev.pkaadventure.objects.BrokenOreBlock;
 import com.pkadev.pkaadventure.objects.ItemType;
+import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.objects.particles.ParticleEffect;
 import com.pkadev.pkaadventure.threads.OreTimer;
+import com.pkadev.pkaadventure.types.MessageType;
 
 public class SkillsUtil {
 
 	//TODO When specifying level and exp, need to make a check for which skill information should be used.
 	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
 		if(isSkillItem(itemStack)) {
-			
+
 			ItemType itemType = ElementsUtil.getItemTypeElement("skill");
 			ItemMeta itemMeta = itemStack.getItemMeta();
 
@@ -44,7 +53,7 @@ public class SkillsUtil {
 
 				newLore.add(line);
 			}
-
+			
 			itemStack.setType(getSkillMaterial(itemStack, level, getMaterialSuffix(itemStack.getType())));
 
 			itemMeta.setLore(newLore);
@@ -52,7 +61,18 @@ public class SkillsUtil {
 			itemStack.setItemMeta(itemMeta);
 		}
 	}
-
+	
+	public static int[] getPickaxeMultipliers(PKAPlayer pkaPlayer) {
+		List<String> endElements = FileUtil.getStringListFromConfig(FileUtil.getItemTypeConfig(), "skill.endelements", "itemtypes.yml");
+		
+		String[] array = endElements.toArray(new String[endElements.size()]);
+		int[] attributes = MathUtil.getArray(pkaPlayer.getMiningLevel(), array);
+		
+		for(int i : attributes)
+			Bukkit.broadcastMessage("" + i);
+		return attributes;
+	}
+	
 	public static int getMaxExpFromLevel(int level) {
 		int maxExp = (level + 3) * 8 * 4 * level + 128;
 		return maxExp;
@@ -191,7 +211,8 @@ public class SkillsUtil {
 		if(multiplier >= 1 || multiplier <= 99) {
 			double modifier = 101 - (100 / multiplier);
 			double d = modifier + ran.nextDouble() * (100 - modifier);
-			if(d >= (100 - (original + 14))) return true;
+
+			if(d >= (100 - (original + 7))) return true;
 			return false;
 		} else {
 			return false;
@@ -216,7 +237,7 @@ public class SkillsUtil {
 		}
 		}
 	}
-	
+
 	public static int defaultOreExp(Material material) {
 		switch(material) {
 		default: return 0;
@@ -235,9 +256,100 @@ public class SkillsUtil {
 		}
 		}
 	}
-	
+
 	public static int getRandom(int lower, int upper) {
 		Random random = new Random();
 		return random.nextInt((upper - lower) + 1) + lower;
+	}
+
+	public static int getBlockCooldown(Material material) {
+		switch(material) {
+		default: return 0;
+		case COAL_ORE:{
+			return 10;
+		} case LAPIS_ORE:{
+			return 11;
+		} case IRON_ORE:{
+			return 12;
+		} case GOLD_ORE:{
+			return 13;
+		} case DIAMOND_ORE:{
+			return 15;
+		} case EMERALD_ORE:{
+			return 16;
+		}
+		}
+	}
+
+	public static boolean isUpgradable(int level) {
+		switch(level) {
+		default: return false;
+		case 25:{
+			return true;
+		} case 50:{
+			return true;
+		} case 75:{
+			return true;
+		} case 100:{
+			return true;
+		}
+		}
+	}
+
+	public static Material getItemUpgrade(Material material) {
+		String materialName = material.toString();
+		if(materialName.endsWith("_PICKAXE")) {
+			switch(material) {
+			default: return null;
+
+			case WOOD_PICKAXE:{
+				return Material.STONE_PICKAXE;
+			} case STONE_PICKAXE:{
+				return Material.IRON_PICKAXE;
+			} case IRON_PICKAXE:{
+				return Material.DIAMOND_PICKAXE;
+			}
+			}
+		}
+		if(materialName.endsWith("_AXE")) {
+			switch(material) {
+			default: return null;
+
+			case WOOD_AXE:{
+				return Material.STONE_AXE;
+			} case STONE_AXE:{
+				return Material.IRON_AXE;
+			} case IRON_AXE:{
+				return Material.DIAMOND_AXE;
+			}
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static void upgradeSkillItem(Player player, ItemStack item, Material material, String name) {
+		item.setType(material);
+		item.getItemMeta().setDisplayName(name);
+
+		MessageUtil.sendMessage(player, "§dYour pickaxe was upgraded to §l" + ChatColor.stripColor(name) + ".", MessageType.SINGLE);
+		SkillsUtil.createFirework(player, Color.FUCHSIA, Color.PURPLE);
+
+		player.playSound(player.getLocation(), Sound.ANVIL_USE, 1.0F, 1.0F);
+		ParticleEffect.displayIconCrack(player.getEyeLocation(), item.getTypeId(), 0, 0, 0, 1, 1);
+
+	}
+
+	public static void createFirework(Player player, Color color, Color fade) {
+		Firework fireWork = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+		FireworkMeta fireWorkMeta = fireWork.getFireworkMeta();
+		Random r = new Random();
+		FireworkEffect.Type type = FireworkEffect.Type.BURST;
+
+		FireworkEffect effect = FireworkEffect.builder().flicker
+				(r.nextBoolean()).withColor(color).withFade(fade).with(type).trail(r.nextBoolean()).build();
+		fireWorkMeta.addEffect(effect);
+		fireWorkMeta.setPower(0);
+		fireWork.setFireworkMeta(fireWorkMeta);
 	}
 }

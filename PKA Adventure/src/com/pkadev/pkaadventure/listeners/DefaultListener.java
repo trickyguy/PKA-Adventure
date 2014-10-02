@@ -45,7 +45,7 @@ public class DefaultListener implements Listener {
 		PlayerProcessor.loadPlayer(player);
 
 		MessageUtil.printHoverable(player.getName(), "§f§lHOVER OVER ME", "", "§dThis is an example of hoverable text.");
-
+		
 		if(((CraftPlayer) player).getHandle().playerConnection.networkManager.getVersion() >= 47) {
 			PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
 

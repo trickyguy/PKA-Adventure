@@ -1,7 +1,7 @@
 homeworld: world
 MessageType:
   SINGLE:
-    prefix: "=eSINGLE: "
+    prefix: "=7"
   TEAM:
     prefix: "=eTEAM: "
   SERVER:
@@ -85,15 +85,23 @@ Math:
   none_damage_range: 0.0
   none_damage_multiplier: 0.0
   none_damage_yoffset: 0
-  skill_doubledrop_range: 1.5
+  
+  skill_doubledrop_range: 5.0
   skill_doubledrop_multiplier: 0.0
-  skill_doubledrop_yoffset: 5
+  skill_doubledrop_yoffset: 1
+  
+  skill_goldfind_range: 3.0
+  skill_goldfind_multiplier: 0.0
+  skill_goldfind_yoffset: 1
+  
   skill_exp_range: 1.5
   skill_exp_multiplier: 1.0
   skill_exp_yoffset: 5
+  
   skill_level_range: 1.5
   skill_level_multiplier: 1.0
   skill_level_yoffset: 5
+  
   strength_range: 1.5
   strength_multiplier: 1.0
   strength_yoffset: 5
