@@ -98,7 +98,7 @@ public class JobListener implements Listener {
 					int exp = pkaPlayer.getMiningExp();
 
 					SkillsUtil.createBrokenOre(block, material, SkillsUtil.getBlockCooldown(material));
-					SkillsUtil.getPickaxeMultipliers(pkaPlayer);
+					SkillsUtil.getPickaxeMultipliers(item);
 					
 					if(SkillsUtil.checkOreChance(SkillsUtil.defaultOreChance(material, level))) {
 

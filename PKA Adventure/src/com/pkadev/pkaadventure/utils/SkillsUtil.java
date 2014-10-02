@@ -53,7 +53,7 @@ public class SkillsUtil {
 
 				newLore.add(line);
 			}
-			
+
 			itemStack.setType(getSkillMaterial(itemStack, level, getMaterialSuffix(itemStack.getType())));
 
 			itemMeta.setLore(newLore);
@@ -61,18 +61,53 @@ public class SkillsUtil {
 			itemStack.setItemMeta(itemMeta);
 		}
 	}
-	
-	public static int[] getPickaxeMultipliers(PKAPlayer pkaPlayer) {
-		List<String> endElements = FileUtil.getStringListFromConfig(FileUtil.getItemTypeConfig(), "skill.endelements", "itemtypes.yml");
+
+	public static List<Integer> getPickaxeMultipliers(ItemStack itemStack) {
+		ItemType itemType = ElementsUtil.getItemTypeElement("skill");
+		List<Integer> enchants = new ArrayList<Integer>();
+		ItemMeta itemMeta = itemStack.getItemMeta();
+
+		List<String> lore = itemMeta.getLore();
+		// List<String> endElements = itemType.getEndElements();
+		List<String> endElements = new ArrayList<String>();
 		
+		for(int x = 0; x < endElements.size(); x++)
+			endElements.add(ElementsUtil.getLoreElementMod(itemType.getEndElements().get(x)));
+		
+		for (String endelement : endElements) {
+			
+			Bukkit.broadcastMessage(endelement);
+			
+			if(lore.contains(endelement)) {
+				Bukkit.broadcastMessage("contains");
+				for (int i = 3; i < lore.size(); i++) {
+					if(lore.get(i).startsWith(endelement)) {
+						Bukkit.broadcastMessage("" + (i - 3));
+						String string = ChatColor.stripColor(lore.get(i));
+						String number = Character.toString(string.charAt(string.length() - 2));
+						enchants.add(Integer.parseInt(number));
+					}
+				}
+			} else
+				enchants.add(0);
+		}
+
+		Bukkit.broadcastMessage("" + enchants.toString());
+		return enchants;
+
+	}
+
+	public static int[] getSkillEndElements(PKAPlayer pkaPlayer) {
+		List<String> endElements = FileUtil.getStringListFromConfig(FileUtil.getItemTypeConfig(), "skill.endelements", "itemtypes.yml");
+
 		String[] array = endElements.toArray(new String[endElements.size()]);
 		int[] attributes = MathUtil.getArray(pkaPlayer.getMiningLevel(), array);
-		
+
 		for(int i : attributes)
 			Bukkit.broadcastMessage("" + i);
 		return attributes;
 	}
-	
+
 	public static int getMaxExpFromLevel(int level) {
 		int maxExp = (level + 3) * 8 * 4 * level + 128;
 		return maxExp;
