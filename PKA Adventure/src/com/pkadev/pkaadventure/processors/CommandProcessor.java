@@ -15,14 +15,14 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 import com.pkadev.pkaadventure.utils.SidebarUtil;
 import com.pkadev.pkaadventure.utils.SkillsUtil;
+import com.pkadev.pkaadventure.utils.TeamUtil;
 
 public class CommandProcessor implements CommandExecutor {
 
 	private static CommandProcessor i; private CommandProcessor(){} public static CommandProcessor i() {if (i == null)i = new CommandProcessor();return i;}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String cmdLbl,
-			String[] args) {
+	public boolean onCommand(CommandSender sender, Command cmd, String cmdLbl, String[] args) {
 		int argsLength = args.length;
 
 		if (!(sender instanceof Player))
@@ -60,7 +60,10 @@ public class CommandProcessor implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("ability")) {
 					try {
 						int abilityTriggerType = Integer.parseInt(args[1]);
-						PlayerProcessor.getPKAPlayer(player).setAbilitySelectionType(abilityTriggerType);
+						PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+						if (pkaPlayer == null)
+							return true;
+						pkaPlayer.setAbilitySelectionType(abilityTriggerType);
 					} catch (IllegalArgumentException ex) {
 						MessageUtil.sendMessage(player, "usage: /pka ability triggerType", MessageType.SINGLE);
 					}
@@ -93,9 +96,50 @@ public class CommandProcessor implements CommandExecutor {
 			} else {
 				invalidCommand(player);
 			}
+		} else if (cmd.getName().equalsIgnoreCase("team")) {
+			teamCommand(player, args);
 		}
 
 		return true;
+	}
+	
+	private static void teamCommand(Player sender, String args[]) {
+		String playerName = sender.getName();
+		if (args.length == 0) {
+			TeamUtil.teamInfo(playerName);
+		} else if (args.length == 1) {
+			if (args[0].equals("help")) {
+				MessageUtil.sendMessage(sender, "/team <info/invite/uninvite/leave/create/join/kick/promote/demote/disband> <player/team>", MessageType.SINGLE);
+			} else if (args[0].equals("info")) {
+				TeamUtil.teamInfo(playerName, args[1]);
+			} else if (args[0].equals("leave")) {
+				TeamUtil.leaveTeam(playerName);
+			} else if (args[0].equals("disband")) {
+				TeamUtil.disband(playerName);
+			} else {
+				invalidCommand(sender);
+			}
+		} else if (args.length == 2) {
+			if (args[0].equals("join")) {
+				TeamUtil.acceptInvite(playerName, args[1]);
+			} else if (args[0].equals("kick")) {
+				TeamUtil.kickFromTeam(args[1], playerName);
+			} else if (args[0].equals("invite")) {
+				TeamUtil.invite(args[1], playerName);
+			} else if (args[0].equals("promote")) {
+				TeamUtil.promote(args[1], playerName);
+			} else if (args[0].equals("demote")) {
+				TeamUtil.demote(args[1], playerName);
+			} else if (args[0].equals("uninvite")) {
+				TeamUtil.deinvited(args[1], playerName);
+			} else if (args[0].equals("create")) {
+				TeamUtil.create(playerName, args[1]);
+			} else {
+				invalidCommand(sender);
+			}
+		} else {
+			invalidCommand(sender);
+		}
 	}
 	
 	

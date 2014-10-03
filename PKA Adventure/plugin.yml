@@ -1,10 +1,13 @@
 name: PKAAdventure
-version: 0.1.0
+version: 0.9.0
 main: com.pkadev.pkaadventure.Main
 commands:
   pka:
     usage: /pka help
     description: Used for most commands
+  team:
+    usage: /team
+    description: Team commands
 permissions:
   pkaadventure.premium:
     description: Premium permission

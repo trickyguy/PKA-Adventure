@@ -149,6 +149,10 @@ kyle_weapon:
   - kyle_damage
   - ""
   id: 261
+relics_inventory_item:
+  elements:
+  - ""
+  id: 388
 relics_next_page:
   elements:
   - relics_next_page_line1_blank

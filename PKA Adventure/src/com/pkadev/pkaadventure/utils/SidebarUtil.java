@@ -34,7 +34,6 @@ public class SidebarUtil {
 	}
 	
 	public static void loadPlayer(Player player) {
-		MessageUtil.d("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
@@ -93,8 +92,8 @@ public class SidebarUtil {
 	
 		sidebar.setDisplayName("Duck loves you!");
 		sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
-		Score goldAmount = sidebar.getScore("Gold: ");
-		Score playerAmount = sidebar.getScore("Players #:");
+		Score goldAmount = sidebar.getScore("Gold");
+		Score playerAmount = sidebar.getScore("Players");
 		goldAmount.setScore(pkaPlayer.getGoldAmount());
 		playerAmount.setScore(Bukkit.getOnlinePlayers().length);
 		
@@ -103,7 +102,7 @@ public class SidebarUtil {
 		
 		PKATeam pkaTeam = pkaPlayer.getPKATeam();
 		if (pkaTeam != null) {
-			team = scoreBoard.getTeam(pkaPlayer.getPKATeam().getName());
+			team = scoreBoard.registerNewTeam(pkaPlayer.getPKATeam().getName());
 			team.setPrefix("§a");
 			
 			for (PKAPlayer onlinePlayer : pkaTeam.getOnlinePlayers()) {
@@ -121,9 +120,13 @@ public class SidebarUtil {
 		
 		Scoreboard scoreBoard = player.getScoreboard();
 		Objective sidebar = scoreBoard.getObjective(DisplaySlot.SIDEBAR);
+		if (sidebar == null) {
+			loadFreshScoreBoard(player, pkaPlayer);
+			return;
+		}
 		
-		Score goldAmount = sidebar.getScore("Gold: ");
-		Score playerAmount = sidebar.getScore("Players #:");
+		Score goldAmount = sidebar.getScore("Gold");
+		Score playerAmount = sidebar.getScore("Players");
 		goldAmount.setScore(pkaPlayer.getGoldAmount());
 		playerAmount.setScore(Bukkit.getOnlinePlayers().length);
 	}

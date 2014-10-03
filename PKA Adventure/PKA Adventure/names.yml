@@ -38,3 +38,7 @@ kyle_weapon:
 - =r=6Kyle's Stick Launcher
 gold_nugget:
 - gold_nugget
+relics_inventory_item:
+- =r=6Relics
+relics_next_page:
+- =r=7Next Page

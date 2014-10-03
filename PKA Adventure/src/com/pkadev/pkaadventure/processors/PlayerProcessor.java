@@ -16,6 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.pkadev.pkaadventure.Main;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.objects.PKATeam;
 import com.pkadev.pkaadventure.types.ClassType;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.FileUtil;
@@ -55,11 +56,19 @@ public class PlayerProcessor {
 		}
 	}
 	
+	public static void unloadPlayers() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			unloadPlayer(player);
+		}
+	}
+	
 	/**
 	 * using when player leaves game
 	 * @param player Player specified to unload.
 	 */
 	public static void unloadPlayer(Player player) {
+		if (PlayerProcessor.getPKAPlayer(player) == null)
+			return;
 		savePlayer(player);
 		TeamUtil.unloadPlayer(player);
 		SidebarUtil.unloadPlayer(player);
@@ -111,7 +120,7 @@ public class PlayerProcessor {
 		ItemUtil.giveWeapon(player, classType);
 		InventoryUtil.loadInventory(player, "Ability", playerName);
 		
-		MessageUtil.log("Player " + playerName + " has been loaded in.");
+		MessageUtil.log("Player " + playerName + " has been loaded in as " + classType.toString() + ".");
 	}
 	
 	private static PKAPlayer getInitialPKAPlayer(Player player, ClassType classType) {
@@ -127,6 +136,7 @@ public class PlayerProcessor {
 		int weaponSlot = 				InventoryUtil.getWeaponSlot(player);
 		int availableUpgradePoints = 	getUpgradePointsFromPlayerConfig(playerName, playerConfig, classTypeString);
 		List<String> discovLocations = 	getDiscoveredLocations(playerName, playerConfig, classTypeString);
+		PKATeam pkaTeam = 				getPKATeam(playerName, playerConfig, classTypeString);
 		
 		int goldValue = 				getIntFromPlayerConfig(playerName, playerConfig, classTypeString, ".gold");
 		// Mining
@@ -134,7 +144,7 @@ public class PlayerProcessor {
 		int miningLevel = 				getIntFromPlayerConfig(playerName, playerConfig, classTypeString, ".mining.level");
 		
 		return new PKAPlayer(player, classType, level, experience, maxHealth, 
-				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue, discovLocations, null);	
+				health, damage, weaponSlot, availableUpgradePoints, miningExp, miningLevel, goldValue, discovLocations, pkaTeam);	
 	}
 
 	private static boolean hasLoadedClassBefore(String playerName, ClassType classType) {
@@ -198,6 +208,15 @@ public class PlayerProcessor {
 
 	private static List<String> getDiscoveredLocations(String playerName, YamlConfiguration playerConfig, String classTypeString) {
 		return playerConfig.getStringList(classTypeString + ".discoveredlocations");
+	}
+	
+	private static PKATeam getPKATeam(String playerName, YamlConfiguration playerConfig, String classTypeString) {
+		PKATeam pkaTeam = null;
+		if (playerConfig.contains(classTypeString + ".pkateam")) {
+			String teamName = playerConfig.getString(classTypeString + ".pkateam");
+			pkaTeam = TeamUtil.getTeam(teamName);
+		}
+		return pkaTeam;
 	}
 	
 	private static double getDamageFromPlayerConfig(String playerName, String classTypeString, int level) {
@@ -274,6 +293,8 @@ public class PlayerProcessor {
 		playerConfig.set(classTypeString + ".maxhealth", pkaPlayer.getMaxHealth());
 		playerConfig.set(classTypeString + ".health", pkaPlayer.getHealth());
 		playerConfig.set(classTypeString + ".availableupgradepoints", pkaPlayer.getAvailableUpgradePoints());
+		if (pkaPlayer.getPKATeam() != null)
+			playerConfig.set(classTypeString + ".pkateam", pkaPlayer.getPKATeam().getName());
 		
 		playerConfig.set(classTypeString + ".gold", pkaPlayer.getGoldAmount());
 		// Mining

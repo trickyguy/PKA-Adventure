@@ -31,6 +31,8 @@ public class TeamUtil {
 		
 		if (config.contains("Teams")) {
 			for (String name : config.getConfigurationSection("Teams").getKeys(false)) {
+				if (name.equals("default_team_name"))
+					continue;
 				ConfigurationSection section = config.getConfigurationSection("Teams." + name);
 				
 				List<String> members = 			section.getStringList("members");
@@ -60,16 +62,20 @@ public class TeamUtil {
 	
 	public static void saveTeams() {
 		YamlConfiguration config = FileUtil.getTeamConfig();
+		if (!config.contains("Teams"))
+			config.set("Teams.default_team_name", "This team cannot be used!");
 		ConfigurationSection section = config.getConfigurationSection("Teams");
 		
 		for (String name : teams.keySet()) {
 			PKATeam pkaTeam = getTeam(name);
-			section.set(name + "members", 	pkaTeam.getOfflinePlayers());
-			section.set(name + "owner", 	pkaTeam.getOwner());
-			section.set(name + "admins", 	pkaTeam.getAdmins());
-			if (!pkaTeam.getInvitees().isEmpty())
-				section.set(name + "invitees", pkaTeam.getInvitees());
+			section.set(name + ".members", 	pkaTeam.getOfflinePlayers());
+			section.set(name + ".owner", 	pkaTeam.getOwner());
+			section.set(name + ".admins", 	pkaTeam.getAdmins());
+			if (!(pkaTeam.getInvitees() == null) && pkaTeam.getInvitees().isEmpty())
+				section.set(name + ".invitees", pkaTeam.getInvitees());
 		}
+		
+		FileUtil.save(config, "plugins/PKAAdventure/teams.yml");
 	}
 	
 	public static void loadPlayer(Player player) {
@@ -93,7 +99,7 @@ public class TeamUtil {
 	}
 	
 	public static void create(final String playerName, String teamName) {
-		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(playerName));
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
 		if (pkaPlayer == null)
 			return;
 		
@@ -112,6 +118,7 @@ public class TeamUtil {
 		
 		PKATeam pkaTeam = new PKATeam(offlinePlayers, teamName, playerName, admins);
 		pkaTeam.addOnlineMember(pkaPlayer);
+		pkaPlayer.setPKATeam(pkaTeam);
 		teams.put(teamName, pkaTeam);
 		
 		MessageUtil.sendMessage(pkaPlayer.getPlayer(), "The team has been created.", MessageType.SINGLE);
@@ -123,7 +130,7 @@ public class TeamUtil {
 	 * @param adminName
 	 */
 	public static void invite(String playerName, String adminName) {
-		PKAPlayer admin = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(adminName));
+		PKAPlayer admin = PlayerProcessor.getPKAPlayer(adminName);
 		if (admin == null)
 			return;
 		
@@ -159,7 +166,7 @@ public class TeamUtil {
 	}
 	
 	public static void deinvited(String playerName, String adminName) {
-		PKAPlayer admin = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(adminName));
+		PKAPlayer admin = PlayerProcessor.getPKAPlayer(adminName);
 		if (admin == null)
 			return;
 		
@@ -192,7 +199,7 @@ public class TeamUtil {
 	}
 	
 	public static void acceptInvite(String playerName, String teamName) {
-		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(playerName));
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
 		if (pkaPlayer == null)
 			return;
 		
@@ -219,7 +226,7 @@ public class TeamUtil {
 	}
 	
 	public static void leaveTeam(String playerName) {
-		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(playerName));
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
 		if (pkaPlayer == null)
 			return;
 		
@@ -253,7 +260,7 @@ public class TeamUtil {
 	 * @param adminName: could be anyone. Members cant kick admins, admins can kick members, admins cant kick admins, owner can kick anyone (not himself)
 	 */
 	public static void kickFromTeam(String playerName, String adminName) {
-		PKAPlayer admin = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(adminName));
+		PKAPlayer admin = PlayerProcessor.getPKAPlayer(adminName);
 		if (admin == null)
 			return;
 		
@@ -277,7 +284,7 @@ public class TeamUtil {
 		if (pkaTeam.getAdmins().contains(playerName) && !pkaTeam.getOwner().equals(adminName))
 			MessageUtil.sendMessage(admin.getPlayer(), "Only the owner can kick admins from the team.", MessageType.SINGLE);
 		else {
-			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(playerName));
+			PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
 			if (pkaPlayer == null)
 				pkaTeam.removeMember(playerName);
 			else {
@@ -290,7 +297,7 @@ public class TeamUtil {
 	}
 	
 	public static void disband(String playerName) {
-		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(Bukkit.getPlayer(playerName));
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
 		if (pkaPlayer == null)
 			return;
 		
@@ -313,6 +320,118 @@ public class TeamUtil {
 		}
 		pkaTeam.clear();
 		teams.remove(pkaTeam);
+	}
+	
+	public static void promote(String playerName, String adminName) {
+		PKAPlayer admin = PlayerProcessor.getPKAPlayer(adminName);
+		if (admin == null)
+			return;
+		
+		PKATeam pkaTeam = admin.getPKATeam();
+		if (pkaTeam == null) {
+			MessageUtil.sendMessage(admin.getPlayer(), "You are currently not part of a team ;(", MessageType.SINGLE);
+			return;
+		}
+		
+		if (playerName.equals(adminName)) {
+			MessageUtil.sendMessage(admin.getPlayer(), "Seriously?", MessageType.SINGLE);
+			return;
+		}
+		
+		if (!pkaTeam.getOwner().equals(adminName)) {
+			MessageUtil.sendMessage(admin.getPlayer(), "Only the owner can promote/demote.", MessageType.SINGLE);
+			return;
+		}
+			
+		if (pkaTeam.getAdmins().contains(playerName)) {
+			MessageUtil.sendMessage(admin.getPlayer(), "He is already an admin.", MessageType.SINGLE);
+			return;
+		}
+		
+		pkaTeam.addAdmin(playerName);
+		MessageUtil.sendMessage(admin.getPlayer(), "You've promoted " + playerName + ".", MessageType.SINGLE);
+	}
+	
+	public static void demote(String playerName, String adminName) {
+		PKAPlayer admin = PlayerProcessor.getPKAPlayer(adminName);
+		if (admin == null)
+			return;
+		
+		PKATeam pkaTeam = admin.getPKATeam();
+		if (pkaTeam == null) {
+			MessageUtil.sendMessage(admin.getPlayer(), "You are currently not part of a team ;(", MessageType.SINGLE);
+			return;
+		}
+		
+		if (playerName.equals(adminName)) {
+			MessageUtil.sendMessage(admin.getPlayer(), "Seriously?", MessageType.SINGLE);
+			return;
+		}
+		
+		if (!pkaTeam.getOwner().equals(adminName)) {
+			MessageUtil.sendMessage(admin.getPlayer(), "Only the owner can promote/demote.", MessageType.SINGLE);
+			return;
+		}
+		
+		if (!pkaTeam.getAdmins().contains(playerName)) {
+			MessageUtil.sendMessage(admin.getPlayer(), "He is not an admin.", MessageType.SINGLE);
+			return;
+		}
+		
+		pkaTeam.removeAdmin(playerName);
+		MessageUtil.sendMessage(admin.getPlayer(), "You've demoted " + playerName + ".", MessageType.SINGLE);
+	}
+	
+	public static void teamInfo(String playerName) {
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
+		if (pkaPlayer == null)
+			return;
+		
+		PKATeam pkaTeam = pkaPlayer.getPKATeam();
+		if (pkaTeam == null) {
+			MessageUtil.sendMessage(pkaPlayer.getPlayer(), "You are currently not part of a team ;(", MessageType.SINGLE);
+			return;
+		}
+	
+		teamInfo(pkaPlayer, pkaTeam);
+	}
+	
+	public static void teamInfo(String playerName, String teamName) {
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(playerName);
+		if (pkaPlayer == null)
+			return;
+		
+		PKATeam pkaTeam = getTeam(teamName);
+		if (pkaTeam == null) {
+			MessageUtil.sendMessage(pkaPlayer.getPlayer(), "That team does not exist.", MessageType.SINGLE);
+			return;
+		}
+		
+		teamInfo(pkaPlayer, pkaTeam);
+	}
+	
+	private static void teamInfo(PKAPlayer pkaPlayer, PKATeam pkaTeam) {
+		Player player = pkaPlayer.getPlayer();
+		String ownerName = pkaTeam.getOwner();
+		
+		MessageUtil.sendMessage(player, "TeamName: " + pkaTeam.getName(), MessageType.SINGLE);
+		MessageUtil.sendMessage(player, "Owner: " + pkaTeam.getOwner(), MessageType.SINGLE);
+		
+		if (pkaTeam.getAdmins().size() > 1) {
+			MessageUtil.sendMessage(player, "Admins: " + pkaTeam.getOwner(), MessageType.SINGLE);
+			for (String adminName : pkaTeam.getAdmins()) {
+				if (!adminName.equals(ownerName))
+					MessageUtil.sendMessage(player, "- " + adminName, MessageType.SINGLE);
+			}
+		}
+		
+		if (pkaTeam.getAdmins().size() > 1) {
+			MessageUtil.sendMessage(player, "Members: " + pkaTeam.getOwner(), MessageType.SINGLE);
+			for (String offlinePlayerName : pkaTeam.getOfflinePlayers()) {
+				if (!offlinePlayerName.equals(ownerName))
+					MessageUtil.sendMessage(player, "- " + offlinePlayerName, MessageType.SINGLE);
+			}
+		}
 	}
 	
 }

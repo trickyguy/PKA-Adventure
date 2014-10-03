@@ -475,6 +475,10 @@ public class InventoryUtil {
 			pkaPlayer.removeAttributes(ItemUtil.getArmorAttributesFromItem(itemStack));
 			ItemUtil.updateStatItemMeta(player, pkaPlayer);
 		} else if (slotType == SlotType.HOTBAR) {
+			if (slot == 8) {
+				openInventory(player, -1, "playergui");
+				return false;
+			}
 			if (ItemUtil.isWeapon(itemStack))
 				pkaPlayer.setWeaponSlot(9);
 		} else if (slotType == SlotType.UPPER) {
@@ -485,14 +489,15 @@ public class InventoryUtil {
 				PlayerProcessor.switchClass(player, ItemUtil.getClassTypeFromSelectionMenuItem(itemStack));
 				return false;
 			} else if (inventoryName.equals(ElementsUtil.getPlayerGUIInventoryName())) {
+				MessageUtil.d(itemStack.getItemMeta().getDisplayName());
+				MessageUtil.d((ElementsUtil.getNameElement("relics_inventory_item").get(0)));
+				if (itemStack.getItemMeta().getDisplayName().endsWith(ElementsUtil.getNameElement("relics_inventory_item").get(0)))
+					RelicsUtil.openRelicsInventory(player, pkaPlayer, 1);
+				return false;
+			} else if (inventoryName.equals(ElementsUtil.getRelicsInventoryName())) {
 				return false;
 			} else {
 				return ShopUtil.buy(player, pkaPlayer, itemStack);
-			}
-		} else if (slotType == SlotType.NORMAL) {
-			if (slot == 8) {
-				openInventory(player, -1, "selection");
-				return false;
 			}
 		}
 		return true;
@@ -582,7 +587,7 @@ public class InventoryUtil {
 		String armorCompressedItems = "";
 		
 		for (int i = 0; i < inventory.getSize(); i++) {
-			if (i == 17)
+			if (i == 8)
 				continue;
 			
 			ItemStack itemStack = inventory.getItem(i);
@@ -631,6 +636,10 @@ public class InventoryUtil {
 		
 		@SuppressWarnings("deprecation")
 		String complexReference = 			ItemUtil.getReferenceFromItemId(itemStack.getTypeId());
+		if (complexReference == null) {
+			MessageUtil.log("could not compress item in slot " + slotNumber + " due to missing reference-by-id-get.");
+			return "";
+		}
 		String reference = 	"";
 		if (complexReference == "")
 			return "";

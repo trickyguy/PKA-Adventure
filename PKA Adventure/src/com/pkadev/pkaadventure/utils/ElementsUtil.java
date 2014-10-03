@@ -41,6 +41,7 @@ public class ElementsUtil {
 		abilityInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "ability_inventory_name", "inventories.yml");
 		selectionInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "selection_inventory_name", "inventories.yml");
 		playerGUIInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "playergui_inventory_name", "inventories.yml");
+		relicsInventoryName = FileUtil.getStringValueFromConfig(FileUtil.getInventoryConfig(), "relics_inventory_name", "inventories.yml");
 		
 		loreElements.put("", "");
 		itemTypeElements.put("", new ItemType(null, null, 0));
@@ -380,6 +381,7 @@ public class ElementsUtil {
 	private static String abilityInventoryName = null;
 	private static String selectionInventoryName = null;
 	private static String playerGUIInventoryName = null;
+	private static String relicsInventoryName = null;
 	
 	public static InventoryWithType getInventoryElement(String reference, int level) {
 		if (reference.equals("ability"))
@@ -408,6 +410,10 @@ public class ElementsUtil {
 	
 	public static String getPlayerGUIInventoryName() {
 		return playerGUIInventoryName;
+	}
+	
+	public static String getRelicsInventoryName() {
+		return relicsInventoryName;
 	}
 	
 	public static void removeInventoryElement(String reference) {

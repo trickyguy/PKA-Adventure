@@ -1,6 +1,7 @@
 ability_inventory_name: Abilities
 selection_inventory_name: Select a class!
 playergui_inventory_name: Player GUI
+relics_inventory_name: Relics
 selection:
   size: 9
   name: Select a class!
@@ -19,7 +20,9 @@ test npc:
 playergui:
   size: 9
   name: Player GUI
-  inventorytype: empty
+  inventorytype: shop_static
+  elements:
+  - relics_inventory_item$1$1$2
 relics:
   size: 9
   name: Relics

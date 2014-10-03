@@ -286,11 +286,11 @@ public class ItemUtil {
 
 	public static ClassType getClassTypeFromSelectionMenuItem(ItemStack itemStack) {
 		String itemName = ChatColor.stripColor(itemStack.getItemMeta().getDisplayName());
-		if (itemName.startsWith("Wo")) {
+		if (itemName.contains("Woody")) {
 			return ClassType.WOODY;
-		} else if (itemName.startsWith("L")) {
+		} else if (itemName.contains("Lefty")) {
 			return ClassType.LEFTY;
-		} else if (itemName.startsWith("Wi")) {
+		} else if (itemName.contains("Wings")) {
 			return ClassType.WINGS;
 		}
 		return ClassType.KYLE;

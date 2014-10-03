@@ -23,7 +23,9 @@ public class RelicsUtil {
 		
 		nextPageItem = ItemUtil.getInitialItem("relics_next_page", 1, 1);
 		YamlConfiguration relicConfig = FileUtil.getRelicConfig();
-		for (String section : relicConfig.getKeys(false)) {
+		if (!relicConfig.contains("Relics"))
+			return;
+		for (String section : relicConfig.getConfigurationSection("Relics").getKeys(false)) {
 			Integer pageNumber = null;
 			try {
 				pageNumber = Integer.parseInt(section);
@@ -49,7 +51,7 @@ public class RelicsUtil {
 	private static void openRelicsInventoryDelayed(Player player, PKAPlayer pkaPlayer, int page) {
 		if (player == null || pkaPlayer == null)
 			return;
-		if (!relicReferencesByPage.containsKey(Integer.valueOf(page)))
+		if (relicReferencesByPage == null || !relicReferencesByPage.containsKey(Integer.valueOf(page)))
 			return;
 			
 		
