@@ -20,7 +20,7 @@ public class MathUtil {
 		if (range == 0d) 
 			return (int) lowest;
 		
-		double highest = lowest * getDouble(reference + "_range");
+		double highest = lowest * range;
 		return (int) lowest + random.nextInt((int) highest);
 	}
 	

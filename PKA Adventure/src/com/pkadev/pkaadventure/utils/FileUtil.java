@@ -41,7 +41,7 @@ public class FileUtil {
 		File pageFile = 		new File("plugins/PKAAdventure/pages.yml");
 		File questFile = 		new File("plugins/PKAAdventure/quests.yml");
 		File relicFile = 		new File("plugins/PKAAdventure/relics.yml");
-		File teamFile = 		new File("plugins/PKAAdventure/relics.yml");
+		File teamFile = 		new File("plugins/PKAAdventure/teams.yml");
 		
 		if (!playerFolder.exists()) {
 			MessageUtil.log("creating players folder");

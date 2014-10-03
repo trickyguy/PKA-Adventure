@@ -26,37 +26,36 @@ public class TeamUtil {
 	 * Used only on loadup
 	 */
 	public static void load() {
-		/*
-		
 		YamlConfiguration config = FileUtil.getTeamConfig();
 		teams = new HashMap<String, PKATeam>();
 		
-		for (String name : config.getConfigurationSection("Teams").getKeys(false)) {
-			ConfigurationSection section = config.getConfigurationSection("Teams." + name);
-			
-			List<String> members = 			section.getStringList("members");
-			String owner = 					section.getString("owner");
-			List<String> admins = 			section.getStringList("admins");
-			List<String> invitees = 		null;
-			
-			if (section.contains("invitees"))
-				invitees = 					section.getStringList("invitees");
-			
-			PKATeam pkaTeam = null;
-			
-			if (invitees == null)
-				pkaTeam = new PKATeam(members, name, owner, admins);
-			else {
-				pkaTeam = new PKATeam(members, name, owner, admins, invitees);
+		if (config.contains("Teams")) {
+			for (String name : config.getConfigurationSection("Teams").getKeys(false)) {
+				ConfigurationSection section = config.getConfigurationSection("Teams." + name);
+				
+				List<String> members = 			section.getStringList("members");
+				String owner = 					section.getString("owner");
+				List<String> admins = 			section.getStringList("admins");
+				List<String> invitees = 		null;
+				
+				if (section.contains("invitees"))
+					invitees = 					section.getStringList("invitees");
+				
+				PKATeam pkaTeam = null;
+				
+				if (invitees == null)
+					pkaTeam = new PKATeam(members, name, owner, admins);
+				else {
+					pkaTeam = new PKATeam(members, name, owner, admins, invitees);
+				}
+				
+				teams.put(name, pkaTeam);
 			}
-			
-			teams.put(name, pkaTeam);
 		}
 		
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			changePlayerState(player, true);
+			loadPlayer(player);
 		}
-		*/
 	}
 	
 	public static void saveTeams() {
@@ -73,24 +72,24 @@ public class TeamUtil {
 		}
 	}
 	
-	private static void changePlayerState(Player player, boolean isNowOnline) {
+	public static void loadPlayer(Player player) {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
-		
-		changePlayerState(pkaPlayer, isNowOnline);
-	}
-
-	public static void changePlayerState(PKAPlayer pkaPlayer, boolean isNowOnline) {
 		PKATeam pkaTeam = pkaPlayer.getPKATeam();
 		if (pkaTeam == null)
 			return;
-		
-		if (isNowOnline)
-			pkaTeam.addOnlineMember(pkaPlayer);
-		else {
-			pkaTeam.removeOnlineMember(pkaPlayer);
-		}
+		pkaTeam.addOnlineMember(pkaPlayer);
+	}
+	
+	public static void unloadPlayer(Player player) {
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		PKATeam pkaTeam = pkaPlayer.getPKATeam();
+		if (pkaTeam == null)
+			return;
+		pkaTeam.removeOnlineMember(pkaPlayer);
 	}
 	
 	public static void create(final String playerName, String teamName) {

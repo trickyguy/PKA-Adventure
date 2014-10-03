@@ -1,5 +1,9 @@
 package com.pkadev.pkaadventure.objects.mobs;
 
+import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
+
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
@@ -14,6 +18,10 @@ public class CustomEntitySkeleton extends EntitySkeleton implements MobMonster {
 
 	public CustomEntitySkeleton(World world) {
 		super(world);
+		
+		if (this.getBukkitEntity() instanceof LivingEntity) {
+			((LivingEntity) this.getBukkitEntity()).getEquipment().setItemInHand(new ItemStack(Material.BOW));
+		}
 	}
 
 	private SpawnNode node;

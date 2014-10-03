@@ -51,6 +51,14 @@ public class MessageUtil {
 		plugin.severe(message);
 	}
 
+	public static void d(int i) {
+		sendMessage(Bukkit.getPlayer(""), "" + i, MessageType.SERVER_DEBUG);
+	}
+	
+	public static void d(String s) {
+		sendMessage(Bukkit.getPlayer(""), s, MessageType.SERVER_DEBUG);
+	}
+	
 	public static void d(int i, Object obj) {
 		d(i, obj.getClass().getName());
 	}
@@ -59,11 +67,11 @@ public class MessageUtil {
 		d(s, obj.getClass().getName());
 	}
 	public static void d(int i, String s) {
-		sendMessage(Bukkit.getPlayer(""), (short) System.currentTimeMillis() + " " + i + " §cfrom " + s, MessageType.SERVER_DEBUG);
+		d((short) System.currentTimeMillis() + " " + i + " §cfrom " + s);
 	}
 
 	public static void d(String s, String d) {
-		sendMessage(Bukkit.getPlayer(""), (short) System.currentTimeMillis() + " " + s + " §cfrom " + d, MessageType.SERVER_DEBUG);
+		d((short) System.currentTimeMillis() + " " + s + " §cfrom " + d);
 	}
 
 	/**

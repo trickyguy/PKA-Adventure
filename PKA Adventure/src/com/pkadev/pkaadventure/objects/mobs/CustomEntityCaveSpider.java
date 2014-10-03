@@ -1,13 +1,17 @@
 package com.pkadev.pkaadventure.objects.mobs;
 
+import java.lang.reflect.Field;
+
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.processors.MobProcessor;
 
+import net.minecraft.server.v1_7_R4.AttributeInstance;
 import net.minecraft.server.v1_7_R4.EntityCaveSpider;
 import net.minecraft.server.v1_7_R4.EntityInsentient;
 import net.minecraft.server.v1_7_R4.EntityZombie;
+import net.minecraft.server.v1_7_R4.Navigation;
 import net.minecraft.server.v1_7_R4.World;
 
 public class CustomEntityCaveSpider extends EntityCaveSpider implements MobMonster {

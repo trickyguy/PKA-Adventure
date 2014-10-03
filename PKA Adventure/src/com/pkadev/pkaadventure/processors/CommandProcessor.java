@@ -35,6 +35,8 @@ public class CommandProcessor implements CommandExecutor {
 				
 				// Marcus testing
 				PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+				if (pkaPlayer == null)
+					return true;
 				pkaPlayer.setMiningLevel(24);
 				pkaPlayer.setMiningExp(SkillsUtil.getMaxExpFromLevel(24) - 500);
 				
@@ -50,7 +52,7 @@ public class CommandProcessor implements CommandExecutor {
 					InventoryUtil.saveInventory(PlayerProcessor.getPKAPlayer(player).getAbilityInventory(), "Ability", player.getName());
 				} else if (args[0].equalsIgnoreCase("leave")) {
 					MessageUtil.sendMessage(player, "You have been removed from gameplay.", MessageType.SINGLE);
-					PlayerProcessor.removePKAPlayer(player);
+					PlayerProcessor.unloadPlayerForever(player);
 				} else {
 					invalidCommand(player);
 				}
@@ -98,7 +100,7 @@ public class CommandProcessor implements CommandExecutor {
 	
 	
 	private static void TEST(Player player) {
-		SidebarUtil.loadScoreBoards(PlayerProcessor.getPKAPlayer(player));
+		
 	}
 	
 

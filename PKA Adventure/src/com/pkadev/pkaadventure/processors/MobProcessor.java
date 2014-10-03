@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import net.minecraft.server.v1_7_R4.AttributeInstance;
 import net.minecraft.server.v1_7_R4.EntityAgeable;
 import net.minecraft.server.v1_7_R4.EntityCreature;
 import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.minecraft.server.v1_7_R4.Navigation;
 import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;
 import net.minecraft.server.v1_7_R4.PathfinderGoalHurtByTarget;
 import net.minecraft.server.v1_7_R4.PathfinderGoalLookAtPlayer;
@@ -71,6 +73,11 @@ public class MobProcessor {
 			bField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
 			cField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
 			cField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
+			
+			Field field = Navigation.class.getDeclaredField("e");
+			field.setAccessible(true);
+			AttributeInstance e = (AttributeInstance) field.get(entity.getNavigation());
+			e.setValue(12);
 		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
@@ -155,6 +162,25 @@ public class MobProcessor {
 	}
 	
 	public static void setNPCPathfinders(EntityAgeable entity, MobStance mobStance, PathfinderGoalSelector goalSelector, PathfinderGoalSelector targetSelector) {
+		
+		try {
+			Field bField = PathfinderGoalSelector.class.getDeclaredField("b");
+			bField.setAccessible(true);
+			Field cField = PathfinderGoalSelector.class.getDeclaredField("c");
+			cField.setAccessible(true);
+			bField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
+			bField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
+			cField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
+			cField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
+			
+			Field field = Navigation.class.getDeclaredField("e");
+			field.setAccessible(true);
+			AttributeInstance e = (AttributeInstance) field.get(entity.getNavigation());
+			e.setValue(4);
+			
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
 		
 		goalSelector.a(0, new PathfinderGoalFloat(entity));
 		goalSelector.a(2, new PathfinderGoalMoveTowardsRestriction(entity, 1.0D));

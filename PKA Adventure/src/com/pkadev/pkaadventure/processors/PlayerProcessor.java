@@ -24,6 +24,8 @@ import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.LocationUtil;
 import com.pkadev.pkaadventure.utils.MathUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.utils.SidebarUtil;
+import com.pkadev.pkaadventure.utils.TeamUtil;
 
 public class PlayerProcessor {
 	private static Main plugin = Main.instance;
@@ -59,7 +61,17 @@ public class PlayerProcessor {
 	 */
 	public static void unloadPlayer(Player player) {
 		savePlayer(player);
+		TeamUtil.unloadPlayer(player);
+		SidebarUtil.unloadPlayer(player);
 		removePKAPlayer(player.getName());
+	}
+
+	public static void unloadPlayerForever(Player player) {
+		PKAPlayer pkaPlayer = getPKAPlayer(player);
+		if (pkaPlayer == null)
+			return;
+		pkaPlayer.setClassType(ClassType.NONE);
+		unloadPlayer(player);
 	}
 
 	/**
@@ -88,6 +100,8 @@ public class PlayerProcessor {
 		}
 		
 		PKAPlayer pkaPlayer = getInitialPKAPlayer(player, classType);
+		TeamUtil.loadPlayer(player);
+		SidebarUtil.loadPlayer(player);
 		setAttributes(player, pkaPlayer);
 		addPKAPlayer(playerName, pkaPlayer);
 		
