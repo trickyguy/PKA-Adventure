@@ -1,12 +1,19 @@
 package com.pkadev.pkaadventure.utils;
 
+import com.pkadev.pkaadventure.objects.BrokenOreBlock;
+import com.pkadev.pkaadventure.objects.ItemType;
+import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.objects.particles.ParticleEffect;
+import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.threads.OreTimer;
+import com.pkadev.pkaadventure.types.MessageType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -20,19 +27,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.pkadev.pkaadventure.objects.BrokenOreBlock;
-import com.pkadev.pkaadventure.objects.ItemType;
-import com.pkadev.pkaadventure.objects.PKAPlayer;
-import com.pkadev.pkaadventure.objects.particles.ParticleEffect;
-import com.pkadev.pkaadventure.threads.OreTimer;
-import com.pkadev.pkaadventure.types.MessageType;
-
 public class SkillsUtil {
 
-	//TODO When specifying level and exp, need to make a check for which skill information should be used.
-	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
-		if(isSkillItem(itemStack)) {
+	// TODO When specifying level and exp, need to make a check for which skill
+	// information should be used.
 
+	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
+		if (isSkillItem(itemStack)) {
 			ItemType itemType = ElementsUtil.getItemTypeElement("skill");
 			ItemMeta itemMeta = itemStack.getItemMeta();
 
@@ -40,17 +41,15 @@ public class SkillsUtil {
 			List<String> newLore = new ArrayList<String>();
 
 			for (int i = 0; i < lore.size(); i++) {
-				String line = lore.get(i);
-				String editedLine = ChatColor.stripColor(lore.get(i));
-
-				if(editedLine.startsWith("Level")) {
-					String replacement = ElementsUtil.getLoreElementMod(itemType.getElements().get(i));
+				String line = (String)lore.get(i);
+				String editedLine = ChatColor.stripColor((String)lore.get(i));
+				if (editedLine.startsWith("Level")) {
+					String replacement = ElementsUtil.getLoreElementMod((String)itemType.getElements().get(i));
 					line = replacement + level;
-				} if(editedLine.startsWith("EXP")) {
-					String replacement = ElementsUtil.getLoreElementMod(itemType.getElements().get(i));
+				} if (editedLine.startsWith("EXP")) {
+					String replacement = ElementsUtil.getLoreElementMod((String)itemType.getElements().get(i));
 					line = replacement + exp + "/" + getMaxExpFromLevel(level);
 				}
-
 				newLore.add(line);
 			}
 
@@ -64,37 +63,78 @@ public class SkillsUtil {
 
 	public static List<Integer> getPickaxeMultipliers(ItemStack itemStack) {
 		ItemType itemType = ElementsUtil.getItemTypeElement("skill");
-		List<Integer> enchants = new ArrayList<Integer>();
-		ItemMeta itemMeta = itemStack.getItemMeta();
 
-		List<String> lore = itemMeta.getLore();
-		// List<String> endElements = itemType.getEndElements();
-		List<String> endElements = new ArrayList<String>();
-		
-		for(int x = 0; x < endElements.size(); x++)
-			endElements.add(ElementsUtil.getLoreElementMod(itemType.getEndElements().get(x)));
-		
-		for (String endelement : endElements) {
-			
-			Bukkit.broadcastMessage(endelement);
-			
-			if(lore.contains(endelement)) {
-				Bukkit.broadcastMessage("contains");
-				for (int i = 3; i < lore.size(); i++) {
-					if(lore.get(i).startsWith(endelement)) {
-						Bukkit.broadcastMessage("" + (i - 3));
-						String string = ChatColor.stripColor(lore.get(i));
-						String number = Character.toString(string.charAt(string.length() - 2));
-						enchants.add(Integer.parseInt(number));
-					}
+		List<String> lore = itemStack.getItemMeta().getLore();
+		List<Integer> enchants = new ArrayList<Integer>();
+
+		for (int a = 0; a < itemType.getEndElements().size(); a++)
+			enchants.add(Integer.valueOf(0));
+
+		if (lore.size() <= 2)
+			return enchants;
+
+		for (int n = 0; n < itemType.getEndElements().size(); n++) {
+			for (int y = 3; y < lore.size(); y++) {
+				if (lore.get(y).startsWith(ElementsUtil.getLoreElementMod(itemType.getEndElements().get(n)))) {
+					String string = ChatColor.stripColor(lore.get(y));
+					String number = Character.toString(string.charAt(string.length() - 2));
+
+					enchants.set(n, Integer.valueOf(Integer.parseInt(number)));
+					break;
 				}
+			}
+		}
+		return enchants;
+	}
+
+	public static void setNewEnchantment(Player player, ItemStack itemStack) {
+		ItemType itemType = ElementsUtil.getItemTypeElement("skill");
+		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
+
+		List<String> lore = itemStack.getItemMeta().getLore();
+		List<String> endElements = itemType.getEndElements();
+
+		List<Integer> enchants = getPickaxeMultipliers(itemStack);
+		player.sendMessage(enchants.toString());
+
+		int idx = new Random().nextInt(enchants.size());
+		int random = ((Integer)enchants.get(idx)).intValue();
+		int[] randElements = getSkillEndElements(pkaPlayer);
+
+		if (random == 0) {
+			String prefix = ElementsUtil.getLoreElementMod(endElements.get(idx));
+			String enchant = prefix + "+" + randElements[random] + "%";
+
+			if (isAllZero(enchants)) {
+				lore.add("");
+				lore.add(enchant);
 			} else
-				enchants.add(0);
+				lore.add(enchant);
+
+			MessageUtil.sendMessage(player, "§cYou have recieved the enchantment " + enchant, MessageType.SINGLE);
+			player.sendMessage(lore.toString());
+		} else {
+			player.sendMessage(lore.get(0));
+			String existingLore = lore.get(3 + idx);
+
+			MessageUtil.sendMessage(player, "§cYour existing enchantment " + existingLore + " was increased by 1%", MessageType.SINGLE);
+
+			int charNum = existingLore.length() - 2;
+			player.sendMessage("" + charNum);
+			String number = Character.toString(existingLore.charAt(charNum));
+
+			int i = Integer.parseInt(number);
+			String newLore = existingLore.replaceFirst(i + "%", i + 1 + "%");
+
+			player.sendMessage("" + i);
+
+			lore.set(3 + idx, newLore);
+			player.sendMessage(lore.toString());
 		}
 
-		Bukkit.broadcastMessage("" + enchants.toString());
-		return enchants;
-
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		itemMeta.setLore(lore);
+		itemStack.setItemMeta(itemMeta);
 	}
 
 	public static int[] getSkillEndElements(PKAPlayer pkaPlayer) {
@@ -103,9 +143,16 @@ public class SkillsUtil {
 		String[] array = endElements.toArray(new String[endElements.size()]);
 		int[] attributes = MathUtil.getArray(pkaPlayer.getMiningLevel(), array);
 
-		for(int i : attributes)
-			Bukkit.broadcastMessage("" + i);
 		return attributes;
+	}
+
+	public static boolean isAllZero(List<Integer> enchants) {
+		for (int i = 1; i < enchants.size(); i++) {
+			if ((enchants.get(i)) != 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static int getMaxExpFromLevel(int level) {
@@ -115,34 +162,35 @@ public class SkillsUtil {
 
 	public static boolean isSkillItem(ItemStack itemStack) {
 		Material type = itemStack.getType();
-		if (type.equals(Material.WOOD_PICKAXE) || type.equals(Material.STONE_PICKAXE) || type.equals(Material.IRON_PICKAXE) ||
-				type.equals(Material.DIAMOND_PICKAXE) || type.equals(Material.WOOD_AXE) || type.equals(Material.STONE_AXE) ||
-				type.equals(Material.IRON_AXE) || type.equals(Material.DIAMOND_AXE))
+		if ((type.equals(Material.WOOD_PICKAXE)) || (type.equals(Material.STONE_PICKAXE)) || (type.equals(Material.IRON_PICKAXE)) || 
+				(type.equals(Material.DIAMOND_PICKAXE)) || (type.equals(Material.WOOD_AXE)) || (type.equals(Material.STONE_AXE)) || 
+				(type.equals(Material.IRON_AXE)) || (type.equals(Material.DIAMOND_AXE))) {
 			return true;
-		else
-			return false;
+		}
+		return false;
 	}
 
 	public static String getMaterialSuffix(Material material) {
-		if(material.toString().endsWith("_PICKAXE"))
+		if (material.toString().endsWith("_PICKAXE"))
 			return "_PICKAXE";
-		else if(material.toString().endsWith("_AXE"))
+		else if (material.toString().endsWith("_AXE"))
 			return "_AXE";
 		return null;
 	}
 
-	//TODO Improve this shit, make it more dynamic. Works for now though.
+	// TODO Improve this shit, make it more dynamic. Works for now though.
 
-	public static Material getSkillMaterial(ItemStack itemStack, int level, String suffix) {
-		if(level >= 0 && level < 25) {
+	public static Material getSkillMaterial(ItemStack itemStack, int level,
+			String suffix) {
+		if (level >= 0 && level < 25) {
 			return Material.getMaterial("WOOD" + suffix);
-		} else if(level >= 25 && level < 50) {
+		} else if (level >= 25 && level < 50) {
 			return Material.getMaterial("STONE" + suffix);
-		} else if(level >= 50 && level < 75) {
+		} else if (level >= 50 && level < 75) {
 			return Material.getMaterial("IRON" + suffix);
-		} else if(level >= 75 && level < 100) {
+		} else if (level >= 75 && level < 100) {
 			return Material.getMaterial("DIAMOND" + suffix);
-		} else if(level == 100) {
+		} else if (level == 100) {
 			return Material.getMaterial("DIAMOND" + suffix);
 		}
 		return null;
@@ -150,32 +198,31 @@ public class SkillsUtil {
 
 	public static String getSkillName(Material material) {
 		String materialName = material.toString();
-		if(materialName.endsWith("_PICKAXE")) {
-			switch(material) {
-			default: return null;
-			case WOOD_PICKAXE:{
+		if (materialName.endsWith("_PICKAXE")) {
+			switch (material) {
+			default:
+				return null;
+			case WOOD_PICKAXE:
 				return "§eBeginner Pickaxe";
-			} case STONE_PICKAXE:{
+			case STONE_PICKAXE:
 				return "§aAmateur Pickaxe";
-			} case IRON_PICKAXE:{
+			case IRON_PICKAXE:
 				return "§dElite Pickaxe";
-			} case DIAMOND_PICKAXE:{
+			case DIAMOND_PICKAXE:
 				return "§bMaster Pickaxe";
 			}
-			}
-		}
-		if(materialName.endsWith("_AXE")) {
-			switch(material) {
-			default: return null;
-			case WOOD_AXE:{
+		} if (materialName.endsWith("_AXE")) {
+			switch (material) {
+			default:
+				return null;
+			case WOOD_AXE:
 				return "§eBeginner Axe";
-			} case STONE_AXE:{
+			case STONE_AXE:
 				return "§aAmateur Axe";
-			} case IRON_AXE:{
+			case IRON_AXE:
 				return "§dElite Axe";
-			} case DIAMOND_AXE:{
+			case DIAMOND_AXE:
 				return "§bMaster Axe";
-			}
 			}
 		}
 
@@ -183,21 +230,21 @@ public class SkillsUtil {
 	}
 
 	public static String getOreMaterialName(Material material) {
-		switch(material) {
-		default: return null;
-		case COAL_ORE:{
+		switch (material) {
+		default:
+			return null;
+		case COAL_ORE:
 			return "§fCoal Ore";
-		} case LAPIS_ORE:{
+		case LAPIS_ORE:
 			return "§9Lapis Ore";
-		} case IRON_ORE:{
+		case IRON_ORE:
 			return "§cIron Ore";
-		} case GOLD_ORE:{
+		case GOLD_ORE:
 			return "§6Gold Ore";
-		} case DIAMOND_ORE:{
+		case DIAMOND_ORE:
 			return "§bDiamond Ore";
-		} case EMERALD_ORE:{
+		case EMERALD_ORE:
 			return "§aEmerald Ore";
-		}
 		}
 	}
 
@@ -205,7 +252,7 @@ public class SkillsUtil {
 		new BrokenOreBlock(block, material, time);
 		block.setType(Material.STONE);
 
-		if(!OreTimer.isRunning())
+		if (!OreTimer.isRunning())
 			OreTimer.start();
 	}
 
@@ -215,11 +262,11 @@ public class SkillsUtil {
 
 		BrokenOreBlock.getAllBlocks().remove(oreBlock);
 
-		if(BrokenOreBlock.getAllBlocks().size() == 0)
+		if (BrokenOreBlock.getAllBlocks().size() == 0)
 			OreTimer.stop();
 	}
 
-	//TODO fix this hardcoded shit.
+	// TODO fix this hardcoded shit.
 
 	public static Map<String, Integer> ore_values = new HashMap<>();
 	public static Map<String, Integer> pickaxe_values = new HashMap<>();
@@ -236,18 +283,18 @@ public class SkillsUtil {
 		pickaxe_values.put("STONE_PICKAXE", 2);
 		pickaxe_values.put("IRON_PICKAXE", 4);
 		pickaxe_values.put("DIAMOND_PICKAXE", 6);
-		Bukkit.broadcastMessage("setting values");
 	}
 
 	public static boolean checkOreChance(double original) {
 		Random ran = new Random();
 		double multiplier = 1;
 
-		if(multiplier >= 1 || multiplier <= 99) {
+		if (multiplier >= 1 || multiplier <= 99) {
 			double modifier = 101 - (100 / multiplier);
 			double d = modifier + ran.nextDouble() * (100 - modifier);
 
-			if(d >= (100 - (original + 7))) return true;
+			if (d >= (100 - (original + 7)))
+				return true;
 			return false;
 		} else {
 			return false;
@@ -255,40 +302,40 @@ public class SkillsUtil {
 	}
 
 	public static double defaultOreChance(Material material, double level) {
-		switch(material) {
-		default: return 0;
-		case COAL_ORE:{
+		switch (material) {
+		default:
+			return 0;
+		case COAL_ORE:
 			return (level * Math.PI) * 1;
-		} case LAPIS_ORE:{
+		case LAPIS_ORE:
 			return (level * Math.PI) * 0.95;
-		} case IRON_ORE:{
+		case IRON_ORE:
 			return (level * Math.PI) * 0.9;
-		} case GOLD_ORE:{
+		case GOLD_ORE:
 			return (level * Math.PI) * 0.85;
-		} case DIAMOND_ORE:{
+		case DIAMOND_ORE:
 			return (level * Math.PI) * 0.8;
-		} case EMERALD_ORE:{
+		case EMERALD_ORE:
 			return (level * Math.PI) * 0.75;
-		}
 		}
 	}
 
 	public static int defaultOreExp(Material material) {
-		switch(material) {
-		default: return 0;
-		case COAL_ORE:{
+		switch (material) {
+		default:
+			return 0;
+		case COAL_ORE:
 			return getRandom(90, 110);
-		} case LAPIS_ORE:{
+		case LAPIS_ORE:
 			return getRandom(200, 240);
-		} case IRON_ORE:{
+		case IRON_ORE:
 			return getRandom(310, 370);
-		} case GOLD_ORE:{
+		case GOLD_ORE:
 			return getRandom(420, 500);
-		} case DIAMOND_ORE:{
+		case DIAMOND_ORE:
 			return getRandom(530, 630);
-		} case EMERALD_ORE:{
+		case EMERALD_ORE:
 			return getRandom(640, 760);
-		}
 		}
 	}
 
@@ -298,93 +345,96 @@ public class SkillsUtil {
 	}
 
 	public static int getBlockCooldown(Material material) {
-		switch(material) {
-		default: return 0;
-		case COAL_ORE:{
+		switch (material) {
+		default:
+			return 0;
+		case COAL_ORE:
 			return 10;
-		} case LAPIS_ORE:{
+		case LAPIS_ORE:
 			return 11;
-		} case IRON_ORE:{
+		case IRON_ORE:
 			return 12;
-		} case GOLD_ORE:{
+		case GOLD_ORE:
 			return 13;
-		} case DIAMOND_ORE:{
+		case DIAMOND_ORE:
 			return 15;
-		} case EMERALD_ORE:{
+		case EMERALD_ORE:
 			return 16;
-		}
 		}
 	}
 
 	public static boolean isUpgradable(int level) {
-		switch(level) {
-		default: return false;
-		case 25:{
+		switch (level) {
+		default:
+			return false;
+		case 25:
 			return true;
-		} case 50:{
+		case 50:
 			return true;
-		} case 75:{
+		case 75:
 			return true;
-		} case 100:{
+		case 100:
 			return true;
-		}
 		}
 	}
 
 	public static Material getItemUpgrade(Material material) {
 		String materialName = material.toString();
-		if(materialName.endsWith("_PICKAXE")) {
-			switch(material) {
-			default: return null;
-
-			case WOOD_PICKAXE:{
+		if (materialName.endsWith("_PICKAXE")) {
+			switch (material) {
+			default:
+				return null;
+			case WOOD_PICKAXE:
 				return Material.STONE_PICKAXE;
-			} case STONE_PICKAXE:{
+			case STONE_PICKAXE:
 				return Material.IRON_PICKAXE;
-			} case IRON_PICKAXE:{
+			case IRON_PICKAXE:
 				return Material.DIAMOND_PICKAXE;
 			}
-			}
-		}
-		if(materialName.endsWith("_AXE")) {
-			switch(material) {
-			default: return null;
-
-			case WOOD_AXE:{
+		} if (materialName.endsWith("_AXE")) {
+			switch (material) {
+			default:
+				return null;
+			case WOOD_AXE:
 				return Material.STONE_AXE;
-			} case STONE_AXE:{
+			case STONE_AXE:
 				return Material.IRON_AXE;
-			} case IRON_AXE:{
+			case IRON_AXE:
 				return Material.DIAMOND_AXE;
-			}
 			}
 		}
 		return null;
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void upgradeSkillItem(Player player, ItemStack item, Material material, String name) {
+	public static void upgradeSkillItem(Player player, ItemStack item,
+			Material material, String name) {
 		item.setType(material);
 		item.getItemMeta().setDisplayName(name);
 
-		MessageUtil.sendMessage(player, "§dYour pickaxe was upgraded to §l" + ChatColor.stripColor(name) + ".", MessageType.SINGLE);
+		MessageUtil.sendMessage(player, "§dYour pickaxe was upgraded to §l"
+				+ ChatColor.stripColor(name) + ".", MessageType.SINGLE);
 		SkillsUtil.createFirework(player, Color.FUCHSIA, Color.PURPLE);
 
 		player.playSound(player.getLocation(), Sound.ANVIL_USE, 1.0F, 1.0F);
-		ParticleEffect.displayIconCrack(player.getEyeLocation(), item.getTypeId(), 0, 0, 0, 1, 1);
+		ParticleEffect.displayIconCrack(player.getEyeLocation(),
+				item.getTypeId(), 0, 0, 0, 1, 1);
 
 	}
 
 	public static void createFirework(Player player, Color color, Color fade) {
-		Firework fireWork = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+		Firework fireWork = (Firework) player.getWorld().spawnEntity(
+				player.getLocation(), EntityType.FIREWORK);
 		FireworkMeta fireWorkMeta = fireWork.getFireworkMeta();
 		Random r = new Random();
 		FireworkEffect.Type type = FireworkEffect.Type.BURST;
 
-		FireworkEffect effect = FireworkEffect.builder().flicker
-				(r.nextBoolean()).withColor(color).withFade(fade).with(type).trail(r.nextBoolean()).build();
+		FireworkEffect effect = FireworkEffect.builder()
+				.flicker(r.nextBoolean()).withColor(color).withFade(fade)
+				.with(type).trail(r.nextBoolean()).build();
 		fireWorkMeta.addEffect(effect);
 		fireWorkMeta.setPower(0);
 		fireWork.setFireworkMeta(fireWorkMeta);
 	}
 }
+

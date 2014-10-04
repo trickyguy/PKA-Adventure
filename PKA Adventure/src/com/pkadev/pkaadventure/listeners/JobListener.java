@@ -1,5 +1,11 @@
 package com.pkadev.pkaadventure.listeners;
 
+import com.pkadev.pkaadventure.objects.PKAPlayer;
+import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.types.MessageType;
+import com.pkadev.pkaadventure.utils.MessageUtil;
+import com.pkadev.pkaadventure.utils.SkillsUtil;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -14,12 +20,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-
-import com.pkadev.pkaadventure.objects.PKAPlayer;
-import com.pkadev.pkaadventure.processors.PlayerProcessor;
-import com.pkadev.pkaadventure.types.MessageType;
-import com.pkadev.pkaadventure.utils.MessageUtil;
-import com.pkadev.pkaadventure.utils.SkillsUtil;
 
 public class JobListener implements Listener {
 
@@ -99,7 +99,8 @@ public class JobListener implements Listener {
 
 					SkillsUtil.createBrokenOre(block, material, SkillsUtil.getBlockCooldown(material));
 					SkillsUtil.getPickaxeMultipliers(item);
-					
+					SkillsUtil.setNewEnchantment(player, item);
+
 					if(SkillsUtil.checkOreChance(SkillsUtil.defaultOreChance(material, level))) {
 
 						int oreExp = SkillsUtil.defaultOreExp(material);
@@ -111,10 +112,10 @@ public class JobListener implements Listener {
 						if(totalExp >= maxExp + 1) {
 							int remainder = totalExp - maxExp;
 							int newMaxExp = SkillsUtil.getMaxExpFromLevel(level + 1);
-							
+
 							pkaPlayer.setMiningLevel(level + 1);
 							pkaPlayer.setMiningExp(remainder);
-							
+
 							MessageUtil.sendMessage(player, MessageUtil.centerText("§e+" + oreExp + " §lEXP " + "§7[" + remainder + "§l/§7" + newMaxExp + "]"), MessageType.SINGLE);
 							MessageUtil.sendMessage(player, MessageUtil.centerText("§e§lLEVEL UP! §e" + level + " §l-> §e" + (level + 1)), MessageType.SINGLE);
 
@@ -130,7 +131,7 @@ public class JobListener implements Listener {
 							MessageUtil.sendMessage(player, MessageUtil.centerText("§e+" + oreExp + " §lEXP " + "§7[" + totalExp + "§l/§7" + maxExp + "]"), MessageType.SINGLE);
 							pkaPlayer.setMiningExp(totalExp);
 						}
-						
+
 						SkillsUtil.updateSkillItemWithStats(player, player.getItemInHand(), pkaPlayer.getMiningLevel(), pkaPlayer.getMiningExp());
 
 					} else {
@@ -142,17 +143,3 @@ public class JobListener implements Listener {
 		}
 	}
 }
-
-/*
- * getPickaxeMultipliers()
- * returns an array
- * 
- * [0, 1, 2, 3]
- * 0 would be the multipler for gold etc
- * array would be referenced when checking chances
- */
-
-
-
-
-
