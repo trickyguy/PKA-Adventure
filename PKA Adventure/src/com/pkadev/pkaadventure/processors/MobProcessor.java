@@ -8,6 +8,8 @@ import java.util.List;
 import net.minecraft.server.v1_7_R4.AttributeInstance;
 import net.minecraft.server.v1_7_R4.EntityAgeable;
 import net.minecraft.server.v1_7_R4.EntityCreature;
+import net.minecraft.server.v1_7_R4.EntityInsentient;
+import net.minecraft.server.v1_7_R4.EntityLiving;
 import net.minecraft.server.v1_7_R4.EntityPlayer;
 import net.minecraft.server.v1_7_R4.Navigation;
 import net.minecraft.server.v1_7_R4.PathfinderGoalFloat;
@@ -30,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import com.pkadev.pkaadventure.interfaces.MobMonster;
 import com.pkadev.pkaadventure.objects.PKALivingEntity;
 import com.pkadev.pkaadventure.objects.PKAMob;
+import com.pkadev.pkaadventure.objects.SpawnNode;
 import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityCaveSpiderEvil;
 import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityEndermanEvil;
 import com.pkadev.pkaadventure.objects.mobs.evil.CustomEntityGolemEvil;
@@ -200,6 +203,7 @@ public class MobProcessor {
 	
 	public static void mobDeath(MobMonster mobMonster, Location location) {
 		PKAMob pkaMob = mobMonster.getPKAMob();
+		
 		giveOutExperience(mobMonster, mobMonster.getPKAMob());
 		SpawnNodeProcessor.removeMobFromNode(mobMonster.getSpawnNode(), mobMonster);
 		Arrays.fill(mobMonster.getEntity().getEquipment(), null);
@@ -209,6 +213,8 @@ public class MobProcessor {
 				pkaMob.getLevel(), 
 				pkaMob.getRareItemInt());
 		for (String player : drops.keySet()) {
+			if (pkaMob.getQuestReferences() != null && pkaMob.getQuestReferences().size() != 0)
+				QuestProcessor.mobDeath(pkaMob, player);
 			for (ItemStack itemStack : drops.get(player)) {
 				Item item = location.getWorld().dropItem(location, itemStack);
 				ItemUtil.addDroppedItem(item, player);
@@ -217,8 +223,25 @@ public class MobProcessor {
 		mobMonster.setPKAMob(null);
 	}
 	
-	public static void updateHealth(LivingEntity livingEntity, PKALivingEntity pkaLivingEntity) {
-		livingEntity.setCustomName("§c[" + (int) pkaLivingEntity.getHealth() + "/" + (int) pkaLivingEntity.getMaxHealth() + "] §6Lvl. " + pkaLivingEntity.getLevel());
+	public static void giveCreatureName(EntityInsentient entity, SpawnNode node) {
+		String prefix = "§c";
+		if (node.getMobStance() == MobStance.GOOD || node.getMobStance() == MobStance.PASSIVE)
+			prefix = "§a";
+		else if (node.getMobStance() == MobStance.NEUTRAL) {
+			prefix = "§e";
+		}
+		entity.setCustomNameVisible(true);
+		entity.setCustomName(prefix + node.getName() + " §5Lvl. " + node.getLevel());
+	}
+	
+	public static void updateHealth(LivingEntity livingEntity, PKAMob pkaMob) {
+		String prefix = "§c";
+		if (pkaMob.getMobStance() == MobStance.GOOD || pkaMob.getMobStance() == MobStance.PASSIVE)
+			prefix = "§a";
+		else if (pkaMob.getMobStance() == MobStance.NEUTRAL) {
+			prefix = "§e";
+		}
+		livingEntity.setCustomName(prefix + "[" + (int) pkaMob.getHealth() + "/" + (int) pkaMob.getMaxHealth() + "] §6Lvl. " + pkaMob.getLevel());
 	}
 	
 	private static void giveOutExperience(MobMonster mobMonster, PKAMob pkaMob) {

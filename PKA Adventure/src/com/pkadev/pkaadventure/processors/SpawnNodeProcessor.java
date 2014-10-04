@@ -130,22 +130,30 @@ public class SpawnNodeProcessor {
 	}
 	
 	private static int load(ConfigurationSection section, int listNumber) {
-		//create fileName mobName radius level amount mob strength stance type
+		//create fileName mobName radius level amount mob strength stance
 		int amount = 0;
 		for (String nodeName : section.getKeys(false)) {
 			SpawnNode node = null;
 			if (listNumber == 1) {
 				try {
-					node = new SpawnNode(getLocation(section, nodeName), section.getString(nodeName + ".Name"), section.getInt(nodeName + ".Radius"), section.getInt(nodeName + ".Level")
-							, section.getInt(nodeName + ".Amount"), section.getString(nodeName + ".Mob"), MobStrength.valueOf(section.getString(nodeName + ".MobStrength").toUpperCase())
-							, MobStance.valueOf(section.getString(nodeName + ".MobStance").toUpperCase()));
+					
+					Location location = getLocation(section, nodeName);
+					String name =section.getString(nodeName + ".name");
+					int radius = section.getInt(nodeName + ".radius");
+					int level = section.getInt(nodeName + ".level");
+					int nodeAmount = section.getInt(nodeName + ".amount");
+					String mob = section.getString(nodeName + ".mob");
+					MobStrength mobStrength = MobStrength.valueOf(section.getString(nodeName + ".mobstrength").toUpperCase());
+					MobStance mobStance = MobStance.valueOf(section.getString(nodeName + ".mobstance").toUpperCase());
+
+					node = new SpawnNode(location, name, radius, level, nodeAmount, mob, mobStrength, mobStance);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					MessageUtil.severe("critical loading error for spawnNode by fileName " + nodeName + ". It cannot be loaded!");
 					continue;
 				}
 			} else if (listNumber == 2) {
-				node = new SpawnNode(getLocation(section, nodeName), section.getString(nodeName + ".Name"));
+				node = new SpawnNode(getLocation(section, nodeName), section.getString(nodeName + ".name"));
 			} else {
 				node = new SpawnNode(getLocation(section, nodeName));
 			}
@@ -331,7 +339,7 @@ public class SpawnNodeProcessor {
 			addNodeToList2(node);
 			saveSpawnNode(node, fileName);
 			return true;
-		} else if (args.length == 8) {
+		} else if (args.length == 7) {
 			
 			String name = args[0].replace('_', ' ');
 			int radius = 1;
@@ -345,7 +353,6 @@ public class SpawnNodeProcessor {
 				radius = Integer.parseInt(args[1]);
 			} catch (IllegalArgumentException ex) {
 				MessageUtil.severe("Radius must be integer.");
-				ex.printStackTrace();
 				return false;
 			}
 			
@@ -353,7 +360,6 @@ public class SpawnNodeProcessor {
 				level = Integer.parseInt(args[2]);
 			} catch (IllegalArgumentException ex) {
 				MessageUtil.severe("Level must be integer.");
-				ex.printStackTrace();
 				return false;
 			}
 			
@@ -361,7 +367,6 @@ public class SpawnNodeProcessor {
 				amount = Integer.parseInt(args[3]);
 			} catch (IllegalArgumentException ex) {
 				MessageUtil.severe("Amount must be integer.");
-				ex.printStackTrace();
 				return false;
 			}
 			
@@ -369,7 +374,6 @@ public class SpawnNodeProcessor {
 				mobStrength = MobStrength.valueOf(args[5].toUpperCase());
 			} catch (IllegalArgumentException ex) {
 				MessageUtil.severe("MobStrength " + args[5] + " does not exist.");
-				ex.printStackTrace();
 				return false;
 			}
 			
@@ -377,7 +381,6 @@ public class SpawnNodeProcessor {
 				mobStance = MobStance.valueOf(args[6].toUpperCase());
 			} catch (IllegalArgumentException ex) {
 				MessageUtil.severe("MobStance " + args[6] + " does not exist.");
-				ex.printStackTrace();
 				return false;
 			}
 			
@@ -397,21 +400,21 @@ public class SpawnNodeProcessor {
 		String prefix = "Lootcrates." + fileName;
 		if (node.getSpawnNodeType() == SpawnNodeType.BEACON) {
 			prefix = "Beacons." + fileName;
-			spawnNodeConfig.set(prefix + ".Name",           node.getName());
+			spawnNodeConfig.set(prefix + ".name",           node.getName());
 		} else if (node.getSpawnNodeType() == SpawnNodeType.MOB) {
 			prefix = "Mobs." + fileName;
-			spawnNodeConfig.set(prefix + ".Name", 			node.getName());
-			spawnNodeConfig.set(prefix + ".Radius", 		node.getRadius());
-			spawnNodeConfig.set(prefix + ".Level", 			node.getLevel());
-			spawnNodeConfig.set(prefix + ".Amount", 		node.getAmount());
-			spawnNodeConfig.set(prefix + ".Mob", 			node.getMob());
-			spawnNodeConfig.set(prefix + ".MobStrength", 	node.getMobStrength().toString());
-			spawnNodeConfig.set(prefix + ".MobStance", 		node.getMobStance().toString());
+			spawnNodeConfig.set(prefix + ".name", 			node.getName());
+			spawnNodeConfig.set(prefix + ".radius", 		node.getRadius());
+			spawnNodeConfig.set(prefix + ".level", 			node.getLevel());
+			spawnNodeConfig.set(prefix + ".amount", 		node.getAmount());
+			spawnNodeConfig.set(prefix + ".mob", 			node.getMob());
+			spawnNodeConfig.set(prefix + ".mobstrength", 	node.getMobStrength().toString());
+			spawnNodeConfig.set(prefix + ".mobstance", 		node.getMobStance().toString());
 		}
 		Location location = node.getLocation();
-		spawnNodeConfig.set(prefix + ".Location.X", 		(int) location.getX());
-		spawnNodeConfig.set(prefix + ".Location.Y", 		(int) location.getY());
-		spawnNodeConfig.set(prefix + ".Location.Z", 		(int) location.getZ());
+		spawnNodeConfig.set(prefix + ".location.x", 		(int) location.getX());
+		spawnNodeConfig.set(prefix + ".location.y", 		(int) location.getY());
+		spawnNodeConfig.set(prefix + ".location.z", 		(int) location.getZ());
 		FileUtil.save(spawnNodeConfig, "plugins/PKAAdventure/spawnnodes.yml");
 	}
 	

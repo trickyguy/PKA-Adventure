@@ -124,6 +124,10 @@ public class InventoryListener implements Listener {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)
 			return;
+		if (player.getInventory().getHeldItemSlot() == 8) {
+			InventoryUtil.openInventory(player, -1, "playergui");
+			return;
+		}
 		if (player.getInventory().getHeldItemSlot() == pkaPlayer.getWeaponSlot() && !pkaPlayer.isSneaking() && pkaPlayer.getAbiltiySelectionType() == 3) {
 			if (pkaPlayer.getClassType() == ClassType.WINGS || pkaPlayer.getClassType() == ClassType.KYLE) {
 				if (event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK)

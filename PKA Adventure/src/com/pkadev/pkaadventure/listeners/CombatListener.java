@@ -129,7 +129,7 @@ public class CombatListener implements Listener {
 		if (isDamageePlayer)
 			PlayerProcessor.updateHealth((Player) damagee);
 		else {
-			MobProcessor.updateHealth(damagee, pkaDamagee); //only changes name
+			MobProcessor.updateHealth(damagee, (PKAMob) pkaDamagee); //only changes name
 		}
 	}
 	
@@ -197,7 +197,7 @@ public class CombatListener implements Listener {
 		}
 		
 		if (!isDamageePlayer)
-			MobProcessor.updateHealth(livingEntity, pkaLivingEntity); //only changes name
+			MobProcessor.updateHealth(livingEntity, (PKAMob) pkaLivingEntity); //only changes name
 	}
 
 	@EventHandler

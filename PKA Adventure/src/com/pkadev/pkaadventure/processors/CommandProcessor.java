@@ -42,7 +42,7 @@ public class CommandProcessor implements CommandExecutor {
 				
 			} else if (argsLength == 1) {
 				if (args[0].equalsIgnoreCase("create")) {
-					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance type", MessageType.SINGLE);
+					MessageUtil.sendMessage(player, "/pka create fileName mobName radius level amount mob strength stance", MessageType.SINGLE);
 				} else if (args[0].equalsIgnoreCase("ability")) {
 					InventoryUtil.openInventory(player, -1, "ability");
 				} else if (args[0].equalsIgnoreCase("test")) {

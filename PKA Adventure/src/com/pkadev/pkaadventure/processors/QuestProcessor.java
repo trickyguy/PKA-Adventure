@@ -248,7 +248,7 @@ public class QuestProcessor {
 		pkaQuest.setQuestState(questState);
 	}
 
-	public static void npcClick(PKAMob pkaMob, String playerName, String clickFinger) {
+	public static void npcClick(PKAMob pkaMob, String playerName) {
 		PKAQuest pkaQuest = getPKAQuestFromMob(pkaMob, playerName);
 		if (pkaQuest == null)
 			return;

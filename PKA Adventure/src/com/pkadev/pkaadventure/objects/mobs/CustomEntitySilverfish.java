@@ -31,6 +31,7 @@ public class CustomEntitySilverfish extends EntitySilverfish implements MobMonst
 	
 	@Override
 	public void initiate(SpawnNode spawnNode) {
+		MobProcessor.giveCreatureName(this, spawnNode);
 		MobProcessor.setCreaturePathfinders(this, spawnNode.getMobStance(), this.goalSelector, this.targetSelector);
 	}
 

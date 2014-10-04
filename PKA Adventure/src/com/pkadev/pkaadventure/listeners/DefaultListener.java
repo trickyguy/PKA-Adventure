@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.server.v1_7_R4.ChatSerializer;
 import net.minecraft.server.v1_7_R4.IChatBaseComponent;
 import net.minecraft.server.v1_7_R4.PlayerConnection;
+
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,6 +26,7 @@ import com.pkadev.pkaadventure.objects.PKAMob;
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.MobProcessor;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
+import com.pkadev.pkaadventure.processors.QuestProcessor;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.types.MobStance;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
@@ -124,8 +126,13 @@ public class DefaultListener implements Listener {
 			return;
 		}
 		PKAMob pkaMob = MobProcessor.getMobMonster(event.getRightClicked()).getPKAMob();
-		if (pkaMob.getMobStance() == MobStance.NPC)
-			InventoryUtil.openInventoryDelayed(event.getPlayer(), pkaMob.getLevel(), pkaMob.getName());
+		if (pkaMob.getMobStance() == MobStance.NPC) {
+			if (pkaMob.getQuestReferences() != null && pkaMob.getQuestReferences().size() != 0)
+				QuestProcessor.npcClick(pkaMob, pkaPlayer.getName());
+			else {
+				InventoryUtil.openInventoryDelayed(event.getPlayer(), pkaMob.getLevel(), pkaMob.getName());
+			}
+		}
 	}
 
 }

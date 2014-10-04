@@ -393,7 +393,7 @@ public class TeamUtil {
 			return;
 		}
 	
-		teamInfo(pkaPlayer, pkaTeam);
+		teamInfo(pkaPlayer, pkaTeam, true);
 	}
 	
 	public static void teamInfo(String playerName, String teamName) {
@@ -407,10 +407,10 @@ public class TeamUtil {
 			return;
 		}
 		
-		teamInfo(pkaPlayer, pkaTeam);
+		teamInfo(pkaPlayer, pkaTeam, false);
 	}
 	
-	private static void teamInfo(PKAPlayer pkaPlayer, PKATeam pkaTeam) {
+	private static void teamInfo(PKAPlayer pkaPlayer, PKATeam pkaTeam, boolean giveLocationInfo) {
 		Player player = pkaPlayer.getPlayer();
 		String ownerName = pkaTeam.getOwner();
 		
@@ -420,16 +420,32 @@ public class TeamUtil {
 		if (pkaTeam.getAdmins().size() > 1) {
 			MessageUtil.sendMessage(player, "Admins: " + pkaTeam.getOwner(), MessageType.SINGLE);
 			for (String adminName : pkaTeam.getAdmins()) {
-				if (!adminName.equals(ownerName))
-					MessageUtil.sendMessage(player, "- " + adminName, MessageType.SINGLE);
+				if (!adminName.equals(ownerName)) {
+					if (giveLocationInfo) {
+						PKAPlayer offlinePlayer = PlayerProcessor.getPKAPlayer(adminName);
+						if (offlinePlayer != null) {
+							MessageUtil.sendMessage(player, " - " + adminName + " (" + offlinePlayer.getPlayer().getLocation().getX() + "," + offlinePlayer.getPlayer().getLocation().getZ() + ")" , MessageType.SINGLE);
+							continue;
+						}
+					}
+					MessageUtil.sendMessage(player, " - " + adminName, MessageType.SINGLE);
+				}
 			}
 		}
 		
 		if (pkaTeam.getAdmins().size() > 1) {
 			MessageUtil.sendMessage(player, "Members: " + pkaTeam.getOwner(), MessageType.SINGLE);
 			for (String offlinePlayerName : pkaTeam.getOfflinePlayers()) {
-				if (!offlinePlayerName.equals(ownerName))
-					MessageUtil.sendMessage(player, "- " + offlinePlayerName, MessageType.SINGLE);
+				if (!offlinePlayerName.equals(ownerName) && !pkaTeam.getAdmins().contains(offlinePlayerName)) {
+					if (giveLocationInfo) {
+						PKAPlayer offlinePlayer = PlayerProcessor.getPKAPlayer(offlinePlayerName);
+						if (offlinePlayer != null) {
+							MessageUtil.sendMessage(player, " - " + offlinePlayerName + " (" + offlinePlayer.getPlayer().getLocation().getX() + "," + offlinePlayer.getPlayer().getLocation().getZ() + ")" , MessageType.SINGLE);
+							continue;
+						}
+					}
+					MessageUtil.sendMessage(player, " - " + offlinePlayerName, MessageType.SINGLE);
+				}
 			}
 		}
 	}

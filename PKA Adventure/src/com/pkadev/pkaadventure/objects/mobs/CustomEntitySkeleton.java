@@ -39,6 +39,7 @@ public class CustomEntitySkeleton extends EntitySkeleton implements MobMonster {
 	
 	@Override
 	public void initiate(SpawnNode spawnNode) {
+		MobProcessor.giveCreatureName(this, spawnNode);
 		MobProcessor.setCreaturePathfinders(this, spawnNode.getMobStance(), this.goalSelector, this.targetSelector);
 	}
 

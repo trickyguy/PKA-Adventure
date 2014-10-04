@@ -30,6 +30,7 @@ public class CustomEntityVillager extends EntityVillager implements MobMonster {
 	
 	@Override
 	public void initiate(SpawnNode spawnNode) {
+		MobProcessor.giveCreatureName(this, spawnNode);
 		MobProcessor.setNPCPathfinders(this, spawnNode.getMobStance(), this.goalSelector, this.targetSelector);
 	}
 

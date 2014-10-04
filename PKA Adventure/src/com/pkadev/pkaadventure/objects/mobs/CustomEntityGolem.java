@@ -7,10 +7,11 @@ import com.pkadev.pkaadventure.processors.MobProcessor;
 
 import net.minecraft.server.v1_7_R4.EntityGolem;
 import net.minecraft.server.v1_7_R4.EntityInsentient;
+import net.minecraft.server.v1_7_R4.EntityIronGolem;
 import net.minecraft.server.v1_7_R4.EntityZombie;
 import net.minecraft.server.v1_7_R4.World;
 
-public class CustomEntityGolem extends EntityGolem implements MobMonster {
+public class CustomEntityGolem extends EntityIronGolem implements MobMonster {
 
 	public CustomEntityGolem(World world) {
 		super(world);
@@ -31,6 +32,7 @@ public class CustomEntityGolem extends EntityGolem implements MobMonster {
 	
 	@Override
 	public void initiate(SpawnNode spawnNode) {
+		MobProcessor.giveCreatureName(this, spawnNode);
 		MobProcessor.setCreaturePathfinders(this, spawnNode.getMobStance(), this.goalSelector, this.targetSelector);
 	}
 
