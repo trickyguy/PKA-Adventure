@@ -20,6 +20,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -32,6 +33,11 @@ public class SkillsUtil {
 	// TODO When specifying level and exp, need to make a check for which skill
 	// information should be used.
 
+	public static void load() {
+		setSkillIds();
+		setMiningValues();
+	}
+	
 	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
 		if (isSkillItem(itemStack)) {
 			ItemType itemType = ElementsUtil.getItemTypeElement("skill");
@@ -41,13 +47,13 @@ public class SkillsUtil {
 			List<String> newLore = new ArrayList<String>();
 
 			for (int i = 0; i < lore.size(); i++) {
-				String line = (String)lore.get(i);
-				String editedLine = ChatColor.stripColor((String)lore.get(i));
+				String line = (String) lore.get(i);
+				String editedLine = ChatColor.stripColor((String) lore.get(i));
 				if (editedLine.startsWith("Level")) {
-					String replacement = ElementsUtil.getLoreElementMod((String)itemType.getElements().get(i));
+					String replacement = ElementsUtil.getLoreElementMod(itemType.getElements().get(i));
 					line = replacement + level;
 				} if (editedLine.startsWith("EXP")) {
-					String replacement = ElementsUtil.getLoreElementMod((String)itemType.getElements().get(i));
+					String replacement = ElementsUtil.getLoreElementMod(itemType.getElements().get(i));
 					line = replacement + exp + "/" + getMaxExpFromLevel(level);
 				}
 				newLore.add(line);
@@ -96,40 +102,37 @@ public class SkillsUtil {
 
 		List<Integer> enchants = getPickaxeMultipliers(itemStack);
 		player.sendMessage(enchants.toString());
-
+		
 		int idx = new Random().nextInt(enchants.size());
-		int random = ((Integer)enchants.get(idx)).intValue();
+		int random = ((Integer) enchants.get(idx)).intValue();
 		int[] randElements = getSkillEndElements(pkaPlayer);
 
 		if (random == 0) {
 			String prefix = ElementsUtil.getLoreElementMod(endElements.get(idx));
 			String enchant = prefix + "+" + randElements[random] + "%";
-
-			if (isAllZero(enchants)) {
+			
+			if (lore.size() <= 3) {
 				lore.add("");
 				lore.add(enchant);
 			} else
 				lore.add(enchant);
 
 			MessageUtil.sendMessage(player, "§cYou have recieved the enchantment " + enchant, MessageType.SINGLE);
-			player.sendMessage(lore.toString());
 		} else {
 			player.sendMessage(lore.get(0));
 			String existingLore = lore.get(3 + idx);
 
-			MessageUtil.sendMessage(player, "§cYour existing enchantment " + existingLore + " was increased by 1%", MessageType.SINGLE);
+			MessageUtil.sendMessage(player, "§cYour existing enchantment " + existingLore + " was increased!", MessageType.SINGLE);
 
 			int charNum = existingLore.length() - 2;
-			player.sendMessage("" + charNum);
 			String number = Character.toString(existingLore.charAt(charNum));
 
 			int i = Integer.parseInt(number);
+			if(i > MathUtil.getDouble(endElements.get(idx) + "_range"))
+				return;
+			
 			String newLore = existingLore.replaceFirst(i + "%", i + 1 + "%");
-
-			player.sendMessage("" + i);
-
 			lore.set(3 + idx, newLore);
-			player.sendMessage(lore.toString());
 		}
 
 		ItemMeta itemMeta = itemStack.getItemMeta();
@@ -146,13 +149,35 @@ public class SkillsUtil {
 		return attributes;
 	}
 
-	public static boolean isAllZero(List<Integer> enchants) {
+	// Not needed, keeping it incase.
+	/* public static boolean isAllZero(List<Integer> enchants) {
 		for (int i = 1; i < enchants.size(); i++) {
 			if ((enchants.get(i)) != 0) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	public static void setSkillElements(String reference, YamlConfiguration itemTypeConfig, String configFileReference) {
+		List<Integer> items = FileUtil.getIntListFromConfig(itemTypeConfig, reference + ".id", configFileReference);
+		for(Integer i : items) {
+			if(i == 270) {
+				int[] ids = new int[] {270, 274, 257, 278};
+				for(int id : ids)
+					createItemElement(id, reference);
+			} if(i == 271) {
+				int[] ids = new int[] {271, 275, 256, 279};
+				for(int id : ids)
+					createItemElement(id, reference);
+			}
+		}
+	} */
+
+	public static void createItemElement (int id, String reference) {
+		@SuppressWarnings("deprecation")
+		ItemStack element = new ItemStack(id);
+		ElementsUtil.setItemElement(reference, element);
 	}
 
 	public static int getMaxExpFromLevel(int level) {
@@ -270,6 +295,7 @@ public class SkillsUtil {
 
 	public static Map<String, Integer> ore_values = new HashMap<>();
 	public static Map<String, Integer> pickaxe_values = new HashMap<>();
+	public static List<Integer> skill_ids = new ArrayList<Integer>();
 
 	public static void setMiningValues() {
 		ore_values.put("COAL_ORE", 0);
@@ -282,10 +308,16 @@ public class SkillsUtil {
 		pickaxe_values.put("WOOD_PICKAXE", 1);
 		pickaxe_values.put("STONE_PICKAXE", 2);
 		pickaxe_values.put("IRON_PICKAXE", 4);
-		pickaxe_values.put("DIAMOND_PICKAXE", 6);
+		pickaxe_values.put("DIAMOND_PICKAXE", 6);	
+	}
+	
+	public static void setSkillIds() {
+		int[] ids = new int[] {270, 271, 274, 275, 278, 279, 257, 258};
+		for(int id : ids)
+			skill_ids.add(id);
 	}
 
-	public static boolean checkOreChance(double original) {
+	public static boolean checkRandomChance(double original, int plus) {
 		Random ran = new Random();
 		double multiplier = 1;
 
@@ -293,7 +325,7 @@ public class SkillsUtil {
 			double modifier = 101 - (100 / multiplier);
 			double d = modifier + ran.nextDouble() * (100 - modifier);
 
-			if (d >= (100 - (original + 7)))
+			if (d >= (100 - (original + plus)))
 				return true;
 			return false;
 		} else {

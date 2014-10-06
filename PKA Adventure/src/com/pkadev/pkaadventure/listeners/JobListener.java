@@ -98,10 +98,9 @@ public class JobListener implements Listener {
 					int exp = pkaPlayer.getMiningExp();
 
 					SkillsUtil.createBrokenOre(block, material, SkillsUtil.getBlockCooldown(material));
-					SkillsUtil.getPickaxeMultipliers(item);
-					SkillsUtil.setNewEnchantment(player, item);
+					// SkillsUtil.getPickaxeMultipliers(item);
 
-					if(SkillsUtil.checkOreChance(SkillsUtil.defaultOreChance(material, level))) {
+					if(SkillsUtil.checkRandomChance(SkillsUtil.defaultOreChance(material, level), 7)) {
 
 						int oreExp = SkillsUtil.defaultOreExp(material);
 						int maxExp = SkillsUtil.getMaxExpFromLevel(level);
@@ -118,7 +117,10 @@ public class JobListener implements Listener {
 
 							MessageUtil.sendMessage(player, MessageUtil.centerText("§e+" + oreExp + " §lEXP " + "§7[" + remainder + "§l/§7" + newMaxExp + "]"), MessageType.SINGLE);
 							MessageUtil.sendMessage(player, MessageUtil.centerText("§e§lLEVEL UP! §e" + level + " §l-> §e" + (level + 1)), MessageType.SINGLE);
-
+							
+							if(SkillsUtil.checkRandomChance(level, 20))
+								SkillsUtil.setNewEnchantment(player, item);
+							
 							if(SkillsUtil.isUpgradable(level + 1)) {
 								Material materialUpgrade = SkillsUtil.getItemUpgrade(item.getType());
 								String upgradeName = SkillsUtil.getSkillName(materialUpgrade);

@@ -239,7 +239,7 @@ public class ElementsUtil {
 		}
 	}
 	
-	private static void setItemElement(String reference, ItemStack element) {
+	public static void setItemElement(String reference, ItemStack element) {
 		itemElements.put(reference, element);
 	}
 	

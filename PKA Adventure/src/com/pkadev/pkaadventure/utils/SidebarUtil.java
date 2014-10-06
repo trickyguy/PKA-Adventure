@@ -23,7 +23,7 @@ public class SidebarUtil {
 		plugin = instance;
 		manager = Bukkit.getScoreboardManager();
 		
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(Bukkit.getPluginManager().getPlugin(plugin.getName()), new Runnable() {
 
 			@Override
 			public void run() {
@@ -60,6 +60,7 @@ public class SidebarUtil {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static void updateScoreBoards() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updateScoreBoard(player);
@@ -84,13 +85,14 @@ public class SidebarUtil {
 		player.setScoreboard(getDefaultScoreBoard(player, pkaPlayer));
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static Scoreboard getDefaultScoreBoard(Player player, PKAPlayer pkaPlayer) {
 		Scoreboard scoreBoard = manager.getNewScoreboard();
 		Objective sidebar = scoreBoard.registerNewObjective("sidebar", "dummy");
 		//Objective belowName = scoreBoard.registerNewObjective("undername", "dummy");
 		Team team = null;
 	
-		sidebar.setDisplayName("Duck loves you!");
+		sidebar.setDisplayName("§cInformation");
 		sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
 		Score goldAmount = sidebar.getScore("Gold");
 		Score playerAmount = sidebar.getScore("Players");
@@ -113,6 +115,7 @@ public class SidebarUtil {
 		return scoreBoard;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static void updateScoreBoard(Player player) {
 		PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 		if (pkaPlayer == null)

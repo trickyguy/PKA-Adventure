@@ -37,8 +37,8 @@ public class CommandProcessor implements CommandExecutor {
 				PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 				if (pkaPlayer == null)
 					return true;
-				pkaPlayer.setMiningLevel(24);
-				pkaPlayer.setMiningExp(SkillsUtil.getMaxExpFromLevel(24) - 500);
+				pkaPlayer.setMiningLevel(pkaPlayer.getMiningLevel() + 1);
+				pkaPlayer.setMiningExp(SkillsUtil.getMaxExpFromLevel(pkaPlayer.getMiningLevel()) - 1);
 				
 			} else if (argsLength == 1) {
 				if (args[0].equalsIgnoreCase("create")) {

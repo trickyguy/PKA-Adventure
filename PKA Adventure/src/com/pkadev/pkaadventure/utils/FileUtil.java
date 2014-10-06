@@ -284,7 +284,29 @@ public class FileUtil {
 			}
 		}
 	}
+	
+	public static List<Integer> getIntListFromConfig(YamlConfiguration config, String path, String configFileReference) {		
+		return getIntListFromConfig(config, path, configFileReference, false);
+	}
+	
+	private static List<Integer> getIntListFromConfig(YamlConfiguration config, String path, String configFileReference, boolean secondtry) {		
+		if (config.contains(path) && config.isList(path))
+			return config.getIntegerList(path);
+		else {
+			if (secondtry) {
+				MessageUtil.severe("failed finding path: " + path + " in the default " + configFileReference + ", or is not List. Disabling plugin, contact developer.");
+				plugin.disable();
+				return null;
+			} else {
+				MessageUtil.severe("could not find path: " + path + " in " + configFileReference + ", or is not List. Creating new " + configFileReference + " and trying again");
+				File configFile = new File("plugins/PKAAdventure/" + configFileReference);
+				return getIntListFromConfig(reloadFile(configFile, configFileReference), path, configFileReference, true);
+			}
 
+		}
+		
+	}
+	
 	/**
 	 * @param path possible paths: "Math.skill_exp_multiplier"
 	 * @return

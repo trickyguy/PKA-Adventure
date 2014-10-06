@@ -50,7 +50,7 @@ public class Main extends JavaPlugin {
 		TeamUtil.load();
 		RelicsUtil.load(instance);
 		SidebarUtil.load(instance);
-		SkillsUtil.setMiningValues();
+		SkillsUtil.load();
 		//setupDatabase();
 		
 		getCommand("pka").setExecutor(CommandProcessor.i());

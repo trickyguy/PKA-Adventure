@@ -122,6 +122,8 @@ public class ItemUtil {
 		ConfigurationSection section = FileUtil.getItemTypeConfig().getConfigurationSection("id_references");
 		if (id > 297 && id < 318)
 			return "armor:" + id;
+		if(SkillsUtil.skill_ids.contains(id))
+			return "skill:" + id;
 		else if (id == 268 || id == 261 || id == 286)
 			return "";
 		else {
