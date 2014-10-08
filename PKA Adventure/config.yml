@@ -20,8 +20,8 @@ Lore:
   wings_selection_line1_blank: "=7Runs"
   lefty_selection_line1_blank: "=7Flies"
   kyle_selection_line1_blank: "=7Cries"
-  skill_doubledrop: "=cDouble Drop: +"
-  skill_goldfind: "=cGold Find: +"
+  skill_doubledrop: "=cDouble Drop: "
+  skill_goldfind: "=cGold Find: "
   skill_level: "=7Level: =f"
   armor_level_fixed: "=7Level: =f"
   skill_exp: "=7EXP: =f"
@@ -35,6 +35,13 @@ Lore:
   ability_berzerk_line2: "=7Attack speed increase: =f"
   ability_berzerk_line3: "=7Length in seconds: =f"
   relics_next_page_line1_blank: "=7Next Page"
+  
+  coal_ore_lore: "=7A dusty chunk of Coal."
+  lapis_ore_lore: "=7A shiny shard of Lapis."
+  iron_ore_lore: "=7A worn piece of Iron."
+  gold_ore_lore: "=7A gleaming fragment of Gold."
+  diamond_ore_lore: "=7A clean-cut piece of Diamond."
+  emerald_ore_lore: "=7A glowing flake of Emerald."
 Math:
   max_mobdrop_amount: 3
   shop_refresh_interval: 100

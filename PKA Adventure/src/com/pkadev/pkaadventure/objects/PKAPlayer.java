@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -207,7 +208,8 @@ public class PKAPlayer extends PKALivingEntity {
 
 				@Override
 				public void run() {
-					MessageUtil.sendMessage(player, "§6+" + cachedGoldAmount + " (" + goldAmount + ")", MessageType.SIMPLE);
+					MessageUtil.sendMessage(player, "§6+" + cachedGoldAmount + "§lG §6(" + goldAmount + ")", MessageType.SIMPLE);
+					player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.4F, 1.0F);
 					hasGoldTask = false;
 				}
 				

@@ -56,10 +56,23 @@ public class PlayerProcessor {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void unloadPlayers() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			unloadPlayer(player);
 		}
+	}
+	
+	public static boolean isLoaded(String playerName) {
+		if(pkaPlayers.containsKey(playerName))
+			return true;
+		return false;
+	}
+	
+	public static boolean isLoaded(Player player) {
+		if(pkaPlayers.containsKey(player.getName()))
+			return true;
+		return false;
 	}
 	
 	/**

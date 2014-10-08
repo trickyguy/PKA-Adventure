@@ -8,6 +8,12 @@ id_references:
   364: "food_beef_cooked"
   365: "food_chicken_raw"
   366: "food_chicken_cooked"
+  16: "coal_ore"
+  21: "lapis_ore"
+  15: "iron_ore"
+  14: "gold_ore"
+  56: "diamond_ore"
+  129: "emerald_ore"
 ability_id:
   elements:
   - ""
@@ -21,6 +27,7 @@ ability_berzerk:
   - ability_berzerk_line2
   - ability_berzerk_line3
   id: 3
+  
 skill:
   elements:
   - skill_level
@@ -33,6 +40,31 @@ skill:
   id:
   - 270
   - 271
+coal_ore:
+  elements:
+  - coal_ore_lore
+  id: 16
+lapis_ore:
+  elements:
+  - lapis_ore_lore
+  id: 21
+iron_ore:
+  elements:
+  - iron_ore_lore
+  id: 15
+gold_ore:
+  elements:
+  - gold_ore_lore
+  id: 14
+diamond_ore:
+  elements:
+  - diamond_ore_lore
+  id: 56
+emerald_ore:
+  elements:
+  - emerald_ore_lore
+  id: 129
+  
 food_pork_raw:
   elements:
   - food_raw_price

@@ -1,7 +1,5 @@
 package com.pkadev.pkaadventure.processors;
 
-import java.util.Random;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,11 +7,9 @@ import org.bukkit.entity.Player;
 
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.types.MessageType;
-import com.pkadev.pkaadventure.utils.BookUtil;
 import com.pkadev.pkaadventure.utils.InventoryUtil;
 import com.pkadev.pkaadventure.utils.ItemUtil;
 import com.pkadev.pkaadventure.utils.MessageUtil;
-import com.pkadev.pkaadventure.utils.SidebarUtil;
 import com.pkadev.pkaadventure.utils.SkillsUtil;
 import com.pkadev.pkaadventure.utils.TeamUtil;
 
@@ -37,7 +33,7 @@ public class CommandProcessor implements CommandExecutor {
 				PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
 				if (pkaPlayer == null)
 					return true;
-				pkaPlayer.setMiningLevel(pkaPlayer.getMiningLevel() + 1);
+				pkaPlayer.setMiningLevel(49);
 				pkaPlayer.setMiningExp(SkillsUtil.getMaxExpFromLevel(pkaPlayer.getMiningLevel()) - 1);
 				
 			} else if (argsLength == 1) {

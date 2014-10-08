@@ -1,12 +1,13 @@
 package com.pkadev.pkaadventure.listeners;
 
+import java.util.List;
+
 import com.pkadev.pkaadventure.objects.PKAPlayer;
 import com.pkadev.pkaadventure.processors.PlayerProcessor;
 import com.pkadev.pkaadventure.types.MessageType;
 import com.pkadev.pkaadventure.utils.MessageUtil;
 import com.pkadev.pkaadventure.utils.SkillsUtil;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -17,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -43,7 +43,7 @@ public class JobListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	/* @EventHandler
 	public void dropItem(PlayerDropItemEvent event) {
 		Item item = event.getItemDrop();
 		ItemStack itemStack = item.getItemStack();
@@ -52,7 +52,7 @@ public class JobListener implements Listener {
 			Player player = event.getPlayer();
 			SkillsUtil.updateSkillItemWithStats(player, itemStack, 1, 0);
 		}
-	}
+	} */
 
 	/*
 	 * Slow mining, PlayerInteractEvent
@@ -77,10 +77,6 @@ public class JobListener implements Listener {
 			String itemMaterial = item.getType().toString();
 
 			if(itemMaterial.endsWith("_PICKAXE")) {
-
-				if(SkillsUtil.pickaxe_values.isEmpty())
-					Bukkit.broadcastMessage("empty");
-
 				if(!SkillsUtil.pickaxe_values.containsKey(itemMaterial) || !SkillsUtil.ore_values.containsKey(oreMaterial)) return;
 
 				int pick = SkillsUtil.pickaxe_values.get(itemMaterial).intValue();
@@ -92,22 +88,25 @@ public class JobListener implements Listener {
 					MessageUtil.sendMessage(player, "§cYour " + ChatColor.stripColor(SkillsUtil.getSkillName(item.getType())) + " is not capable of mining " + ChatColor.stripColor(oreName) + ".", MessageType.SINGLE);
 					return;
 				} else {
+					if(!PlayerProcessor.isLoaded(player))
+						return;
+					
 					PKAPlayer pkaPlayer = PlayerProcessor.getPKAPlayer(player);
-
-					int level = pkaPlayer.getMiningLevel(); // NULL IF A CLASS ISNT SELECTED.
+					int level = pkaPlayer.getMiningLevel();
 					int exp = pkaPlayer.getMiningExp();
 
 					SkillsUtil.createBrokenOre(block, material, SkillsUtil.getBlockCooldown(material));
-					// SkillsUtil.getPickaxeMultipliers(item);
-
-					if(SkillsUtil.checkRandomChance(SkillsUtil.defaultOreChance(material, level), 7)) {
-
+					if(SkillsUtil.subtractDurablity(player, item))
+						return;
+					
+					if(SkillsUtil.checkRandomChance(SkillsUtil.defaultOreChance(material, level), SkillsUtil.getAdditionalChance(level))) {
+						
 						int oreExp = SkillsUtil.defaultOreExp(material);
 						int maxExp = SkillsUtil.getMaxExpFromLevel(level);
 						int totalExp = exp + oreExp;
 
 						player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.4F);
-
+						
 						if(totalExp >= maxExp + 1) {
 							int remainder = totalExp - maxExp;
 							int newMaxExp = SkillsUtil.getMaxExpFromLevel(level + 1);
@@ -115,10 +114,11 @@ public class JobListener implements Listener {
 							pkaPlayer.setMiningLevel(level + 1);
 							pkaPlayer.setMiningExp(remainder);
 
-							MessageUtil.sendMessage(player, MessageUtil.centerText("§e+" + oreExp + " §lEXP " + "§7[" + remainder + "§l/§7" + newMaxExp + "]"), MessageType.SINGLE);
-							MessageUtil.sendMessage(player, MessageUtil.centerText("§e§lLEVEL UP! §e" + level + " §l-> §e" + (level + 1)), MessageType.SINGLE);
+							MessageUtil.sendMessage(player, "", MessageType.SINGLE);
+							MessageUtil.sendMessage(player, "§e+" + oreExp + " §lEXP " + "§7[" + remainder + "§l/§7" + newMaxExp + "]", MessageType.SINGLE);
+							MessageUtil.sendMessage(player, "§e§lLEVEL UP! §e" + level + " §l-> §e" + (level + 1), MessageType.SINGLE);
 							
-							if(SkillsUtil.checkRandomChance(level, 20))
+							if(SkillsUtil.checkRandomChance(level, 0))
 								SkillsUtil.setNewEnchantment(player, item);
 							
 							if(SkillsUtil.isUpgradable(level + 1)) {
@@ -128,12 +128,21 @@ public class JobListener implements Listener {
 								SkillsUtil.upgradeSkillItem(player, item, materialUpgrade, upgradeName);
 							} else {
 								SkillsUtil.createFirework(player, Color.YELLOW, Color.ORANGE);
-							}
+							} MessageUtil.sendMessage(player, "", MessageType.SINGLE);
 						} else {
-							MessageUtil.sendMessage(player, MessageUtil.centerText("§e+" + oreExp + " §lEXP " + "§7[" + totalExp + "§l/§7" + maxExp + "]"), MessageType.SINGLE);
+							MessageUtil.sendMessage(player, "§e+" + oreExp + " §lEXP " + "§7[" + totalExp + "§l/§7" + maxExp + "]", MessageType.SINGLE);
 							pkaPlayer.setMiningExp(totalExp);
 						}
-
+						
+						List<Integer> multipliers = SkillsUtil.getSkillMultipliers(item);
+						int goldFind = multipliers.get(1);
+						
+						if(goldFind != 0)
+							if(SkillsUtil.checkRandomChance(goldFind, 0))
+								SkillsUtil.activateGoldFind(player, pkaPlayer);
+						SkillsUtil.giveBrokenOre(player, multipliers, material);
+						
+						
 						SkillsUtil.updateSkillItemWithStats(player, player.getItemInHand(), pkaPlayer.getMiningLevel(), pkaPlayer.getMiningExp());
 
 					} else {

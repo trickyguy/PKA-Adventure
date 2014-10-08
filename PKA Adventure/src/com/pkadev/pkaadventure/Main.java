@@ -64,6 +64,7 @@ public class Main extends JavaPlugin {
 		CustomEntityType.unload();
 		PlayerProcessor.unloadPlayers();
 		TeamUtil.saveTeams();
+		SkillsUtil.unload();
 		
 		instance = null;
 	}

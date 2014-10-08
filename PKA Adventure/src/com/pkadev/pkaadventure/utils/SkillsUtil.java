@@ -13,14 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -36,6 +34,13 @@ public class SkillsUtil {
 	public static void load() {
 		setSkillIds();
 		setMiningValues();
+	}
+
+	public static void unload() {
+		MessageUtil.log("Regenerated all broken ore blocks.");
+		for(BrokenOreBlock block : BrokenOreBlock.getAllBlocks()) {
+			block.getOreBlock().setType(block.getMaterial());
+		}
 	}
 	
 	public static void updateSkillItemWithStats(Player player, ItemStack itemStack, int level, int exp) {
@@ -59,7 +64,16 @@ public class SkillsUtil {
 				newLore.add(line);
 			}
 
-			itemStack.setType(getSkillMaterial(itemStack, level, getMaterialSuffix(itemStack.getType())));
+			short dura = (short) (itemStack.getType().getMaxDurability() - itemStack.getDurability());
+			
+			Material newMaterail = getSkillMaterial(itemStack, level, getMaterialSuffix(itemStack.getType()));
+			itemStack.setType(newMaterail);
+			
+			short newDura = (short) (newMaterail.getMaxDurability() - dura);
+			if(newDura < 0)
+				itemStack.setDurability((short) 0);
+			else
+				itemStack.setDurability(newDura);
 
 			itemMeta.setLore(newLore);
 			itemMeta.setDisplayName(getSkillName(itemStack.getType()));
@@ -67,7 +81,7 @@ public class SkillsUtil {
 		}
 	}
 
-	public static List<Integer> getPickaxeMultipliers(ItemStack itemStack) {
+	public static List<Integer> getSkillMultipliers(ItemStack itemStack) {
 		ItemType itemType = ElementsUtil.getItemTypeElement("skill");
 
 		List<String> lore = itemStack.getItemMeta().getLore();
@@ -99,10 +113,8 @@ public class SkillsUtil {
 
 		List<String> lore = itemStack.getItemMeta().getLore();
 		List<String> endElements = itemType.getEndElements();
+		List<Integer> enchants = getSkillMultipliers(itemStack);
 
-		List<Integer> enchants = getPickaxeMultipliers(itemStack);
-		player.sendMessage(enchants.toString());
-		
 		int idx = new Random().nextInt(enchants.size());
 		int random = ((Integer) enchants.get(idx)).intValue();
 		int[] randElements = getSkillEndElements(pkaPlayer);
@@ -110,7 +122,7 @@ public class SkillsUtil {
 		if (random == 0) {
 			String prefix = ElementsUtil.getLoreElementMod(endElements.get(idx));
 			String enchant = prefix + "+" + randElements[random] + "%";
-			
+
 			if (lore.size() <= 3) {
 				lore.add("");
 				lore.add(enchant);
@@ -119,7 +131,6 @@ public class SkillsUtil {
 
 			MessageUtil.sendMessage(player, "§cYou have recieved the enchantment " + enchant, MessageType.SINGLE);
 		} else {
-			player.sendMessage(lore.get(0));
 			String existingLore = lore.get(3 + idx);
 
 			MessageUtil.sendMessage(player, "§cYour existing enchantment " + existingLore + " was increased!", MessageType.SINGLE);
@@ -130,7 +141,7 @@ public class SkillsUtil {
 			int i = Integer.parseInt(number);
 			if(i > MathUtil.getDouble(endElements.get(idx) + "_range"))
 				return;
-			
+
 			String newLore = existingLore.replaceFirst(i + "%", i + 1 + "%");
 			lore.set(3 + idx, newLore);
 		}
@@ -149,6 +160,59 @@ public class SkillsUtil {
 		return attributes;
 	}
 
+	public static boolean subtractDurablity(Player player, ItemStack item) {
+		int durability = item.getDurability();
+
+		@SuppressWarnings("deprecation")
+		Material material = Material.getMaterial(item.getTypeId());
+		int maxDura = material.getMaxDurability();
+		int dura = maxDura - durability;
+		float percent = (dura * 100) / maxDura;
+
+		if(durability == maxDura - 1) {
+			MessageUtil.sendMessage(player, "§cYour " + ChatColor.stripColor(getSkillName(material)) + " has broken!", MessageType.SINGLE);
+			player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1.0F, 1.0F);
+			player.setItemInHand(null);
+			return true;
+		} if(percent <= 5)
+			MessageUtil.sendMessage(player, "§cWARNING: Your " + ChatColor.stripColor(getSkillName(material)) + " is at " + percent + "% durability.", MessageType.SINGLE);
+
+		item.setDurability((short) (durability + 1));
+		return false;
+	}
+
+	public static void activateGoldFind(Player player, PKAPlayer pkaPlayer) {
+		int currentGold = pkaPlayer.getGoldAmount();
+		int gold = new Random().nextInt(4) + 1; //TODO Make this better
+		pkaPlayer.setGoldAmount(currentGold + gold);
+		
+		//TODO getPlayerFromPKAPlayer();
+		MessageUtil.sendMessage(player, "§6You received §l" + "+§6" + gold + "G from your Gold Find enchantment.", MessageType.SINGLE);
+	}
+	
+	public static void giveBrokenOre(Player player, List<Integer> multipliers, Material material) {
+		String oreName = getOreMaterialName(material);
+		ItemType itemType = ElementsUtil.getItemTypeElement(material.toString().toLowerCase());
+		
+		int doubleDrop = multipliers.get(0);
+		int multiplier = 1;
+		
+		if(checkRandomChance(doubleDrop, 0)) {
+			multiplier = 2;
+			MessageUtil.sendMessage(player, "§6You received one extra " + ChatColor.stripColor(oreName)
+					+ " from your Double Drop enchantment.", MessageType.SINGLE);
+		}
+		
+		ItemStack ore = new ItemStack(material, 1 * multiplier);
+		ItemMeta oreMeta = ore.getItemMeta();
+		oreMeta.setDisplayName(oreName);
+		ArrayList<String> oreLore = new ArrayList<String>();
+		oreLore.add(ElementsUtil.getLoreElementMod(itemType.getElements().get(0)));
+		oreMeta.setLore(oreLore);
+		ore.setItemMeta(oreMeta);
+		player.getInventory().addItem(ore);
+	}
+	
 	// Not needed, keeping it incase.
 	/* public static boolean isAllZero(List<Integer> enchants) {
 		for (int i = 1; i < enchants.size(); i++) {
@@ -172,13 +236,13 @@ public class SkillsUtil {
 					createItemElement(id, reference);
 			}
 		}
-	} */
+	}
 
 	public static void createItemElement (int id, String reference) {
 		@SuppressWarnings("deprecation")
 		ItemStack element = new ItemStack(id);
 		ElementsUtil.setItemElement(reference, element);
-	}
+	} */
 
 	public static int getMaxExpFromLevel(int level) {
 		int maxExp = (level + 3) * 8 * 4 * level + 128;
@@ -261,15 +325,15 @@ public class SkillsUtil {
 		case COAL_ORE:
 			return "§fCoal Ore";
 		case LAPIS_ORE:
-			return "§9Lapis Ore";
+			return "§fLapis Ore";
 		case IRON_ORE:
-			return "§cIron Ore";
+			return "§fIron Ore";
 		case GOLD_ORE:
-			return "§6Gold Ore";
+			return "§fGold Ore";
 		case DIAMOND_ORE:
-			return "§bDiamond Ore";
+			return "§fDiamond Ore";
 		case EMERALD_ORE:
-			return "§aEmerald Ore";
+			return "§fEmerald Ore";
 		}
 	}
 
@@ -310,14 +374,14 @@ public class SkillsUtil {
 		pickaxe_values.put("IRON_PICKAXE", 4);
 		pickaxe_values.put("DIAMOND_PICKAXE", 6);	
 	}
-	
+
 	public static void setSkillIds() {
 		int[] ids = new int[] {270, 271, 274, 275, 278, 279, 257, 258};
 		for(int id : ids)
 			skill_ids.add(id);
 	}
 
-	public static boolean checkRandomChance(double original, int plus) {
+	public static boolean checkRandomChance(double original, double plus) {
 		Random ran = new Random();
 		double multiplier = 1;
 
@@ -333,22 +397,28 @@ public class SkillsUtil {
 		}
 	}
 
+	public static double getAdditionalChance(int level) {
+		double newLevel = 100 - level;
+		double chance = newLevel / 10;
+		return chance;
+	}
+	
 	public static double defaultOreChance(Material material, double level) {
 		switch (material) {
 		default:
 			return 0;
 		case COAL_ORE:
-			return (level * Math.PI) * 1;
-		case LAPIS_ORE:
-			return (level * Math.PI) * 0.95;
-		case IRON_ORE:
-			return (level * Math.PI) * 0.9;
-		case GOLD_ORE:
-			return (level * Math.PI) * 0.85;
-		case DIAMOND_ORE:
-			return (level * Math.PI) * 0.8;
-		case EMERALD_ORE:
 			return (level * Math.PI) * 0.75;
+		case LAPIS_ORE:
+			return (level * Math.PI) * 0.7;
+		case IRON_ORE:
+			return (level * Math.PI) * 0.65;
+		case GOLD_ORE:
+			return (level * Math.PI) * 0.6;
+		case DIAMOND_ORE:
+			return (level * Math.PI) * 0.55;
+		case EMERALD_ORE:
+			return (level * Math.PI) * 0.5;
 		}
 	}
 
@@ -438,9 +508,11 @@ public class SkillsUtil {
 		return null;
 	}
 
-	@SuppressWarnings("deprecation")
-	public static void upgradeSkillItem(Player player, ItemStack item,
-			Material material, String name) {
+	public static void upgradeSkillItem(Player player, ItemStack item, Material material, String name) {
+		short dura = (short) (item.getType().getMaxDurability() - item.getDurability());
+		short newDura = (short) (material.getMaxDurability() - dura);
+		item.setDurability(newDura);
+		
 		item.setType(material);
 		item.getItemMeta().setDisplayName(name);
 
@@ -449,9 +521,7 @@ public class SkillsUtil {
 		SkillsUtil.createFirework(player, Color.FUCHSIA, Color.PURPLE);
 
 		player.playSound(player.getLocation(), Sound.ANVIL_USE, 1.0F, 1.0F);
-		ParticleEffect.displayIconCrack(player.getEyeLocation(),
-				item.getTypeId(), 0, 0, 0, 1, 1);
-
+		ParticleEffect.WITCH_MAGIC.display(player.getLocation(), 0, 1, 0, 14, 32);
 	}
 
 	public static void createFirework(Player player, Color color, Color fade) {
