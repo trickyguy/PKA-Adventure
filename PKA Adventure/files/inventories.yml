@@ -1,0 +1,33 @@
+ability_inventory_name: Abilities
+selection_inventory_name: Select a class!
+playergui_inventory_name: Player GUI
+relics_inventory_name: Relics
+selection:
+  size: 9
+  name: Select a class!
+  inventorytype: select
+  elements:
+  - woody_selection$1$1$2
+  - kyle_selection$1$1$3
+  - lefty_selection$1$1$4
+  - wings_selection$1$1$6
+test npc:
+  size: 18
+  name: Go buy some stuff
+  inventorytype: shop_static
+  elements:
+  - armor$1$1$5
+playergui:
+  size: 9
+  name: Player GUI
+  inventorytype: shop_static
+  elements:
+  - relics_inventory_item$1$1$2
+relics:
+  size: 9
+  name: Relics
+  inventorytype: empty
+trading:
+  size: 27
+  name: Trading!
+  inventorytype: empty

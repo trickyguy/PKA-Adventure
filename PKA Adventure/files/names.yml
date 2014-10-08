@@ -1,0 +1,44 @@
+skill:
+- Default Skill Name
+food_pork_raw:
+- Raw Pork
+food_pork_cooked:
+- Cooked Pork
+food_fish_raw:
+- Raw Fish
+food_fish_cooked:
+- Cooked Fish
+food_chicken_raw:
+- Raw Chicken
+food_chicken_cooked:
+- Cooked Chicken
+food_beef_raw:
+- Raw Beef
+food_beef_cooked:
+- Cooked Beef
+armor:
+- Default Armor Name
+ability_berzerk:
+- =r=cBerzerk
+woody_selection:
+- =r=6'Woody' the Barbarian =7(Warrior)
+wings_selection:
+- =r=6'Wings' the Dwarf =7(Tank)
+lefty_selection:
+- =r=6'Lefty' the Wizard =7(Mage)
+kyle_selection:
+- =r=6'Kyle' the Elf =7(Ranger)
+woody_weapon:
+- =r=6Woody's Punisher
+wings_weapon:
+- =r=6Wings's Funshooter
+lefty_weapon:
+- =r=6Lefty's Heavy Hitter 
+kyle_weapon:
+- =r=6Kyle's Stick Launcher
+gold_nugget:
+- gold_nugget
+relics_inventory_item:
+- =r=6Relics
+relics_next_page:
+- =r=7Next Page

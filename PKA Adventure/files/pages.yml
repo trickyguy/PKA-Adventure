@@ -1,0 +1,4 @@
+Pages:
+  AttributePage: "testing %s this %s str/ing %s format %s thing."
+  LocationPage: "List of discovered locations/"
+  LocationInfoPage: "Location: %s/"

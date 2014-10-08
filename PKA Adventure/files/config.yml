@@ -1,0 +1,155 @@
+homeworld: world
+MessageType:
+  SINGLE:
+    prefix: "=7"
+  TEAM:
+    prefix: "=eTEAM: "
+  SERVER:
+    prefix: "=eSERVER: "
+  SINGLE_DEBUG:
+    prefix: "=eSINGLE_DEBUG: "
+  TEAM_DEBUG:
+    prefix: "=eTEAM_DEBUG: "
+  SERVER_DEBUG:
+    prefix: "=eSERVER_DEBUG: "
+Lore:
+  price: "=fPrice: =7"
+  worth: "=fWorth: =7"
+  damage: "=7Damage: =f"
+  woody_selection_line1_blank: "=7Sprints"
+  wings_selection_line1_blank: "=7Runs"
+  lefty_selection_line1_blank: "=7Flies"
+  kyle_selection_line1_blank: "=7Cries"
+  skill_doubledrop: "=cDouble Drop: "
+  skill_goldfind: "=cGold Find: "
+  skill_level: "=7Level: =f"
+  armor_level_fixed: "=7Level: =f"
+  skill_exp: "=7EXP: =f"
+  armor_item: "=7Armor"
+  strength: "=7Strength: =f"
+  toughness: "=7Toughness: =f"
+  agility: "=7Agility: =f"
+  restoration: "=7Restoration: =f"
+  durability_divide: "=7Durability: =f"
+  ability_berzerk_line1_blank: "=7This shit is dank"
+  ability_berzerk_line2: "=7Attack speed increase: =f"
+  ability_berzerk_line3: "=7Length in seconds: =f"
+  relics_next_page_line1_blank: "=7Next Page"
+  
+  coal_ore_lore: "=7A dusty chunk of Coal."
+  lapis_ore_lore: "=7A shiny shard of Lapis."
+  iron_ore_lore: "=7A worn piece of Iron."
+  gold_ore_lore: "=7A gleaming fragment of Gold."
+  diamond_ore_lore: "=7A clean-cut piece of Diamond."
+  emerald_ore_lore: "=7A glowing flake of Emerald."
+Math:
+  max_mobdrop_amount: 3
+  shop_refresh_interval: 100
+  tp_tick_delay: 60
+  
+  durability_divide_range: 1.2
+  durability_divide_multiplier: 0.1
+  durability_divide_yoffset: 15
+  
+  armor_price_range: 1.0
+  armor_price_multiplier: 1.0
+  armor_price_yoffset: 2
+  
+  armor_worth_range: 1.0
+  armor_worth_multiplier: 1.0
+  armor_worth_yoffset: 1
+  
+  food_raw_price_range: 1.0
+  food_raw_price_multiplier: 1.0
+  food_raw_price_yoffset: 2
+  
+  food_raw_worth_range: 1.0
+  food_raw_worth_multiplier: 1.0
+  food_raw_worth_yoffset: 1
+  
+  food_cooked_price_range: 1.0
+  food_cooked_price_multiplier: 1.0
+  food_cooked_price_yoffset: 2
+  
+  food_cooked_worth_range: 1.0
+  food_cooked_worth_multiplier: 1.0
+  food_cooked_worth_yoffset: 1
+  
+  experience_required_range: 0.0
+  experience_required_multiplier: 1.0
+  experience_required_yoffset: 20
+  woody_damage_range: 0.0
+  woody_damage_multiplier: 1.0
+  woody_damage_yoffset: 3
+  lefty_damage_range: 0.0
+  lefty_damage_multiplier: 1.0
+  lefty_damage_yoffset: 3
+  wings_damage_range: 0.0
+  wings_damage_multiplier: 1.0
+  wings_damage_yoffset: 3
+  kyle_damage_range: 0.0
+  kyle_damage_multiplier: 1.0
+  kyle_damage_yoffset: 3
+  none_damage_range: 0.0
+  none_damage_multiplier: 0.0
+  none_damage_yoffset: 0
+  
+  skill_doubledrop_range: 5.0
+  skill_doubledrop_multiplier: 0.0
+  skill_doubledrop_yoffset: 1
+  
+  skill_goldfind_range: 3.0
+  skill_goldfind_multiplier: 0.0
+  skill_goldfind_yoffset: 1
+  
+  skill_exp_range: 1.5
+  skill_exp_multiplier: 1.0
+  skill_exp_yoffset: 5
+  
+  skill_level_range: 1.5
+  skill_level_multiplier: 1.0
+  skill_level_yoffset: 5
+  
+  strength_range: 1.5
+  strength_multiplier: 1.0
+  strength_yoffset: 5
+  toughness_range: 1.5
+  toughness_multiplier: 1.0
+  toughness_yoffset: 5
+  agility_range: 1.5
+  agility_multiplier: 1.0
+  agility_yoffset: 5
+  restoration_range: 1.5
+  restoration_multiplier: 1.0
+  restoration_yoffset: 5
+  mob_maxhealth_range: 1.3
+  mob_maxhealth_multiplier: 2.0
+  mob_maxhealth_yoffset: 20
+  mob_damage_range: 1.3
+  mob_damage_multiplier: 1.0
+  mob_damage_yoffset: 3
+  mob_strength_range: 1.3
+  mob_strength_multiplier: 2.0
+  mob_strength_yoffset: 5
+  mob_toughness_range: 1.3
+  mob_toughness_multiplier: 2.0
+  mob_toughness_yoffset: 5
+  mob_agility_range: 1.3
+  mob_agility_multiplier: 2
+  mob_agility_yoffset: 5
+  mob_restoration_range: 1.3
+  mob_restoration_multiplier: 2.0
+  mob_restoration_yoffset: 5
+  mob_experience_range: 1.0
+  mob_experience_multiplier: 2.0
+  mob_experience_yoffset: 3
+  gold_mobdrop_amount_range: 1.5
+  gold_mobdrop_amount_multiplier: 0.1
+  gold_mobdrop_amount_yoffset: 1
+  ability_berzerk_line2_range: 1.0
+  ability_berzerk_line2_multiplier: 0.1
+  ability_berzerk_line2_yoffset: 2
+  ability_berzerk_line3_range: 1.0
+  ability_berzerk_line3_multiplier: 0.1
+  ability_berzerk_line3_yoffset: 4
+   

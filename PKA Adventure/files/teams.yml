@@ -1,0 +1,16 @@
+Teams:
+  default_team_name: This team cannot be used!
+  poop:
+    members:
+    - TwoPointDuck
+    owner: TwoPointDuck
+    admins:
+    - TwoPointDuck
+    invitees: []
+  derp:
+    members:
+    - TwoPointDuck
+    owner: TwoPointDuck
+    admins:
+    - TwoPointDuck
+    invitees: []
